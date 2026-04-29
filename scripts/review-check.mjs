@@ -10,6 +10,7 @@ const ignoredDirectoryNames = new Set([
   'build',
   'coverage',
   'dist',
+  'gen',
   'node_modules',
   'target',
 ]);

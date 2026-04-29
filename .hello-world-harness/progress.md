@@ -128,3 +128,12 @@
 - Added diagnostics docs and tests.
 - Verification passed: `npm run check` -> scaffold check passed (83 paths), tests 49/pass 49/fail 0, build:web passed, review passed.
 - Remaining P1 native items require real Tauri/Capacitor platform integrations for screenshot, clipboard image, camera, secure storage, tray, and global shortcuts.
+
+## 2026-04-29T17:10:34.557Z
+
+- Continued after current-state review and implemented P1-M4/P1-M5 native foundations.
+- Desktop: screenshot and clipboard image attachment flows, Tauri command bridge, local Ollama detection, real Tauri release build output at apps/desktop/src-tauri/target/release/hello-world-desktop.exe.
+- Mobile: Capacitor Android project generated, Camera/Share/Preferences/Secure Storage plugins synced, Android CAMERA permission added, secure-storage wrapper added, debug APK built at apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk.
+- Toolchain setup completed on this machine: JDK 21, Android Studio, Android command-line tools, Android SDK platform-tools, platforms;android-36, build-tools;36.0.0.
+- Verification passed: npm run check -> scaffold check passed (92 paths), tests 56/pass 56/fail 0, build:web passed, review passed; npm run build:desktop passed; npm run build:mobile passed; npm --workspace apps/mobile run android:debug passed.
+- Remaining native gaps explicitly tracked: desktop tray/global shortcut/desktop keychain, mobile voice input/TTS, and actual UI/device launch smoke tests.

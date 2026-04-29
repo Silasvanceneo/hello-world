@@ -332,12 +332,15 @@
         "Windows desktop launches",
         "Android debug APK launches"
       ],
-      "status": "blocked",
+      "status": "evaluated",
       "passes": false,
       "evidence": [
-        "Real native builds require installing framework packages plus Rust/Tauri and Android SDK/Gradle toolchains"
+        "npm run check -> scaffold check passed (92 paths), tests 56/pass 56/fail 0, review passed",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm --workspace apps/mobile run android:debug -> BUILD SUCCESSFUL and app-debug.apk generated",
+        "Launch on Windows UI and Android emulator/device not yet verified in this checkpoint"
       ],
-      "lastUpdated": "2026-04-29T14:59:17.745326+00:00"
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
     },
     {
       "id": "P0-M7-F001",
@@ -691,6 +694,127 @@
         "docs/KNOWLEDGE_BASE.md documents OCR as optional/deferred"
       ],
       "lastUpdated": "2026-04-29T15:53:01.1828452Z"
+    },
+    {
+      "id": "P1-M4-F001",
+      "title": "Desktop screenshot and clipboard image attachments",
+      "priority": "should",
+      "acceptance": [
+        "Screenshot button attaches an image data URL",
+        "Clipboard image button attaches an image data URL",
+        "Unsupported runtimes show user-readable errors"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/native-media.js implements screen capture and clipboard image conversion",
+        "apps/web/src/runtime.js wires Screenshot and Paste image buttons into active chat attachments",
+        "tests/native-media.test.mjs covers capability checks, clipboard image reading, camera data URLs, and attachment metadata"
+      ],
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
+    },
+    {
+      "id": "P1-M4-F002",
+      "title": "Desktop Tauri native bridge and local Ollama detection",
+      "priority": "should",
+      "acceptance": [
+        "Tauri build uses the shared Web UI",
+        "Native command reports desktop capabilities",
+        "Native command detects local Ollama port reachability"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/desktop/src-tauri/src/main.rs registers desktop_native_capabilities and detect_local_ollama commands",
+        "apps/web/src/native-desktop.js invokes Tauri commands through window.__TAURI__.core.invoke",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe"
+      ],
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
+    },
+    {
+      "id": "P1-M4-F003",
+      "title": "Desktop tray, global shortcut, and desktop keychain",
+      "priority": "could",
+      "acceptance": [
+        "Global shortcut can trigger capture flow",
+        "System tray is available",
+        "Desktop API keys can be stored in OS keychain"
+      ],
+      "status": "pending",
+      "passes": false,
+      "evidence": [
+        "Explicitly deferred in docs/NATIVE_INPUTS.md; no tray/global-shortcut/keychain plugin added yet"
+      ],
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
+    },
+    {
+      "id": "P1-M5-F001",
+      "title": "Mobile camera image attachment foundation",
+      "priority": "should",
+      "acceptance": [
+        "Camera capture returns a data URL",
+        "Camera permission is declared on Android",
+        "Camera plugin syncs into Android project"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/mobile/src/native-mobile.ts implements capturePhotoDataUrl with @capacitor/camera",
+        "apps/mobile/android/app/src/main/AndroidManifest.xml declares android.permission.CAMERA",
+        "npm run build:mobile -> Capacitor sync found @capacitor/camera@8.2.0"
+      ],
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
+    },
+    {
+      "id": "P1-M5-F002",
+      "title": "Mobile Secure Storage and share foundations",
+      "priority": "should",
+      "acceptance": [
+        "Native secure storage dependency is installed",
+        "Secure storage wrapper validates keys and stores values under hello-world prefix",
+        "Share action wrapper exists for future share-to-app flow"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/mobile/package.json includes @aparajita/capacitor-secure-storage@8.0.0 and @capacitor/share@8.0.1",
+        "apps/mobile/src/native-mobile.ts implements save/get/delete secure secret helpers and shareTextToHelloWorld",
+        "npm run build:mobile -> Capacitor sync found 4 Android plugins including secure storage and share"
+      ],
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
+    },
+    {
+      "id": "P1-M5-F003",
+      "title": "Android debug APK build",
+      "priority": "should",
+      "acceptance": [
+        "Android project is generated",
+        "Android SDK/JDK toolchain can build debug APK",
+        "APK artifact exists under app/build/outputs/apk/debug"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Installed JDK 21, Android Studio, Android command-line tools, platform-tools, platforms;android-36, and build-tools;36.0.0",
+        "npm --workspace apps/mobile run android:debug -> BUILD SUCCESSFUL",
+        "apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk generated (ignored build artifact)"
+      ],
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
+    },
+    {
+      "id": "P1-M5-F004",
+      "title": "Mobile voice input and speech playback",
+      "priority": "could",
+      "acceptance": [
+        "Voice input is available",
+        "Speech playback is available"
+      ],
+      "status": "pending",
+      "passes": false,
+      "evidence": [
+        "Explicitly deferred in docs/NATIVE_INPUTS.md; no speech recognition/TTS plugin added yet"
+      ],
+      "lastUpdated": "2026-04-29T17:10:34.557Z"
     },
     {
       "id": "P1-M6-F001",

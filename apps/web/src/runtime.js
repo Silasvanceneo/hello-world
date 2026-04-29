@@ -14,6 +14,13 @@ import {
   upsertProvider,
 } from './web-state.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
+import { detectLocalOllama } from './native-desktop.js';
+import {
+  captureMobilePhoto,
+  captureScreenImage,
+  createImageAttachmentFromDataUrl,
+  readClipboardImage,
+} from './native-media.js';
 import { describeModelList, describeProviderValidationError } from './provider-diagnostics.js';
 import { defaultModel, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
 
@@ -29,11 +36,15 @@ const elements = {
   compareModels: document.querySelector('#compare-models'),
   comparisonResults: document.querySelector('#comparison-results'),
   composer: document.querySelector('#composer'),
+  capturePhoto: document.querySelector('#capture-photo'),
+  captureScreen: document.querySelector('#capture-screen'),
   fileInput: document.querySelector('#file-input'),
   messages: document.querySelector('#messages'),
   newSession: document.querySelector('#new-session'),
+  pasteImage: document.querySelector('#paste-image'),
   prompt: document.querySelector('#prompt'),
   providerBaseUrl: document.querySelector('#provider-base-url'),
+  detectLocalOllama: document.querySelector('#detect-local-ollama'),
   providerModel: document.querySelector('#provider-model'),
   providerName: document.querySelector('#provider-name'),
   providerApiKey: document.querySelector('#provider-api-key'),
@@ -216,6 +227,18 @@ elements.fileInput.addEventListener('change', () => {
   elements.fileInput.value = '';
 });
 
+elements.captureScreen.addEventListener('click', () => {
+  attachNativeImage('screenshot.png', () => captureScreenImage());
+});
+
+elements.pasteImage.addEventListener('click', () => {
+  attachNativeImage('clipboard-image.png', () => readClipboardImage());
+});
+
+elements.capturePhoto.addEventListener('click', () => {
+  attachNativeImage('camera-photo.jpg', () => captureMobilePhoto());
+});
+
 elements.messages.addEventListener('dragover', (event) => {
   event.preventDefault();
   elements.messages.classList.add('drop-active');
@@ -254,6 +277,21 @@ elements.saveProvider.addEventListener('click', async () => {
   }
 });
 
+elements.detectLocalOllama.addEventListener('click', async () => {
+  try {
+    const status = await detectLocalOllama();
+    elements.providerType.value = 'ollama';
+    elements.providerBaseUrl.value = status.url;
+    elements.providerName.value ||= 'Local Ollama';
+    elements.providerStatus.textContent = status.reachable
+      ? `${status.message} Save the provider to use it.`
+      : status.message;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown desktop detection error.';
+    elements.providerStatus.textContent = message;
+  }
+});
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => undefined);
 }
@@ -287,6 +325,19 @@ function attachBrowserFiles(files) {
   }
   saveState();
   render();
+}
+
+async function attachNativeImage(name, producer) {
+  try {
+    const dataUrl = await producer();
+    state = addAttachmentToActiveSession(state, createImageAttachmentFromDataUrl(dataUrl, name));
+    saveState();
+    render();
+    elements.providerStatus.textContent = `${name} attached. Choose a vision-capable model before asking about it.`;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown native input error.';
+    elements.providerStatus.textContent = `Native image input unavailable: ${message}`;
+  }
 }
 
 function detectBrowserFileKind(file) {

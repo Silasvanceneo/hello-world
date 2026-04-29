@@ -381,6 +381,74 @@
       ]
     },
     {
+      "id": "P1-M4",
+      "scope": "Desktop screenshot/clipboard native input and Tauri local integration",
+      "dependencies": [
+        "P0-M6",
+        "P0-M9",
+        "P0-M10"
+      ],
+      "doneCriteria": [
+        "Screenshot and clipboard images can become chat attachments",
+        "Tauri command bridge can report desktop capabilities and detect local Ollama",
+        "Desktop executable builds successfully",
+        "Tray/global shortcut/keychain gaps remain explicitly tracked instead of silently claimed"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "apps/desktop/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        "package-lock.json",
+        ".gitignore",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "npm run build:desktop"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
+    },
+    {
+      "id": "P1-M5",
+      "scope": "Mobile camera, secure storage, share foundation, and Android debug build",
+      "dependencies": [
+        "P0-M6",
+        "P0-M9"
+      ],
+      "doneCriteria": [
+        "Capacitor Android project syncs the shared Web build",
+        "Camera and secure-storage native plugins are installed and wrapped",
+        "Android debug APK builds successfully",
+        "Voice input/TTS gaps remain explicitly tracked instead of silently claimed"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "apps/mobile/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        "package-lock.json",
+        ".gitignore",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "npm run build:mobile",
+        "npm --workspace apps/mobile run android:debug"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
+    },
+    {
       "id": "P1-M6",
       "scope": "Connection diagnostics and model-list fallback guidance",
       "dependencies": [

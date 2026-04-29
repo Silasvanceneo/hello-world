@@ -4,6 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ../../scripts/verify-structure.mjs"
+    "build": "tauri build --no-bundle",
+    "check": "node ../../scripts/verify-structure.mjs",
+    "dev": "tauri dev",
+    "info": "tauri info"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.10.1"
   }
 }

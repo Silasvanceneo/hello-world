@@ -4,12 +4,13 @@
   "version": "0.1.0",
   "identifier": "com.helloworld.ai",
   "build": {
-    "beforeDevCommand": "npm --workspace apps/web run build",
-    "beforeBuildCommand": "npm --workspace apps/web run build",
+    "beforeDevCommand": "npm --prefix ../web run build",
+    "beforeBuildCommand": "npm --prefix ../web run build",
     "frontendDist": "../../web/build",
     "devUrl": "http://localhost:5173"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "hello-world",

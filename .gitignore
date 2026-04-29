@@ -13,7 +13,9 @@ coverage/
 
 # Native build outputs
 apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
 apps/mobile/android/app/build/
+apps/mobile/android/app/src/main/assets/
 apps/mobile/ios/App/build/
 
 # Python/server caches
