@@ -8,9 +8,10 @@
     "packages/*"
   ],
   "scripts": {
-    "check": "node scripts/verify-structure.mjs",
+    "check": "node scripts/verify-structure.mjs && npm test",
     "build:web": "npm --workspace apps/web run build",
     "build:desktop": "npm --workspace apps/desktop run build",
-    "build:mobile": "npm --workspace apps/mobile run build"
+    "build:mobile": "npm --workspace apps/mobile run build",
+    "test": "node --test --experimental-strip-types --test-isolation=none tests/provider-store.test.ts tests/provider-adapters.test.ts"
   }
 }

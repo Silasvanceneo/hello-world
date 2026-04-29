@@ -29,6 +29,37 @@
         "Update .hello-world-harness/progress.md",
         "Mark feature_list evidence with verification result"
       ]
+    },
+    {
+      "id": "P0-M2",
+      "scope": "Provider connection management baseline",
+      "dependencies": [
+        "P0-M1"
+      ],
+      "doneCriteria": [
+        "OpenAI-compatible and Ollama adapter validation covered by tests",
+        "Provider store supports add/update/delete",
+        "No API key is persisted in ProviderConnection"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/api-client/",
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        "package-lock.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update .hello-world-harness/progress.md",
+        "Create git checkpoint after passing verification"
+      ]
     }
   ]
 }

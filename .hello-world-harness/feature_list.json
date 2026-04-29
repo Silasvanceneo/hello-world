@@ -52,6 +52,56 @@
         "Manual review: scaffold is dependency-free and contains no secrets/API keys"
       ],
       "lastUpdated": "2026-04-29T14:36:38.759330+00:00"
+    },
+    {
+      "id": "P0-M2-F001",
+      "title": "Provider adapter contracts and registry",
+      "priority": "must",
+      "acceptance": [
+        "ProviderAdapter accepts runtime context",
+        "Registry can validate by provider type",
+        "OpenAI-compatible and Ollama adapters are present"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> 6 tests passed",
+        "packages/api-client/src/registry.ts routes validation/listing by connection type"
+      ],
+      "lastUpdated": "2026-04-29T14:46:30.517358+00:00"
+    },
+    {
+      "id": "P0-M2-F002",
+      "title": "Provider connection store and web form view-model",
+      "priority": "must",
+      "acceptance": [
+        "Can create/add/update/delete provider connections immutably",
+        "Web form can create ProviderConnectionDraft",
+        "Status summaries distinguish auth/network/model/unknown"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "tests/provider-store.test.ts covers immutable add/update/delete",
+        "apps/web/src/provider-settings.ts summarizes ConnectionStatus"
+      ],
+      "lastUpdated": "2026-04-29T14:46:30.517358+00:00"
+    },
+    {
+      "id": "P0-M2-F003",
+      "title": "Provider verification tests",
+      "priority": "must",
+      "acceptance": [
+        "OpenAI-compatible model listing is tested",
+        "Ollama model listing is tested",
+        "Auth failure classification is tested"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> tests 6, pass 6, fail 0"
+      ],
+      "lastUpdated": "2026-04-29T14:46:30.517358+00:00"
     }
   ]
 }

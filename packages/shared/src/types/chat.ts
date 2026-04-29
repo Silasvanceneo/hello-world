@@ -1,4 +1,4 @@
-import type { AIModel } from './provider';
+import type { AIModel } from './provider.ts';
 
 export type SyncState = 'local' | 'synced' | 'dirty' | 'syncing' | 'conflict' | 'error';
 

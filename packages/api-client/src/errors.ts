@@ -11,3 +11,11 @@ export function normalizeProviderError(error: unknown): ChatError {
 
   return { code: 'unknown', message: 'Unknown provider error.', retryable: false };
 }
+
+export function maskSecret(secret: string): string {
+  if (secret.length <= 8) {
+    return '????';
+  }
+
+  return `${secret.slice(0, 3)}????${secret.slice(-4)}`;
+}

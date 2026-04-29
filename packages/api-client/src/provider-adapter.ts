@@ -1,5 +1,11 @@
 import type { AIModel, ChatChunk, ConnectionStatus, ProviderConnection } from '@hello-world/shared';
 
+export type ProviderRuntimeContext = {
+  apiKey?: string;
+  fetch?: typeof fetch;
+  now?: () => string;
+};
+
 export type ChatRequest = {
   connection: ProviderConnection;
   modelId: AIModel['id'];
@@ -20,8 +26,8 @@ export type ImageResult = {
 export interface ProviderAdapter {
   id: string;
   type: ProviderConnection['type'];
-  listModels(connection: ProviderConnection): Promise<AIModel[]>;
-  chat(request: ChatRequest): AsyncIterable<ChatChunk>;
-  validateConnection(connection: ProviderConnection): Promise<ConnectionStatus>;
-  generateImage?(request: ImageRequest): Promise<ImageResult>;
+  listModels(connection: ProviderConnection, context?: ProviderRuntimeContext): Promise<AIModel[]>;
+  chat(request: ChatRequest, context?: ProviderRuntimeContext): AsyncIterable<ChatChunk>;
+  validateConnection(connection: ProviderConnection, context?: ProviderRuntimeContext): Promise<ConnectionStatus>;
+  generateImage?(request: ImageRequest, context?: ProviderRuntimeContext): Promise<ImageResult>;
 }

@@ -18,6 +18,14 @@ export type ProviderConnection = {
   updatedAt: string;
 };
 
+export type ProviderConnectionDraft = {
+  type: ProviderType;
+  name: string;
+  baseUrl?: string;
+  apiKeyRef?: string;
+  enabled?: boolean;
+};
+
 export type ModelCapability = {
   supportsText: boolean;
   supportsVision: boolean;
@@ -40,6 +48,19 @@ export type AIModel = {
   status: 'available' | 'unavailable' | 'unknown';
 };
 
+export type ProviderErrorReason = 'auth' | 'network' | 'model' | 'configuration' | 'unknown';
+
 export type ConnectionStatus =
   | { ok: true; checkedAt: string; models?: AIModel[] }
-  | { ok: false; checkedAt: string; reason: 'auth' | 'network' | 'model' | 'unknown'; message: string };
+  | { ok: false; checkedAt: string; reason: ProviderErrorReason; message: string };
+
+export const textOnlyModelCapability: ModelCapability = {
+  supportsText: true,
+  supportsVision: false,
+  supportsFiles: false,
+  supportsTools: false,
+  supportsReasoning: false,
+  supportsImageGeneration: false,
+  supportsAudioInput: false,
+  supportsAudioOutput: false,
+};
