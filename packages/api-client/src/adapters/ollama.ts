@@ -2,6 +2,7 @@ import type { AIModel } from '@hello-world/shared';
 import { textOnlyModelCapability } from '@hello-world/shared';
 import { assertOk, checkedAt, getFetch, joinUrl, toConnectionFailure } from '../http.ts';
 import type { ChatRequest, ProviderAdapter } from '../provider-adapter.ts';
+import { parseOllamaStream } from '../streaming/ollama-ndjson.ts';
 
 const DEFAULT_OLLAMA_BASE_URL = 'http://127.0.0.1:11434';
 
@@ -9,14 +10,17 @@ type OllamaTagsResponse = {
   models?: Array<{ name: string; model?: string; modified_at?: string }>;
 };
 
+function resolveBaseUrl(baseUrl?: string): string {
+  return baseUrl ?? DEFAULT_OLLAMA_BASE_URL;
+}
+
 export function createOllamaAdapter(): ProviderAdapter {
   return {
     id: 'ollama',
     type: 'ollama',
     async listModels(connection, context) {
       const fetchImpl = getFetch(context);
-      const baseUrl = connection.baseUrl ?? DEFAULT_OLLAMA_BASE_URL;
-      const response = await fetchImpl(joinUrl(baseUrl, '/api/tags'), { method: 'GET' });
+      const response = await fetchImpl(joinUrl(resolveBaseUrl(connection.baseUrl), '/api/tags'), { method: 'GET' });
       await assertOk(response, connection.name);
       const body = (await response.json()) as OllamaTagsResponse;
       const models = body.models ?? [];
@@ -30,9 +34,16 @@ export function createOllamaAdapter(): ProviderAdapter {
         status: 'available',
       }));
     },
-    async *chat(_request: ChatRequest) {
-      yield { type: 'error' as const, error: { code: 'model' as const, message: 'Chat streaming is implemented in P0-M3.', retryable: false } };
-      yield { type: 'done' as const };
+    async *chat(request: ChatRequest, context) {
+      const fetchImpl = getFetch(context);
+      const response = await fetchImpl(joinUrl(resolveBaseUrl(request.connection.baseUrl), '/api/chat'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        signal: request.signal,
+        body: JSON.stringify({ model: request.modelId, messages: request.messages, stream: true }),
+      });
+      await assertOk(response, request.connection.name);
+      yield* parseOllamaStream(response.body);
     },
     async validateConnection(connection, context) {
       try {

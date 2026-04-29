@@ -60,6 +60,34 @@
         "Update .hello-world-harness/progress.md",
         "Create git checkpoint after passing verification"
       ]
+    },
+    {
+      "id": "P0-M3",
+      "scope": "Unified chat core streaming/send/stop/retry/edit",
+      "dependencies": [
+        "P0-M2"
+      ],
+      "doneCriteria": [
+        "Streaming parsers and provider chat methods covered by tests",
+        "Chat engine supports send/retry/edit immutably",
+        "Local persistence handoff documented for P0-M4"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/api-client/",
+        "packages/core/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint after passing verification"
+      ]
     }
   ]
 }

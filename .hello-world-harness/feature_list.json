@@ -102,6 +102,72 @@
         "npm run check -> tests 6, pass 6, fail 0"
       ],
       "lastUpdated": "2026-04-29T14:46:30.517358+00:00"
+    },
+    {
+      "id": "P0-M3-F001",
+      "title": "Streaming parsers for OpenAI-compatible and Ollama",
+      "priority": "must",
+      "acceptance": [
+        "OpenAI SSE emits text/usage/done chunks",
+        "Ollama NDJSON emits text/usage/done chunks"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "tests/chat-core.test.ts covers OpenAI SSE parser and Ollama chat streaming",
+        "npm run check -> tests 10/pass 10/fail 0"
+      ],
+      "lastUpdated": "2026-04-29T14:51:51.849260+00:00"
+    },
+    {
+      "id": "P0-M3-F002",
+      "title": "Provider chat streaming methods",
+      "priority": "must",
+      "acceptance": [
+        "OpenAI-compatible adapter posts to /chat/completions with stream=true",
+        "Ollama adapter posts to /api/chat with stream=true",
+        "AbortSignal is passed to provider fetch"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/api-client/src/adapters/openai-compatible.ts",
+        "packages/api-client/src/adapters/ollama.ts",
+        "tests/chat-core.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T14:51:51.849260+00:00"
+    },
+    {
+      "id": "P0-M3-F003",
+      "title": "Unified chat engine send/retry/edit foundation",
+      "priority": "must",
+      "acceptance": [
+        "Sending adds user and assistant messages immutably",
+        "Usage is attached to assistant message",
+        "Retry removes last assistant message",
+        "Editing a user message truncates following messages"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/chat/chat-engine.ts",
+        "tests/chat-core.test.ts -> chat engine sends a user message, collects assistant text, and supports retry/edit"
+      ],
+      "lastUpdated": "2026-04-29T14:51:51.849260+00:00"
+    },
+    {
+      "id": "P0-M3-F004",
+      "title": "Local save for chat history",
+      "priority": "must",
+      "acceptance": [
+        "Chat sessions can be persisted through a storage adapter after send/retry/edit"
+      ],
+      "status": "pending",
+      "passes": false,
+      "evidence": [
+        "Deferred to P0-M4 storage adapter implementation"
+      ],
+      "lastUpdated": "2026-04-29T14:51:51.849260+00:00"
     }
   ]
 }

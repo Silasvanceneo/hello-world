@@ -10,7 +10,7 @@ export function createProviderRegistry(adapters: ProviderAdapter[] = defaultProv
 }
 
 export function defaultProviderAdapters(): ProviderAdapter[] {
-  return [createOpenAICompatibleAdapter(), createOllamaAdapter()];
+  return [createOpenAICompatibleAdapter('openai'), createOpenAICompatibleAdapter('openai-compatible'), createOllamaAdapter()];
 }
 
 export function getProviderAdapter(registry: ProviderRegistry, connection: ProviderConnection): ProviderAdapter {

@@ -21,3 +21,10 @@
 - Verification passed: `npm run check` -> scaffold check passed, tests 6/pass 6/fail 0.
 - Secret scan reviewed: only code identifiers such as `apiKey`/`maskSecret`; no real API keys were added.
 - Next recommended sprint: P0-M3 unified chat core streaming/send/stop/retry/history.
+
+## 2026-04-29T14:51:51.849260+00:00
+
+- Implemented P0-M3 streaming/chat-core foundation: OpenAI SSE parser, Ollama NDJSON parser, provider chat streaming methods, and core send/retry/edit helpers.
+- Verification passed: `npm run check` -> scaffold check passed (24 paths), tests 10/pass 10/fail 0.
+- Review: no real secrets detected; only code identifiers `apiKey` and `maskSecret` appeared in the scan.
+- Remaining P0-M3/P0-M4 handoff: persist chat sessions through concrete storage adapters.

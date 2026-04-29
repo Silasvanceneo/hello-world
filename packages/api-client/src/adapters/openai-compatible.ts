@@ -2,6 +2,7 @@ import type { AIModel, ProviderConnection } from '@hello-world/shared';
 import { textOnlyModelCapability } from '@hello-world/shared';
 import { assertOk, checkedAt, getFetch, joinUrl, toConnectionFailure } from '../http.ts';
 import type { ChatRequest, ProviderAdapter, ProviderRuntimeContext } from '../provider-adapter.ts';
+import { parseOpenAIStream } from '../streaming/openai-sse.ts';
 
 const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
 
@@ -14,15 +15,14 @@ function resolveBaseUrl(connection: ProviderConnection): string {
 }
 
 function buildHeaders(context?: ProviderRuntimeContext): HeadersInit {
-  return context?.apiKey
-    ? { authorization: `Bearer ${context.apiKey}` }
-    : {};
+  const authHeaders = context?.apiKey ? { authorization: `Bearer ${context.apiKey}` } : {};
+  return { 'content-type': 'application/json', ...authHeaders };
 }
 
-export function createOpenAICompatibleAdapter(): ProviderAdapter {
+export function createOpenAICompatibleAdapter(type: ProviderConnection['type'] = 'openai-compatible'): ProviderAdapter {
   return {
-    id: 'openai-compatible',
-    type: 'openai-compatible',
+    id: type,
+    type,
     async listModels(connection, context) {
       const fetchImpl = getFetch(context);
       const response = await fetchImpl(joinUrl(resolveBaseUrl(connection), '/models'), {
@@ -42,9 +42,16 @@ export function createOpenAICompatibleAdapter(): ProviderAdapter {
         status: 'available' as const,
       }));
     },
-    async *chat(_request: ChatRequest) {
-      yield { type: 'error' as const, error: { code: 'model' as const, message: 'Chat streaming is implemented in P0-M3.', retryable: false } };
-      yield { type: 'done' as const };
+    async *chat(request: ChatRequest, context) {
+      const fetchImpl = getFetch(context);
+      const response = await fetchImpl(joinUrl(resolveBaseUrl(request.connection), '/chat/completions'), {
+        method: 'POST',
+        headers: buildHeaders(context),
+        signal: request.signal,
+        body: JSON.stringify({ model: request.modelId, messages: request.messages, stream: true }),
+      });
+      await assertOk(response, request.connection.name);
+      yield* parseOpenAIStream(response.body);
     },
     async validateConnection(connection, context) {
       try {
