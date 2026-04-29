@@ -691,6 +691,55 @@
         "docs/KNOWLEDGE_BASE.md documents OCR as optional/deferred"
       ],
       "lastUpdated": "2026-04-29T15:53:01.1828452Z"
+    },
+    {
+      "id": "P1-M6-F001",
+      "title": "One-click provider health check report",
+      "priority": "should",
+      "acceptance": [
+        "Health checks run through the provider registry",
+        "Reports include ok state, checkedAt, findings, models, and fallbackModelId"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/provider/connection-diagnostics.ts",
+        "tests/connection-diagnostics.test.ts -> runProviderHealthCheck validates through the registry"
+      ],
+      "lastUpdated": "2026-04-29T16:01:59.5174002Z"
+    },
+    {
+      "id": "P1-M6-F002",
+      "title": "Common provider error explanations",
+      "priority": "should",
+      "acceptance": [
+        "API key, network/CORS, certificate, proxy, Ollama unreachable, and model errors map to actionable findings"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "tests/connection-diagnostics.test.ts -> auth, CORS/network, Ollama, proxy coverage",
+        "docs/CONNECTION_DIAGNOSTICS.md"
+      ],
+      "lastUpdated": "2026-04-29T16:01:59.5174002Z"
+    },
+    {
+      "id": "P1-M6-F003",
+      "title": "Model list fallback guidance in Web settings",
+      "priority": "should",
+      "acceptance": [
+        "Empty model lists are explained",
+        "Missing configured model suggests a returned fallback model",
+        "Web validation errors are user-readable without exposing API keys"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/provider-diagnostics.js",
+        "tests/web-provider-diagnostics.test.mjs",
+        "apps/web/src/runtime.js uses describeModelList and describeProviderValidationError"
+      ],
+      "lastUpdated": "2026-04-29T16:01:59.5174002Z"
     }
   ]
 }

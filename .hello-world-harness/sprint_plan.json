@@ -379,6 +379,35 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P1-M6",
+      "scope": "Connection diagnostics and model-list fallback guidance",
+      "dependencies": [
+        "P0-M2",
+        "P0-M10"
+      ],
+      "doneCriteria": [
+        "Provider health check produces actionable report",
+        "Common auth/network/CORS/certificate/proxy/Ollama/model-list errors are explained",
+        "Web settings panel shows fallback guidance without exposing secrets"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

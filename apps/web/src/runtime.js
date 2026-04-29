@@ -14,6 +14,7 @@ import {
   upsertProvider,
 } from './web-state.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
+import { describeModelList, describeProviderValidationError } from './provider-diagnostics.js';
 import { defaultModel, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
 
 const STORAGE_KEY = 'hello-world:web-state:v1';
@@ -247,9 +248,9 @@ elements.saveProvider.addEventListener('click', async () => {
   render();
   try {
     const models = await validateProviderInBrowser(provider, { apiKey: providerSecrets.get(provider.id) });
-    elements.providerStatus.textContent = `Connected. ${models.slice(0, 3).join(', ') || 'No models returned.'}`;
+    elements.providerStatus.textContent = describeModelList(models, provider.defaultModelId);
   } catch (error) {
-    elements.providerStatus.textContent = `Saved, but validation failed: ${error instanceof Error ? error.message : 'unknown error'}`;
+    elements.providerStatus.textContent = `Saved, but ${describeProviderValidationError(error, provider)}`;
   }
 });
 

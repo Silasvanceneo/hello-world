@@ -120,3 +120,11 @@
 - Fixed workspace-relative scaffold verification so `npm run build:desktop` and `npm run build:mobile` work from their workspace directories.
 - Verification passed: `npm run build:desktop`, `npm run build:mobile`, and `npm run check` all passed.
 - Native real Tauri/Android packaging is still blocked by missing platform toolchains, but workspace build scripts now run correctly.
+
+## 2026-04-29T16:01:59.5174002Z
+
+- Implemented P1-M6 connection diagnostics: provider health reports, common auth/network/CORS/certificate/proxy/Ollama/model findings, and model-list fallback guidance.
+- Web provider settings now explain validation failures and missing configured models without exposing runtime API keys.
+- Added diagnostics docs and tests.
+- Verification passed: `npm run check` -> scaffold check passed (83 paths), tests 49/pass 49/fail 0, build:web passed, review passed.
+- Remaining P1 native items require real Tauri/Capacitor platform integrations for screenshot, clipboard image, camera, secure storage, tray, and global shortcuts.
