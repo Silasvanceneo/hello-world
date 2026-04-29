@@ -114,3 +114,9 @@
 - Added Web drag/drop attachment support and DOCX/XLSX accept metadata.
 - Verification passed: `npm run check` -> scaffold check passed (78 paths), tests 43/pass 43/fail 0, build:web passed, review passed.
 - Next recommended sprint: P1-M4 desktop screenshot/clipboard enhancement after native toolchain setup, or P1-M5 mobile photo input scaffold if native setup remains blocked.
+
+## 2026-04-29T15:56:09.0999373Z
+
+- Fixed workspace-relative scaffold verification so `npm run build:desktop` and `npm run build:mobile` work from their workspace directories.
+- Verification passed: `npm run build:desktop`, `npm run build:mobile`, and `npm run check` all passed.
+- Native real Tauri/Android packaging is still blocked by missing platform toolchains, but workspace build scripts now run correctly.

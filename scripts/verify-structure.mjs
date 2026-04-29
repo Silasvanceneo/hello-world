@@ -1,4 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = dirname(dirname(fileURLToPath(import.meta.url)));
 
 const requiredPaths = [
   'apps/web/src/main.ts',
@@ -81,7 +85,7 @@ const requiredPaths = [
   '.hello-world-harness/sprint_plan.json',
 ];
 
-const missing = requiredPaths.filter((path) => !existsSync(path));
+const missing = requiredPaths.filter((path) => !existsSync(join(root, path)));
 
 if (missing.length > 0) {
   console.error('Missing required scaffold paths:');
@@ -91,7 +95,7 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-const providerDoc = readFileSync('docs/PROVIDER_ADAPTERS.md', 'utf8');
+const providerDoc = readFileSync(join(root, 'docs/PROVIDER_ADAPTERS.md'), 'utf8');
 for (const expected of ['OpenAI-compatible', 'Ollama', 'apiKeyRef']) {
   if (!providerDoc.includes(expected)) {
     console.error(`Provider documentation is missing expected text: ${expected}`);
