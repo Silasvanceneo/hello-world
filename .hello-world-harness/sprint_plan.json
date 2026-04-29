@@ -230,6 +230,37 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P0-M9",
+      "scope": "Deployable dependency-free Web MVP shell",
+      "dependencies": [
+        "P0-M2",
+        "P0-M4",
+        "P0-M7",
+        "P0-M8"
+      ],
+      "doneCriteria": [
+        "Web UI shell exists",
+        "Local-first state is tested",
+        "Static build passes",
+        "No live provider secret is committed"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

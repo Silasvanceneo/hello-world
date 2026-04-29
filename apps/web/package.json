@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ../../scripts/verify-structure.mjs"
+    "build": "node ../../scripts/build-web.mjs"
   }
 }

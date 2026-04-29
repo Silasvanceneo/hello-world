@@ -63,3 +63,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (56 paths), tests 22/pass 22/fail 0.
 - Secret scan reviewed: only code identifiers `apiKey` and `maskSecret` remain; no real secrets.
 - P0 code foundation is complete except blocked native build/toolchain verification in P0-M6-F004.
+
+## 2026-04-29T15:12:02.409810+00:00
+
+- Implemented P0-M9 deployable Web MVP: responsive chat/settings UI, local-first browser state, provider form shell, attachment chips, CSS, and static build script.
+- Verification passed: `npm run check` -> scaffold check passed (61 paths), tests 25/pass 25/fail 0, `npm run build:web` wrote `apps/web/build`.
+- Review: live provider secrets are not committed; code only contains form field names such as `apiKey`.
+- Next recommended sprint: P0-M10 wire Web UI to real provider adapters using runtime-only API keys, or start P1 desktop screenshot path after native toolchain setup.

@@ -2,6 +2,9 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const requiredPaths = [
   'apps/web/src/main.ts',
+  'apps/web/src/app.css',
+  'apps/web/src/web-state.js',
+  'apps/web/src/runtime.js',
   'apps/web/src/pwa.ts',
   'apps/web/static/sw.js',
   'apps/web/static/manifest.webmanifest',
@@ -37,6 +40,7 @@ const requiredPaths = [
   'tests/file-input.test.ts',
   'tests/usage-ledger.test.ts',
   'tests/security-policy.test.ts',
+  'tests/web-state.test.mjs',
   'packages/core/src/provider/provider-store.ts',
   'packages/storage/src/storage-adapter.ts',
   'packages/storage/src/indexeddb-storage-adapter.ts',
@@ -55,6 +59,7 @@ const requiredPaths = [
   'docs/THREE_TERMINAL_SHELLS.md',
   'docs/USAGE_ANALYTICS.md',
   'docs/TOOL_SECURITY.md',
+  'docs/WEB_MVP.md',
   '.hello-world-harness/feature_list.json',
   '.hello-world-harness/sprint_plan.json',
 ];

@@ -432,6 +432,57 @@
         "redactSensitiveText/redactSensitiveObject tests pass"
       ],
       "lastUpdated": "2026-04-29T15:03:39.777225+00:00"
+    },
+    {
+      "id": "P0-M9-F001",
+      "title": "Deployable Web MVP shell",
+      "priority": "must",
+      "acceptance": [
+        "Responsive Web UI exists",
+        "Static build outputs apps/web/build",
+        "PWA manifest/service worker are included"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run build:web -> Built Web app to apps/web/build",
+        "apps/web/index.html",
+        "apps/web/src/runtime.js"
+      ],
+      "lastUpdated": "2026-04-29T15:12:02.409810+00:00"
+    },
+    {
+      "id": "P0-M9-F002",
+      "title": "Local-first Web chat state",
+      "priority": "must",
+      "acceptance": [
+        "New chat works in state model",
+        "Messages persist through serialization",
+        "Usage label updates from assistant messages"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "tests/web-state.test.mjs -> web state creates sessions and appends chat messages immutably"
+      ],
+      "lastUpdated": "2026-04-29T15:12:02.409810+00:00"
+    },
+    {
+      "id": "P0-M9-F003",
+      "title": "Web provider/settings and attachment UI shell",
+      "priority": "should",
+      "acceptance": [
+        "Provider form stores provider metadata with apiKeyRef marker",
+        "Attachment chips bind to active session",
+        "Security defaults are visible in settings panel"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/runtime.js",
+        "docs/WEB_MVP.md"
+      ],
+      "lastUpdated": "2026-04-29T15:12:02.409810+00:00"
     }
   ]
 }
