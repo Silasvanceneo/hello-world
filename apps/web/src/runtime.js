@@ -211,20 +211,23 @@ elements.sessionList.addEventListener('click', (event) => {
 });
 
 elements.fileInput.addEventListener('change', () => {
-  const files = Array.from(elements.fileInput.files ?? []);
-  for (const file of files) {
-    state = addAttachmentToActiveSession(state, {
-      id: crypto.randomUUID(),
-      kind: file.type.startsWith('image/') ? 'image' : file.name.endsWith('.pdf') ? 'pdf' : 'text',
-      name: file.name,
-      mimeType: file.type || 'application/octet-stream',
-      sizeBytes: file.size,
-      createdAt: new Date().toISOString(),
-    });
-  }
+  attachBrowserFiles(Array.from(elements.fileInput.files ?? []));
   elements.fileInput.value = '';
-  saveState();
-  render();
+});
+
+elements.messages.addEventListener('dragover', (event) => {
+  event.preventDefault();
+  elements.messages.classList.add('drop-active');
+});
+
+elements.messages.addEventListener('dragleave', () => {
+  elements.messages.classList.remove('drop-active');
+});
+
+elements.messages.addEventListener('drop', (event) => {
+  event.preventDefault();
+  elements.messages.classList.remove('drop-active');
+  attachBrowserFiles(Array.from(event.dataTransfer?.files ?? []));
 });
 
 elements.saveProvider.addEventListener('click', async () => {
@@ -268,6 +271,31 @@ function textMessagesForProvider(session) {
     role: message.role,
     content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n'),
   }));
+}
+
+function attachBrowserFiles(files) {
+  for (const file of files) {
+    state = addAttachmentToActiveSession(state, {
+      id: crypto.randomUUID(),
+      kind: detectBrowserFileKind(file),
+      name: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      sizeBytes: file.size,
+      createdAt: new Date().toISOString(),
+    });
+  }
+  saveState();
+  render();
+}
+
+function detectBrowserFileKind(file) {
+  const name = file.name.toLowerCase();
+  if (file.type.startsWith('image/')) return 'image';
+  if (name.endsWith('.pdf')) return 'pdf';
+  if (name.endsWith('.docx')) return 'docx';
+  if (name.endsWith('.xlsx')) return 'xlsx';
+  if (name.endsWith('.md') || name.endsWith('.markdown')) return 'markdown';
+  return 'text';
 }
 
 render();

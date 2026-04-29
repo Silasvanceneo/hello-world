@@ -349,6 +349,36 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P1-M3",
+      "scope": "File knowledge base enhancement for session/library retrieval and P1 document types",
+      "dependencies": [
+        "P0-M5"
+      ],
+      "doneCriteria": [
+        "Session attachments can become temporary searchable knowledge",
+        "Temporary knowledge can be promoted to long-term library scope",
+        "PDF page citations and DOCX/XLSX basic parsing are covered by tests",
+        "OCR remains explicitly optional/deferred without hidden dependencies"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

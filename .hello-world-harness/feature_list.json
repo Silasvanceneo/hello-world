@@ -627,6 +627,70 @@
         "apps/web/src/runtime.js handles data-save-comparison-id selection"
       ],
       "lastUpdated": "2026-04-29T15:36:33.9798787Z"
+    },
+    {
+      "id": "P1-M3-F001",
+      "title": "Session temporary knowledge from attachments",
+      "priority": "should",
+      "acceptance": [
+        "Parsed attachments can become session-scoped knowledge documents",
+        "Session knowledge can be searched with source-labelled citation context"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/knowledge/knowledge-base.ts",
+        "tests/knowledge-base.test.ts -> session attachments can become searchable temporary knowledge"
+      ],
+      "lastUpdated": "2026-04-29T15:53:01.1828452Z"
+    },
+    {
+      "id": "P1-M3-F002",
+      "title": "Long-term local knowledge library foundation",
+      "priority": "should",
+      "acceptance": [
+        "Temporary session knowledge can be promoted to library scope immutably",
+        "Search can be scoped to session or library knowledge"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "promoteKnowledgeDocument covered by tests/knowledge-base.test.ts",
+        "docs/KNOWLEDGE_BASE.md"
+      ],
+      "lastUpdated": "2026-04-29T15:53:01.1828452Z"
+    },
+    {
+      "id": "P1-M3-F003",
+      "title": "PDF page citations and Office file parsing",
+      "priority": "should",
+      "acceptance": [
+        "PDF parser preserves basic page text references for citations",
+        "DOCX and XLSX basic text extraction works without external dependencies",
+        "Web file picker and drag/drop recognize DOCX/XLSX metadata"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "tests/file-input.test.ts -> PDF parsing keeps basic page references for citations",
+        "tests/file-input.test.ts -> DOCX and XLSX files have dependency-free basic text extraction",
+        "apps/web/src/runtime.js -> drag/drop attachBrowserFiles"
+      ],
+      "lastUpdated": "2026-04-29T15:53:01.1828452Z"
+    },
+    {
+      "id": "P1-M3-F004",
+      "title": "OCR optional path remains explicit",
+      "priority": "could",
+      "acceptance": [
+        "OCR is documented as optional and not enabled without explicit OCR tooling"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/KNOWLEDGE_BASE.md documents OCR as optional/deferred"
+      ],
+      "lastUpdated": "2026-04-29T15:53:01.1828452Z"
     }
   ]
 }

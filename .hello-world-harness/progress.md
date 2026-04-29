@@ -106,3 +106,11 @@
 - Web runtime keeps provider API keys in memory-only `providerSecrets`; comparison cards escape provider output before rendering.
 - Verification passed: `npm run check` -> scaffold check passed (74 paths), tests 38/pass 38/fail 0, build:web passed, review passed.
 - Next recommended sprint: P1-M3 file knowledge base enhancement or native toolchain setup for P0-M6-F004.
+
+## 2026-04-29T15:53:01.1828452Z
+
+- Implemented P1-M3 file knowledge base enhancement: session temporary knowledge, long-term library promotion, lexical search, source citation context, and PDF page-aware chunks.
+- Added dependency-free DOCX/XLSX basic extraction and expanded file kind support; OCR remains optional/deferred with no hidden dependency.
+- Added Web drag/drop attachment support and DOCX/XLSX accept metadata.
+- Verification passed: `npm run check` -> scaffold check passed (78 paths), tests 43/pass 43/fail 0, build:web passed, review passed.
+- Next recommended sprint: P1-M4 desktop screenshot/clipboard enhancement after native toolchain setup, or P1-M5 mobile photo input scaffold if native setup remains blocked.

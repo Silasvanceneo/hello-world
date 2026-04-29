@@ -1,4 +1,9 @@
-export type SupportedFileKind = 'text' | 'markdown' | 'pdf' | 'image' | 'unsupported';
+export type SupportedFileKind = 'text' | 'markdown' | 'pdf' | 'docx' | 'xlsx' | 'image' | 'unsupported';
+
+export type FilePageText = {
+  pageNumber: number;
+  text: string;
+};
 
 export type ChatFileAttachment = {
   id: string;
@@ -7,6 +12,7 @@ export type ChatFileAttachment = {
   mimeType: string;
   sizeBytes: number;
   text?: string;
+  pageTexts?: FilePageText[];
   dataUrl?: string;
   createdAt: string;
 };
