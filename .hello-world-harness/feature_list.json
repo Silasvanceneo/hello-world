@@ -383,6 +383,55 @@
         "apps/web/src/usage-dashboard.ts"
       ],
       "lastUpdated": "2026-04-29T15:01:14.303792+00:00"
+    },
+    {
+      "id": "P0-M8-F001",
+      "title": "Dangerous capabilities disabled by default",
+      "priority": "must",
+      "acceptance": [
+        "Terminal disabled",
+        "Code execution disabled",
+        "stdio MCP disabled",
+        "Broad filesystem disabled"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/security/security-policy.ts",
+        "tests/security-policy.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T15:03:39.777225+00:00"
+    },
+    {
+      "id": "P0-M8-F002",
+      "title": "Tool risk classification and confirmation policy",
+      "priority": "must",
+      "acceptance": [
+        "Low/medium/high/critical risks classified",
+        "Medium/high require confirmation",
+        "Critical blocked by default"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "evaluateToolInvocation covered by tests/security-policy.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T15:03:39.777225+00:00"
+    },
+    {
+      "id": "P0-M8-F003",
+      "title": "Secret redaction helpers",
+      "priority": "must",
+      "acceptance": [
+        "Text redaction masks API keys and authorization headers",
+        "Object redaction masks sensitive keys"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "redactSensitiveText/redactSensitiveObject tests pass"
+      ],
+      "lastUpdated": "2026-04-29T15:03:39.777225+00:00"
     }
   ]
 }

@@ -201,6 +201,35 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P0-M8",
+      "scope": "Default security policy and redaction",
+      "dependencies": [
+        "P0-M2"
+      ],
+      "doneCriteria": [
+        "Dangerous capabilities disabled by default",
+        "Risk classification and confirmation policy tested",
+        "Secret redaction tested"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

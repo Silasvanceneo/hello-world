@@ -56,3 +56,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (51 paths), tests 19/pass 19/fail 0.
 - Scope check: analytics remain local usage summaries, not SaaS billing or credits.
 - Next recommended sprint: P0-M8 default security policy.
+
+## 2026-04-29T15:03:39.777225+00:00
+
+- Implemented P0-M8 default security policy: dangerous capability defaults, risk classification, confirmation policy, Web security settings view-model, and secret redaction helpers.
+- Verification passed: `npm run check` -> scaffold check passed (56 paths), tests 22/pass 22/fail 0.
+- Secret scan reviewed: only code identifiers `apiKey` and `maskSecret` remain; no real secrets.
+- P0 code foundation is complete except blocked native build/toolchain verification in P0-M6-F004.
