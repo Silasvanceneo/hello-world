@@ -84,3 +84,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (68 paths), tests 33/pass 33/fail 0, `npm run build:web` passed.
 - Review: no real secrets found; scan only reports code identifiers and ignored build output.
 - Next recommended sprint: P1-M2 multi-model comparison or native toolchain setup for real Desktop/Android builds.
+
+## 2026-04-29T15:25:40.8057138Z
+
+- Completed quality/security review before continuing feature work.
+- Added `npm run review` gate and included it in `npm run check` to enforce source file-size limits, `.env` ignore coverage, harness checkpoint presence, and suspicious committed secret scanning.
+- Verification passed: `npm run check` -> scaffold check passed (68 paths), tests 33/pass 33/fail 0, `npm run build:web` passed, `npm run review` passed.
+- Current status: no blocking quality/security findings; continue with P1-M2 multi-model comparison next.
