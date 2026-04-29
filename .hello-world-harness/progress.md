@@ -70,3 +70,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (61 paths), tests 25/pass 25/fail 0, `npm run build:web` wrote `apps/web/build`.
 - Review: live provider secrets are not committed; code only contains form field names such as `apiKey`.
 - Next recommended sprint: P0-M10 wire Web UI to real provider adapters using runtime-only API keys, or start P1 desktop screenshot path after native toolchain setup.
+
+## 2026-04-29T15:16:23.170233+00:00
+
+- Implemented P0-M10 Web provider runtime: direct OpenAI-compatible/Ollama validation, streaming chat, runtime-only API key Map, model field, and Stop button.
+- Verification passed: `npm run check` -> scaffold check passed (64 paths), tests 29/pass 29/fail 0, `npm run build:web` passed.
+- Review: secret scan only found code identifiers; no real keys were committed. Browser CORS caveat documented.
+- Next recommended sprint: install real framework/native toolchains for Tauri/Capacitor, or continue P1 web UX polish/multi-model comparison.

@@ -40,6 +40,7 @@
           </label>
           <textarea id="prompt" rows="3" placeholder="Ask anything..." aria-label="Message"></textarea>
           <button class="primary-button" type="submit">Send</button>
+          <button id="stop-generation" class="secondary-button" type="button" disabled>Stop</button>
         </form>
         <div id="attachments" class="attachments" aria-label="Attachments"></div>
       </section>
@@ -55,7 +56,8 @@
           </select>
         </label>
         <label>Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>
-        <label>API key<input id="provider-api-key" type="password" placeholder="Stored locally only in this browser" /></label>
+        <label>Model<input id="provider-model" placeholder="gpt-4.1-mini or llama3.2" /></label>
+        <label>API key<input id="provider-api-key" type="password" placeholder="Runtime only; not persisted" /></label>
         <button id="save-provider" class="secondary-button" type="button">Save provider</button>
         <p id="provider-status" class="status-text">No provider configured.</p>
 

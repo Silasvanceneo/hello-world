@@ -483,6 +483,55 @@
         "docs/WEB_MVP.md"
       ],
       "lastUpdated": "2026-04-29T15:12:02.409810+00:00"
+    },
+    {
+      "id": "P0-M10-F001",
+      "title": "Web provider validation runtime",
+      "priority": "must",
+      "acceptance": [
+        "OpenAI-compatible model listing can be validated",
+        "Ollama model listing can be validated",
+        "Runtime API keys are not persisted in app state"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "tests/web-provider-runtime.test.mjs -> provider validation maps model lists",
+        "apps/web/src/runtime.js keeps providerSecrets in memory Map"
+      ],
+      "lastUpdated": "2026-04-29T15:16:23.170233+00:00"
+    },
+    {
+      "id": "P0-M10-F002",
+      "title": "Web provider streaming runtime",
+      "priority": "must",
+      "acceptance": [
+        "OpenAI-compatible SSE streams to Web chat",
+        "Ollama NDJSON streams to Web chat",
+        "Stop button uses AbortController"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "tests/web-provider-runtime.test.mjs -> streamChatInBrowser posts and returns streamed text",
+        "apps/web/src/provider-runtime.js"
+      ],
+      "lastUpdated": "2026-04-29T15:16:23.170233+00:00"
+    },
+    {
+      "id": "P0-M10-F003",
+      "title": "Web runtime build includes provider modules",
+      "priority": "must",
+      "acceptance": [
+        "Static build copies provider runtime",
+        "npm run check includes build:web"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (64 paths), tests 29/pass 29/fail 0, build:web passed"
+      ],
+      "lastUpdated": "2026-04-29T15:16:23.170233+00:00"
     }
   ]
 }

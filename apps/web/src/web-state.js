@@ -94,13 +94,14 @@ export function createAssistantEchoMessage(text, timestamp = new Date().toISOStr
   };
 }
 
-export function createProviderFromForm({ name, type, baseUrl, apiKey }, timestamp = new Date().toISOString(), id = crypto.randomUUID()) {
+export function createProviderFromForm({ name, type, baseUrl, modelId, apiKey }, timestamp = new Date().toISOString(), id = crypto.randomUUID()) {
   const trimmedName = name.trim() || defaultProviderName(type);
   return {
     id,
     type,
     name: trimmedName,
     baseUrl: baseUrl.trim() || undefined,
+    defaultModelId: modelId?.trim() || undefined,
     apiKeyRef: apiKey ? `local:${id}` : undefined,
     enabled: true,
     createdAt: timestamp,

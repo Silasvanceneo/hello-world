@@ -11,6 +11,7 @@ await mkdir(buildDir, { recursive: true });
 await cp(join(webRoot, 'static'), buildDir, { recursive: true });
 await cp(join(webRoot, 'src', 'runtime.js'), join(buildDir, 'runtime.js'));
 await cp(join(webRoot, 'src', 'web-state.js'), join(buildDir, 'web-state.js'));
+await cp(join(webRoot, 'src', 'provider-runtime.js'), join(buildDir, 'provider-runtime.js'));
 await cp(join(webRoot, 'src', 'app.css'), join(buildDir, 'app.css'));
 
 const html = await readFile(join(webRoot, 'index.html'), 'utf8');

@@ -261,6 +261,35 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P0-M10",
+      "scope": "Web runtime connection to real providers",
+      "dependencies": [
+        "P0-M9",
+        "P0-M2",
+        "P0-M3"
+      ],
+      "doneCriteria": [
+        "Provider validation tested",
+        "Provider streaming tested",
+        "API keys stay runtime-only in Web UI"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }
