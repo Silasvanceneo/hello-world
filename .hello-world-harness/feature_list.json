@@ -162,12 +162,66 @@
       "acceptance": [
         "Chat sessions can be persisted through a storage adapter after send/retry/edit"
       ],
-      "status": "pending",
-      "passes": false,
+      "status": "passed",
+      "passes": true,
       "evidence": [
-        "Deferred to P0-M4 storage adapter implementation"
+        "P0-M4 storage adapters completed",
+        "packages/core/src/chat/chat-persistence.ts exposes save/load/delete session helpers",
+        "npm run check -> tests 12/pass 12/fail 0"
       ],
-      "lastUpdated": "2026-04-29T14:51:51.849260+00:00"
+      "lastUpdated": "2026-04-29T14:54:56.054237+00:00"
+    },
+    {
+      "id": "P0-M4-F001",
+      "title": "StorageAdapter supports sessions/settings/provider connections",
+      "priority": "must",
+      "acceptance": [
+        "list/save/delete sessions",
+        "list/save/delete provider connections",
+        "get/save settings"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/storage/src/storage-adapter.ts",
+        "tests/storage-adapters.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T14:54:56.054237+00:00"
+    },
+    {
+      "id": "P0-M4-F002",
+      "title": "Web/Desktop/Mobile local storage adapters",
+      "priority": "must",
+      "acceptance": [
+        "IndexedDB adapter for Web",
+        "JSON file adapter for Desktop/server-style persistence",
+        "Mobile key-value adapter"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/storage/src/indexeddb-storage-adapter.ts",
+        "packages/storage/src/json-file-storage-adapter.ts",
+        "packages/storage/src/mobile-storage-adapter.ts"
+      ],
+      "lastUpdated": "2026-04-29T14:54:56.054237+00:00"
+    },
+    {
+      "id": "P0-M4-F003",
+      "title": "Persistence verification",
+      "priority": "must",
+      "acceptance": [
+        "History survives adapter recreation",
+        "Delete session removes history",
+        "Settings persist"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (32 paths), tests 12/pass 12/fail 0",
+        "tests/storage-adapters.test.ts verifies JSON persistence across instances"
+      ],
+      "lastUpdated": "2026-04-29T14:54:56.054237+00:00"
     }
   ]
 }

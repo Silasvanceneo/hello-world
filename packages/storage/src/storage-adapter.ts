@@ -1,4 +1,4 @@
-import type { ChatSession, ProviderConnection, StorageResult } from '@hello-world/shared';
+import type { AppSettings, ChatSession, ProviderConnection, StorageResult } from '@hello-world/shared';
 
 export interface StorageAdapter {
   listSessions(): Promise<StorageResult<ChatSession[]>>;
@@ -7,4 +7,6 @@ export interface StorageAdapter {
   listProviderConnections(): Promise<StorageResult<ProviderConnection[]>>;
   saveProviderConnection(connection: ProviderConnection): Promise<StorageResult<ProviderConnection>>;
   deleteProviderConnection(connectionId: string): Promise<StorageResult<void>>;
+  getSettings(): Promise<StorageResult<AppSettings>>;
+  saveSettings(settings: AppSettings): Promise<StorageResult<AppSettings>>;
 }

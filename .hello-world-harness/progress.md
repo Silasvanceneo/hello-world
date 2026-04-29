@@ -28,3 +28,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (24 paths), tests 10/pass 10/fail 0.
 - Review: no real secrets detected; only code identifiers `apiKey` and `maskSecret` appeared in the scan.
 - Remaining P0-M3/P0-M4 handoff: persist chat sessions through concrete storage adapters.
+
+## 2026-04-29T14:54:56.054237+00:00
+
+- Implemented P0-M4 local storage: IndexedDB adapter, JSON file adapter, mobile/key-value adapter, settings type, and chat persistence helpers.
+- Verification passed: `npm run check` -> scaffold check passed (32 paths), tests 12/pass 12/fail 0.
+- Review: secret scan only found code identifiers `apiKey` and `maskSecret`; no real secrets.
+- Next recommended sprint: P0-M5 basic file input or connect storage adapters to actual Web/Desktop/Mobile shells once UI framework is introduced.

@@ -88,6 +88,36 @@
         "Update feature_list and progress",
         "Create git checkpoint after passing verification"
       ]
+    },
+    {
+      "id": "P0-M4",
+      "scope": "Local storage adapters for sessions/settings/provider connections",
+      "dependencies": [
+        "P0-M3"
+      ],
+      "doneCriteria": [
+        "StorageAdapter covers sessions/settings/provider connections",
+        "Web/Desktop/Mobile storage adapters exist",
+        "Persistence behavior covered by tests"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/storage/",
+        "packages/core/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".gitignore",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint after passing verification"
+      ]
     }
   ]
 }

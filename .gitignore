@@ -43,3 +43,6 @@ Thumbs.db
 
 # Local agent/runtime state
 .omx/
+
+# Test scratch
+.tmp-tests/
