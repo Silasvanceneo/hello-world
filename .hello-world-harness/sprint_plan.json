@@ -172,6 +172,35 @@
         "Update blocked native-build feature with exact dependency requirements",
         "Create git checkpoint after passing scaffold verification"
       ]
+    },
+    {
+      "id": "P0-M7",
+      "scope": "Basic token usage analytics",
+      "dependencies": [
+        "P0-M3"
+      ],
+      "doneCriteria": [
+        "Usage records collect from messages",
+        "Aggregations by model/day pass tests",
+        "No billing/SaaS metering scope added"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

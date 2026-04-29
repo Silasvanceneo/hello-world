@@ -3,3 +3,4 @@ export * from './types/file.ts';
 export * from './types/provider.ts';
 export * from './types/settings.ts';
 export * from './types/storage.ts';
+export * from './types/usage.ts';

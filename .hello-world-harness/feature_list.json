@@ -338,6 +338,51 @@
         "Real native builds require installing framework packages plus Rust/Tauri and Android SDK/Gradle toolchains"
       ],
       "lastUpdated": "2026-04-29T14:59:17.745326+00:00"
+    },
+    {
+      "id": "P0-M7-F001",
+      "title": "Token usage records and summaries",
+      "priority": "must",
+      "acceptance": [
+        "Prompt/completion/total tokens are recorded from assistant messages",
+        "Usage can be summarized"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/usage/usage-ledger.ts",
+        "tests/usage-ledger.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T15:01:14.303792+00:00"
+    },
+    {
+      "id": "P0-M7-F002",
+      "title": "Usage aggregation by model and day",
+      "priority": "must",
+      "acceptance": [
+        "Usage can aggregate by model",
+        "Usage can aggregate by day"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "aggregateUsageByModel and aggregateUsageByDay tests pass"
+      ],
+      "lastUpdated": "2026-04-29T15:01:14.303792+00:00"
+    },
+    {
+      "id": "P0-M7-F003",
+      "title": "Usage dashboard view model",
+      "priority": "should",
+      "acceptance": [
+        "Web layer can consume total/by-model/by-day usage data"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/usage-dashboard.ts"
+      ],
+      "lastUpdated": "2026-04-29T15:01:14.303792+00:00"
     }
   ]
 }

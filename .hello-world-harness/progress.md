@@ -49,3 +49,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (46 paths), tests 17/pass 17/fail 0.
 - Blocked item tracked: real Windows/Android builds require installing Tauri/Capacitor dependencies and platform toolchains.
 - Next recommended sprint: continue independent P0-M7 usage statistics while native build tooling remains blocked.
+
+## 2026-04-29T15:01:14.303792+00:00
+
+- Implemented P0-M7 basic usage analytics: usage records, total summaries, by-model/by-day aggregation, and Web dashboard view-model.
+- Verification passed: `npm run check` -> scaffold check passed (51 paths), tests 19/pass 19/fail 0.
+- Scope check: analytics remain local usage summaries, not SaaS billing or credits.
+- Next recommended sprint: P0-M8 default security policy.
