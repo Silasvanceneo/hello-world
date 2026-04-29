@@ -269,6 +269,75 @@
         "describeUnsupportedFileForModel covered by tests/file-input.test.ts"
       ],
       "lastUpdated": "2026-04-29T14:57:14.461474+00:00"
+    },
+    {
+      "id": "P0-M6-F001",
+      "title": "Web PWA shell scaffold",
+      "priority": "must",
+      "acceptance": [
+        "PWA manifest exists",
+        "Service worker scaffold exists",
+        "Web entry registers service worker"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/static/manifest.webmanifest",
+        "apps/web/static/sw.js",
+        "npm run check -> scaffold check passed (46 paths)"
+      ],
+      "lastUpdated": "2026-04-29T14:59:17.745326+00:00"
+    },
+    {
+      "id": "P0-M6-F002",
+      "title": "Desktop Tauri shell scaffold",
+      "priority": "must",
+      "acceptance": [
+        "Tauri config exists",
+        "Rust entry scaffold exists",
+        "Desktop package marks shared Web UI loading"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/desktop/src-tauri/tauri.conf.json",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "lastUpdated": "2026-04-29T14:59:17.745326+00:00"
+    },
+    {
+      "id": "P0-M6-F003",
+      "title": "Mobile Capacitor shell scaffold",
+      "priority": "must",
+      "acceptance": [
+        "Capacitor config exists",
+        "Android/iOS directories are reserved",
+        "Mobile package marks shared Web UI loading"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/mobile/capacitor.config.ts",
+        "apps/mobile/android/.gitkeep",
+        "apps/mobile/ios/.gitkeep"
+      ],
+      "lastUpdated": "2026-04-29T14:59:17.745326+00:00"
+    },
+    {
+      "id": "P0-M6-F004",
+      "title": "Native Web/Desktop/Android real builds",
+      "priority": "must",
+      "acceptance": [
+        "Web production build runs",
+        "Windows desktop launches",
+        "Android debug APK launches"
+      ],
+      "status": "blocked",
+      "passes": false,
+      "evidence": [
+        "Real native builds require installing framework packages plus Rust/Tauri and Android SDK/Gradle toolchains"
+      ],
+      "lastUpdated": "2026-04-29T14:59:17.745326+00:00"
     }
   ]
 }

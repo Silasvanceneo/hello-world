@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "hello-world",
+  "version": "0.1.0",
+  "identifier": "com.helloworld.ai",
+  "build": {
+    "beforeDevCommand": "npm --workspace apps/web run build",
+    "beforeBuildCommand": "npm --workspace apps/web run build",
+    "frontendDist": "../../web/build",
+    "devUrl": "http://localhost:5173"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "hello-world",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 640
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": "all"
+  }
+}

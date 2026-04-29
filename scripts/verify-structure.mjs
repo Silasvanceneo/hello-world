@@ -2,9 +2,18 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const requiredPaths = [
   'apps/web/src/main.ts',
+  'apps/web/src/pwa.ts',
+  'apps/web/static/sw.js',
+  'apps/web/static/manifest.webmanifest',
+  'apps/web/index.html',
   'apps/web/src/provider-settings.ts',
   'apps/desktop/src-tauri/.gitkeep',
+  'apps/desktop/src-tauri/src/main.rs',
+  'apps/desktop/src-tauri/tauri.conf.json',
+  'apps/desktop/src-tauri/Cargo.toml',
   'apps/mobile/capacitor.config.ts',
+  'apps/mobile/ios/.gitkeep',
+  'apps/mobile/android/.gitkeep',
   'packages/shared/src/types/chat.ts',
   'packages/shared/src/types/provider.ts',
   'packages/api-client/src/provider-adapter.ts',
@@ -35,6 +44,7 @@ const requiredPaths = [
   'docs/PROVIDER_ADAPTERS.md',
   'docs/STORAGE_MODEL.md',
   'docs/FILE_INPUT.md',
+  'docs/THREE_TERMINAL_SHELLS.md',
   '.hello-world-harness/feature_list.json',
   '.hello-world-harness/sprint_plan.json',
 ];

@@ -42,3 +42,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (36 paths), tests 17/pass 17/fail 0.
 - Review: no real secrets detected; PDF parser is intentionally lightweight and documented as P0-limited.
 - Next recommended sprint: P0-M6 three-terminal shells/PWA/Tauri/Capacitor scaffolding.
+
+## 2026-04-29T14:59:17.745326+00:00
+
+- Implemented P0-M6 offline shell scaffolds: Web PWA manifest/service worker, Tauri config/Rust entry scaffold, and Capacitor Android/iOS directory placeholders.
+- Verification passed: `npm run check` -> scaffold check passed (46 paths), tests 17/pass 17/fail 0.
+- Blocked item tracked: real Windows/Android builds require installing Tauri/Capacitor dependencies and platform toolchains.
+- Next recommended sprint: continue independent P0-M7 usage statistics while native build tooling remains blocked.

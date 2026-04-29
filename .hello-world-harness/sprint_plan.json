@@ -147,6 +147,31 @@
         "Update feature_list and progress",
         "Create git checkpoint after passing verification"
       ]
+    },
+    {
+      "id": "P0-M6",
+      "scope": "Three-terminal shell/PWA/Tauri/Capacitor scaffolding",
+      "dependencies": [
+        "P0-M5"
+      ],
+      "doneCriteria": [
+        "PWA/Tauri/Capacitor config scaffolds exist",
+        "Offline structure verification passes",
+        "Native build requirements are explicitly tracked"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/",
+        "docs/",
+        "scripts/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update blocked native-build feature with exact dependency requirements",
+        "Create git checkpoint after passing scaffold verification"
+      ]
     }
   ]
 }
