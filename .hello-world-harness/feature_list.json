@@ -532,6 +532,52 @@
         "npm run check -> scaffold check passed (64 paths), tests 29/pass 29/fail 0, build:web passed"
       ],
       "lastUpdated": "2026-04-29T15:16:23.170233+00:00"
+    },
+    {
+      "id": "P1-M1-F001",
+      "title": "Model capability inference",
+      "priority": "should",
+      "acceptance": [
+        "Vision/file/tool/reasoning/image capabilities are inferred",
+        "Context window hints are inferred"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/model/model-capability.ts",
+        "tests/model-capability.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T15:18:48.258420+00:00"
+    },
+    {
+      "id": "P1-M1-F002",
+      "title": "UI capability gates",
+      "priority": "should",
+      "acceptance": [
+        "Image/file/tool/reasoning controls can be enabled/disabled by model capability",
+        "Disabled controls have user-readable reasons"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "getUiCapabilityAvailability covered by tests/model-capability.test.ts",
+        "apps/web/src/model-capabilities.js"
+      ],
+      "lastUpdated": "2026-04-29T15:18:48.258420+00:00"
+    },
+    {
+      "id": "P1-M1-F003",
+      "title": "Task-based model filtering",
+      "priority": "should",
+      "acceptance": [
+        "Models can be filtered for vision/files/tools/reasoning/image-generation tasks"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "chooseModelsForTask covered by tests/model-capability.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T15:18:48.258420+00:00"
     }
   ]
 }

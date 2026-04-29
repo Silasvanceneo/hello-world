@@ -290,6 +290,34 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P1-M1",
+      "scope": "Model capability registry and UI gates",
+      "dependencies": [
+        "P0-M2"
+      ],
+      "doneCriteria": [
+        "Capability inference tested",
+        "UI gates tested",
+        "Task model filtering tested"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

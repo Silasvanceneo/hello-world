@@ -77,3 +77,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (64 paths), tests 29/pass 29/fail 0, `npm run build:web` passed.
 - Review: secret scan only found code identifiers; no real keys were committed. Browser CORS caveat documented.
 - Next recommended sprint: install real framework/native toolchains for Tauri/Capacitor, or continue P1 web UX polish/multi-model comparison.
+
+## 2026-04-29T15:18:48.258420+00:00
+
+- Implemented P1-M1 model capability registry: inferred capability metadata, UI gates with disabled reasons, and task-based model filtering.
+- Verification passed: `npm run check` -> scaffold check passed (68 paths), tests 33/pass 33/fail 0, `npm run build:web` passed.
+- Review: no real secrets found; scan only reports code identifiers and ignored build output.
+- Next recommended sprint: P1-M2 multi-model comparison or native toolchain setup for real Desktop/Android builds.
