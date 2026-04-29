@@ -13,15 +13,20 @@ import {
   summarizeUsage,
   upsertProvider,
 } from './web-state.js';
+import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { defaultModel, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
 
 const STORAGE_KEY = 'hello-world:web-state:v1';
 const providerSecrets = new Map();
 let activeAbortController;
 let state = parseState(localStorage.getItem(STORAGE_KEY));
+let comparisonPrompt = '';
+let comparisonResults = [];
 
 const elements = {
   attachments: document.querySelector('#attachments'),
+  compareModels: document.querySelector('#compare-models'),
+  comparisonResults: document.querySelector('#comparison-results'),
   composer: document.querySelector('#composer'),
   fileInput: document.querySelector('#file-input'),
   messages: document.querySelector('#messages'),
@@ -58,6 +63,7 @@ function render() {
   const usage = summarizeUsage(session);
   elements.usageSummary.textContent = `${usage.totalTokens} tokens`;
   elements.attachments.innerHTML = (session.attachments ?? []).map((attachment) => `<span class="attachment-chip">${escapeHtml(attachment.name)}</span>`).join('');
+  elements.comparisonResults.innerHTML = renderComparisonResults();
   const provider = state.providers[0];
   elements.providerStatus.textContent = provider
     ? `Saved ${provider.name} (${provider.defaultModelId ?? defaultModel(provider.type)}). API keys stay in memory for this browser tab.`
@@ -67,6 +73,25 @@ function render() {
 function renderMessage(message) {
   const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n');
   return `<article class="message ${message.role}"><strong>${message.role}</strong><p>${escapeHtml(text)}</p></article>`;
+}
+
+function renderComparisonResults() {
+  if (comparisonResults.length === 0) {
+    return '';
+  }
+  return comparisonResults.map((result) => {
+    const view = formatComparisonResult(result);
+    const body = result.status === 'fulfilled' ? result.text : (result.errorMessage ?? 'Unknown error');
+    const action = view.canSave
+      ? `<button class="secondary-button" data-save-comparison-id="${escapeHtml(result.id)}" type="button">Save as main branch</button>`
+      : '';
+    return `<article class="comparison-card">
+      <strong>${escapeHtml(view.title)}</strong>
+      <p class="comparison-meta">${escapeHtml(view.statusLabel)} · ${escapeHtml(view.speedLabel)} · ${escapeHtml(view.tokenLabel)}</p>
+      <pre>${escapeHtml(body || '(empty response)')}</pre>
+      ${action}
+    </article>`;
+  }).join('');
 }
 
 elements.composer.addEventListener('submit', async (event) => {
@@ -116,6 +141,57 @@ elements.composer.addEventListener('submit', async (event) => {
 
 elements.stopGeneration.addEventListener('click', () => {
   activeAbortController?.abort();
+});
+
+elements.compareModels.addEventListener('click', async () => {
+  const text = elements.prompt.value.trim();
+  const providers = state.providers.filter((provider) => provider.enabled !== false);
+  if (!text) {
+    elements.providerStatus.textContent = 'Type a prompt before starting model comparison.';
+    return;
+  }
+  if (providers.length === 0) {
+    elements.providerStatus.textContent = 'Save at least one provider before model comparison.';
+    return;
+  }
+
+  comparisonPrompt = text;
+  elements.compareModels.disabled = true;
+  elements.providerStatus.textContent = `Comparing ${providers.length} model${providers.length === 1 ? '' : 's'}...`;
+  try {
+    comparisonResults = await compareProvidersInBrowser({
+      providers,
+      prompt: text,
+      providerSecrets,
+      messages: textMessagesForProvider(getActiveSession(state)),
+    });
+    elements.providerStatus.textContent = `Comparison finished. Pick one answer to save as the main branch.`;
+  } finally {
+    elements.compareModels.disabled = false;
+    render();
+  }
+});
+
+elements.comparisonResults.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-save-comparison-id]');
+  if (!button) {
+    return;
+  }
+  const result = comparisonResults.find((item) => item.id === button.dataset.saveComparisonId);
+  if (!result || result.status !== 'fulfilled') {
+    return;
+  }
+  state = addMessageToActiveSession(state, createTextMessage('user', comparisonPrompt));
+  state = addMessageToActiveSession(state, {
+    ...createTextMessage('assistant', result.text || '(empty response)'),
+    modelId: result.modelId,
+    usage: result.usage,
+  });
+  comparisonPrompt = '';
+  comparisonResults = [];
+  elements.prompt.value = '';
+  saveState();
+  render();
 });
 
 elements.newSession.addEventListener('click', () => {
@@ -185,6 +261,13 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function textMessagesForProvider(session) {
+  return session.messages.map((message) => ({
+    role: message.role,
+    content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n'),
+  }));
 }
 
 render();

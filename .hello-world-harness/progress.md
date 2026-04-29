@@ -98,3 +98,11 @@
 - Strengthened `npm run review` to compile-check browser JavaScript source so the static build cannot silently copy invalid runtime scripts.
 - Verification passed: `npm run check` -> scaffold check passed (68 paths), tests 33/pass 33/fail 0, build:web passed, review passed.
 - Continue with P1-M2 multi-model comparison next.
+
+## 2026-04-29T15:36:33.9798787Z
+
+- Implemented P1-M2 multi-model comparison: core comparison runner, save-selected-answer main branch flow, Web comparison cards, and browser-side speed/token/error metadata.
+- Added tests for core comparison, failed provider isolation, selection save flow, and Web comparison view-model formatting.
+- Web runtime keeps provider API keys in memory-only `providerSecrets`; comparison cards escape provider output before rendering.
+- Verification passed: `npm run check` -> scaffold check passed (74 paths), tests 38/pass 38/fail 0, build:web passed, review passed.
+- Next recommended sprint: P1-M3 file knowledge base enhancement or native toolchain setup for P0-M6-F004.

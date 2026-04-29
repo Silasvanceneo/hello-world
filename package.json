@@ -13,6 +13,6 @@
     "build:desktop": "npm --workspace apps/desktop run build",
     "build:mobile": "npm --workspace apps/mobile run build",
     "review": "node scripts/review-check.mjs",
-    "test": "node --test --experimental-strip-types --test-isolation=none tests/provider-store.test.ts tests/provider-adapters.test.ts tests/chat-core.test.ts tests/storage-adapters.test.ts tests/file-input.test.ts tests/usage-ledger.test.ts tests/security-policy.test.ts tests/web-state.test.mjs tests/web-provider-runtime.test.mjs tests/model-capability.test.ts"
+    "test": "node --test --experimental-strip-types --test-isolation=none tests/provider-store.test.ts tests/provider-adapters.test.ts tests/chat-core.test.ts tests/storage-adapters.test.ts tests/file-input.test.ts tests/usage-ledger.test.ts tests/security-policy.test.ts tests/web-state.test.mjs tests/web-provider-runtime.test.mjs tests/model-capability.test.ts tests/model-comparison.test.ts tests/web-model-comparison.test.mjs"
   }
 }

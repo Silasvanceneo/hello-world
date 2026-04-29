@@ -318,6 +318,37 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P1-M2",
+      "scope": "Multi-model comparison and save-selected-answer flow",
+      "dependencies": [
+        "P0-M3",
+        "P0-M10",
+        "P1-M1"
+      ],
+      "doneCriteria": [
+        "Same prompt can be sent to multiple model/provider candidates",
+        "Comparison results expose speed/token/error metadata",
+        "A selected answer can be saved to the active chat as the main branch",
+        "Web runtime keeps provider secrets runtime-only"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

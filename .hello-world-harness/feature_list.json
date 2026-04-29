@@ -578,6 +578,55 @@
         "chooseModelsForTask covered by tests/model-capability.test.ts"
       ],
       "lastUpdated": "2026-04-29T15:18:48.258420+00:00"
+    },
+    {
+      "id": "P1-M2-F001",
+      "title": "Run same prompt across multiple models",
+      "priority": "should",
+      "acceptance": [
+        "Same prompt and current chat context are sent to each comparison candidate",
+        "One candidate failure does not fail the whole comparison run"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/model/model-comparison.ts",
+        "tests/model-comparison.test.ts -> compareModels runs the same prompt against multiple candidates"
+      ],
+      "lastUpdated": "2026-04-29T15:36:33.9798787Z"
+    },
+    {
+      "id": "P1-M2-F002",
+      "title": "Show speed, token, and error metadata",
+      "priority": "should",
+      "acceptance": [
+        "Comparison results include durationMs",
+        "Successful results include token usage or Web token estimate",
+        "Failed results include user-readable provider error details"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/model-comparison.js",
+        "tests/web-model-comparison.test.mjs -> formatComparisonResult exposes speed, token, error, and save state"
+      ],
+      "lastUpdated": "2026-04-29T15:36:33.9798787Z"
+    },
+    {
+      "id": "P1-M2-F003",
+      "title": "Save selected answer as main branch",
+      "priority": "should",
+      "acceptance": [
+        "Selected successful answer is appended to active chat with original prompt",
+        "Failed/empty comparison results cannot be saved from the Web card"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "saveComparisonSelection covered by tests/model-comparison.test.ts",
+        "apps/web/src/runtime.js handles data-save-comparison-id selection"
+      ],
+      "lastUpdated": "2026-04-29T15:36:33.9798787Z"
     }
   ]
 }
