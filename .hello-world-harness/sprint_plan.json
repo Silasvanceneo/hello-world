@@ -118,6 +118,35 @@
         "Update feature_list and progress",
         "Create git checkpoint after passing verification"
       ]
+    },
+    {
+      "id": "P0-M5",
+      "scope": "Basic file input for TXT/MD/PDF/images",
+      "dependencies": [
+        "P0-M4"
+      ],
+      "doneCriteria": [
+        "P0 file types detected and parsed",
+        "Files bind to chat sessions",
+        "Unsupported model guidance exists",
+        "Tests pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint after passing verification"
+      ]
     }
   ]
 }

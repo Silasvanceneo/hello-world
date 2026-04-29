@@ -1,3 +1,4 @@
+import type { ChatFileAttachment } from './file.ts';
 import type { AIModel } from './provider.ts';
 
 export type SyncState = 'local' | 'synced' | 'dirty' | 'syncing' | 'conflict' | 'error';
@@ -34,6 +35,7 @@ export type ChatSession = {
   title: string;
   folderId?: string;
   messages: ChatMessage[];
+  attachments?: ChatFileAttachment[];
   modelId?: string;
   tags: string[];
   createdAt: string;

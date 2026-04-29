@@ -17,6 +17,9 @@ const requiredPaths = [
   'packages/core/src/chat/chat-persistence.ts',
   'tests/chat-core.test.ts',
   'packages/core/src/chat/chat-store.ts',
+  'packages/core/src/files/file-input.ts',
+  'packages/shared/src/types/file.ts',
+  'tests/file-input.test.ts',
   'packages/core/src/provider/provider-store.ts',
   'packages/storage/src/storage-adapter.ts',
   'packages/storage/src/indexeddb-storage-adapter.ts',
@@ -31,6 +34,7 @@ const requiredPaths = [
   'docs/SECURITY_MODEL.md',
   'docs/PROVIDER_ADAPTERS.md',
   'docs/STORAGE_MODEL.md',
+  'docs/FILE_INPUT.md',
   '.hello-world-harness/feature_list.json',
   '.hello-world-harness/sprint_plan.json',
 ];

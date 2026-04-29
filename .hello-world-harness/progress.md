@@ -35,3 +35,10 @@
 - Verification passed: `npm run check` -> scaffold check passed (32 paths), tests 12/pass 12/fail 0.
 - Review: secret scan only found code identifiers `apiKey` and `maskSecret`; no real secrets.
 - Next recommended sprint: P0-M5 basic file input or connect storage adapters to actual Web/Desktop/Mobile shells once UI framework is introduced.
+
+## 2026-04-29T14:57:14.461474+00:00
+
+- Implemented P0-M5 basic file input: TXT/Markdown parsing, lightweight PDF text-layer extraction, image data URLs, session attach/remove, and unsupported model guidance.
+- Verification passed: `npm run check` -> scaffold check passed (36 paths), tests 17/pass 17/fail 0.
+- Review: no real secrets detected; PDF parser is intentionally lightweight and documented as P0-limited.
+- Next recommended sprint: P0-M6 three-terminal shells/PWA/Tauri/Capacitor scaffolding.

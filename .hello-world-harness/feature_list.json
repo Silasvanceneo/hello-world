@@ -222,6 +222,53 @@
         "tests/storage-adapters.test.ts verifies JSON persistence across instances"
       ],
       "lastUpdated": "2026-04-29T14:54:56.054237+00:00"
+    },
+    {
+      "id": "P0-M5-F001",
+      "title": "Basic file kind detection and parsing",
+      "priority": "must",
+      "acceptance": [
+        "TXT and Markdown parse as text",
+        "Simple text-layer PDF extraction works",
+        "PNG/JPG/WebP images become data-url attachments"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/files/file-input.ts",
+        "tests/file-input.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T14:57:14.461474+00:00"
+    },
+    {
+      "id": "P0-M5-F002",
+      "title": "Bind files to chat sessions",
+      "priority": "must",
+      "acceptance": [
+        "Files can be attached to a session",
+        "Files can be removed from a session immutably"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "attachFileToSession/removeFileFromSession covered by tests/file-input.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T14:57:14.461474+00:00"
+    },
+    {
+      "id": "P0-M5-F003",
+      "title": "Unsupported file/model guidance",
+      "priority": "must",
+      "acceptance": [
+        "Non-file models get a clear file warning",
+        "Non-vision models get a clear image warning"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "describeUnsupportedFileForModel covered by tests/file-input.test.ts"
+      ],
+      "lastUpdated": "2026-04-29T14:57:14.461474+00:00"
     }
   ]
 }
