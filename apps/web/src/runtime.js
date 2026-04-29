@@ -65,8 +65,7 @@ function render() {
 }
 
 function renderMessage(message) {
-  const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('
-');
+  const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n');
   return `<article class="message ${message.role}"><strong>${message.role}</strong><p>${escapeHtml(text)}</p></article>`;
 }
 
@@ -98,8 +97,7 @@ elements.composer.addEventListener('submit', async (event) => {
       modelId: provider.defaultModelId ?? defaultModel(provider.type),
       apiKey: providerSecrets.get(provider.id),
       signal: activeAbortController.signal,
-      messages: getActiveSession(state).messages.map((message) => ({ role: message.role, content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('
-') })),
+      messages: getActiveSession(state).messages.map((message) => ({ role: message.role, content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n') })),
       onDelta: (_delta, fullText) => {
         elements.providerStatus.textContent = `Streaming ${fullText.length} chars...`;
       },

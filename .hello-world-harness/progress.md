@@ -91,3 +91,10 @@
 - Added `npm run review` gate and included it in `npm run check` to enforce source file-size limits, `.env` ignore coverage, harness checkpoint presence, and suspicious committed secret scanning.
 - Verification passed: `npm run check` -> scaffold check passed (68 paths), tests 33/pass 33/fail 0, `npm run build:web` passed, `npm run review` passed.
 - Current status: no blocking quality/security findings; continue with P1-M2 multi-model comparison next.
+
+## 2026-04-29T15:29:20.1672568Z
+
+- Fixed a Web runtime syntax issue caused by accidental literal newlines in JavaScript string delimiters.
+- Strengthened `npm run review` to compile-check browser JavaScript source so the static build cannot silently copy invalid runtime scripts.
+- Verification passed: `npm run check` -> scaffold check passed (68 paths), tests 33/pass 33/fail 0, build:web passed, review passed.
+- Continue with P1-M2 multi-model comparison next.

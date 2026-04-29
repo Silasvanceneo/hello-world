@@ -48,6 +48,12 @@ for (const filePath of collectFiles(roots)) {
   if (lineLimitedExtensions.has(extname(filePath)) && lineCount > maxFileLines) {
     failures.push(`${normalizedPath}: ${lineCount} lines exceeds ${maxFileLines}`);
   }
+  if (extname(filePath) === '.js') {
+    const syntaxError = checkBrowserJavaScriptSyntax(content);
+    if (syntaxError) {
+      failures.push(`${normalizedPath}: ${syntaxError}`);
+    }
+  }
 
   for (const { name, pattern } of secretPatterns) {
     pattern.lastIndex = 0;
@@ -124,6 +130,19 @@ function walk(currentPath, files) {
 
 function countLines(content) {
   return content.length === 0 ? 0 : content.split(/\r?\n/).length;
+}
+
+function checkBrowserJavaScriptSyntax(content) {
+  const scriptLikeContent = content
+    .replace(/^\s*import[\s\S]*?;\s*/gm, '')
+    .replace(/\bexport\s+(?=(async\s+)?function|const|let|var|class)/g, '');
+  try {
+    new Function(scriptLikeContent);
+    return undefined;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown syntax error';
+    return `browser JavaScript syntax check failed (${message})`;
+  }
 }
 
 function isAllowedDummyCredential(path, content, matchIndex) {

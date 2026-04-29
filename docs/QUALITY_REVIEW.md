@@ -10,11 +10,12 @@ Last review: 2026-04-29
   - scaffold/path integrity check
   - unit/integration-style Node tests
   - static Web build
-  - repository review gate for file-size and suspicious committed secrets
+  - repository review gate for file-size, browser JavaScript syntax, and suspicious committed secrets
 
 ## Review findings
 
 - Source files are currently below the 800-line maximum used by the project review gate.
+- Browser JavaScript modules pass the syntax gate; this prevents static builds from silently copying invalid runtime scripts.
 - Local secret handling follows the current design: provider keys are runtime-only in the browser tab, with persisted state storing provider metadata and `apiKeyRef` only.
 - The only credential-like literals detected are dummy test fixtures such as `runtime-key` and `runtime-secret`.
 - Web UI uses escaped message/session/attachment content before injecting generated markup.
