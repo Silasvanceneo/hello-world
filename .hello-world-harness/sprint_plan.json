@@ -1,0 +1,34 @@
+{
+  "sprints": [
+    {
+      "id": "P0-M1",
+      "scope": "Project structure and baseline shared contracts",
+      "dependencies": [
+        "hello-world-project-plan.md"
+      ],
+      "doneCriteria": [
+        "Dependency-free scaffold check passes",
+        "Progress checkpoint is written",
+        "No network or secret dependency required"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/",
+        "packages/",
+        "server/",
+        "docs/",
+        "scripts/",
+        "README.md",
+        "package.json",
+        "tsconfig.base.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update .hello-world-harness/progress.md",
+        "Mark feature_list evidence with verification result"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+﻿# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+
+# Build outputs
+dist/
+build/
+.out/
+.svelte-kit/
+.turbo/
+coverage/
+
+# Native build outputs
+apps/desktop/src-tauri/target/
+apps/mobile/android/app/build/
+apps/mobile/ios/App/build/
+
+# Python/server caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local secrets and machine config
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local agent/runtime state
+.omx/

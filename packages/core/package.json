@@ -1,0 +1,8 @@
+{
+  "name": "@hello-world/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Chat/session/settings domain logic.",
+  "exports": "./src/index.ts"
+}

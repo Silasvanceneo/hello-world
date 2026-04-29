@@ -1,0 +1,57 @@
+{
+  "features": [
+    {
+      "id": "P0-M1-F001",
+      "title": "Repository structure apps/packages/server",
+      "priority": "must",
+      "acceptance": [
+        "apps/web exists",
+        "apps/desktop exists",
+        "apps/mobile exists",
+        "packages/shared/api-client/core/storage/ui exist",
+        "server/open_webui exists"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> hello-world scaffold check passed (14 paths)",
+        "Manual review: scaffold is dependency-free and contains no secrets/API keys"
+      ],
+      "lastUpdated": "2026-04-29T14:36:38.759330+00:00"
+    },
+    {
+      "id": "P0-M1-F002",
+      "title": "Shared protocol and adapter contracts",
+      "priority": "must",
+      "acceptance": [
+        "ProviderConnection and ProviderAdapter are defined",
+        "ChatSession/ChatMessage/ChatChunk are defined",
+        "StorageAdapter is defined"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> hello-world scaffold check passed (14 paths)",
+        "Manual review: scaffold is dependency-free and contains no secrets/API keys"
+      ],
+      "lastUpdated": "2026-04-29T14:36:38.759330+00:00"
+    },
+    {
+      "id": "P0-M1-F003",
+      "title": "Project documentation baseline",
+      "priority": "must",
+      "acceptance": [
+        "README exists",
+        "plan copied into docs",
+        "architecture/security/provider/chat docs exist"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> hello-world scaffold check passed (14 paths)",
+        "Manual review: scaffold is dependency-free and contains no secrets/API keys"
+      ],
+      "lastUpdated": "2026-04-29T14:36:38.759330+00:00"
+    }
+  ]
+}

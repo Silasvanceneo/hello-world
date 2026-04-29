@@ -1,0 +1,16 @@
+{
+  "name": "hello-world",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "node scripts/verify-structure.mjs",
+    "build:web": "npm --workspace apps/web run build",
+    "build:desktop": "npm --workspace apps/desktop run build",
+    "build:mobile": "npm --workspace apps/mobile run build"
+  }
+}
