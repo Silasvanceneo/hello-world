@@ -13,3 +13,4 @@ export * from './model/model-capability.ts';
 export * from './model/model-comparison.ts';
 export * from './model/model-routing.ts';
 export * from './knowledge/knowledge-base.ts';
+export * from './sync/sync-engine.ts';

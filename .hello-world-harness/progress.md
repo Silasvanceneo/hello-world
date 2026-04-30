@@ -207,3 +207,13 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (113 paths), tests 79/pass 79/fail 0, build:web passed, review passed.
 - UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/cost-estimation-ui.png for the Usage budget panel.
 - Next recommended sprint: P2-M5 sync capability foundation.
+
+## 2026-04-30T05:53:29.206Z
+
+- Implemented P2-M5 sync capability foundation: core sync item manifests, upload/download/conflict planning, and explicit conflict resolution.
+- Added Web Sync foundation settings panel with local endpoint/scope persistence, token-safe state handling, and local preview counts; no network sync is performed yet.
+- Preserved privacy boundary: runtime secrets are not persisted and knowledge document body/page text is excluded from sync manifests.
+- Verification passed: `npm run check` -> scaffold check passed (118 paths), tests 86/pass 86/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check`.
+- UI smoke passed: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/sync-foundation-ui.png for the Sync foundation panel.
+- Next recommended sprint: P2-M6 export/import and backup foundations, unless the plan prioritizes another P2 item.

@@ -604,6 +604,40 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P2-M5",
+      "scope": "Sync capability foundation",
+      "dependencies": [
+        "P0-M4",
+        "P2-M1",
+        "P2-M2",
+        "P2-M4"
+      ],
+      "doneCriteria": [
+        "Sync manifests cover chat history, settings/providers, prompt templates, agent presets, and knowledge metadata",
+        "Conflicts are visible and never silently overwritten",
+        "Local writes keep working when sync is disabled or unavailable",
+        "Web settings expose local sync configuration and preview only",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

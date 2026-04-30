@@ -15,6 +15,7 @@ import {
   getActiveSession,
   parseState,
   renderPromptTemplateWithVariables,
+  saveSyncSettings,
   saveUsageBudget,
   serializeState,
   setActiveAgentPreset,
@@ -26,6 +27,7 @@ import {
   upsertProvider,
 } from './web-state.js';
 import { createCostDashboardViewModel, createUsageRecordsFromWebState } from './cost-dashboard.js';
+import { createLocalPreviewPlan, createSyncDashboardViewModel } from './sync-dashboard.js';
 import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { detectLocalOllama } from './native-desktop.js';
@@ -94,9 +96,16 @@ const elements = {
   saveAgentPreset: document.querySelector('#save-agent-preset'),
   saveBudget: document.querySelector('#save-budget'),
   savePromptTemplate: document.querySelector('#save-prompt-template'),
+  saveSyncSettings: document.querySelector('#save-sync-settings'),
   sessionList: document.querySelector('#session-list'),
   sessionTitle: document.querySelector('#session-title'),
   stopGeneration: document.querySelector('#stop-generation'),
+  syncCounts: document.querySelector('#sync-counts'),
+  syncEnabled: document.querySelector('#sync-enabled'),
+  syncEndpoint: document.querySelector('#sync-endpoint'),
+  syncStatus: document.querySelector('#sync-status'),
+  syncTargets: document.querySelector('#sync-targets'),
+  previewSyncPlan: document.querySelector('#preview-sync-plan'),
   speakLast: document.querySelector('#speak-last'),
   usageSummary: document.querySelector('#usage-summary'),
   voiceInput: document.querySelector('#voice-input'),
@@ -129,6 +138,7 @@ function render() {
   renderPromptTemplatePanel();
   renderRoutingPanel();
   renderCostPanel();
+  renderSyncPanel();
 }
 
 function renderMessage(message) {
@@ -458,6 +468,23 @@ elements.saveBudget.addEventListener('click', () => {
   render();
 });
 
+elements.saveSyncSettings.addEventListener('click', () => {
+  state = saveSyncSettings(state, {
+    enabled: elements.syncEnabled.value === 'enabled',
+    endpoint: elements.syncEndpoint.value,
+    targets: elements.syncTargets.value,
+  });
+  saveState();
+  render();
+  elements.syncStatus.textContent = 'Sync settings saved locally. No network call was sent.';
+});
+
+elements.previewSyncPlan.addEventListener('click', () => {
+  const plan = createLocalPreviewPlan(state);
+  renderSyncPanel(plan);
+  elements.syncStatus.textContent = `${createSyncDashboardViewModel(state.syncSettings, plan).statusLabel} Preview only; conflicts will require explicit choice.`;
+});
+
 elements.applyPromptTemplate.addEventListener('click', () => {
   const template = getActivePromptTemplate(state);
   if (!template) {
@@ -629,6 +656,20 @@ function renderCostPanel() {
   ].join('');
 }
 
+function renderSyncPanel(plan = createLocalPreviewPlan(state)) {
+  const settings = state.syncSettings ?? {};
+  const view = createSyncDashboardViewModel(settings, plan);
+  elements.syncEnabled.value = settings.enabled ? 'enabled' : 'disabled';
+  elements.syncEndpoint.value = settings.endpoint ?? '';
+  elements.syncTargets.value = syncTargetCsv(settings);
+  elements.syncStatus.textContent = `${view.enabledLabel}. ${view.statusLabel}`;
+  elements.syncCounts.innerHTML = [
+    `<li>Upload <span>${view.counts.upload}</span></li>`,
+    `<li>Download <span>${view.counts.download}</span></li>`,
+    `<li>Conflicts <span>${view.counts.conflicts}</span></li>`,
+  ].join('');
+}
+
 function parsePromptTemplateValues() {
   const raw = elements.promptTemplateValues.value.trim();
   if (!raw) return {};
@@ -643,6 +684,17 @@ function parsePromptTemplateValues() {
     elements.promptTemplateStatus.textContent = `Template variables error: ${message}`;
     return undefined;
   }
+}
+
+function syncTargetCsv(settings) {
+  return [
+    settings.includeChats !== false ? 'chats' : undefined,
+    settings.includeSettings !== false ? 'settings' : undefined,
+    settings.includeProviders !== false ? 'providers' : undefined,
+    settings.includePrompts !== false ? 'prompts' : undefined,
+    settings.includeAgents !== false ? 'agents' : undefined,
+    settings.includeKnowledgeMetadata !== false ? 'knowledge-metadata' : undefined,
+  ].filter(Boolean).join(', ');
 }
 
 render();

@@ -10,6 +10,7 @@ export function createInitialWebState(now = new Date().toISOString()) {
     agentPresets: [],
     promptTemplates: [],
     usageBudget: { currency: 'USD' },
+    syncSettings: normalizeSyncSettings(),
     attachments: [],
   };
 }
@@ -193,6 +194,28 @@ export function saveUsageBudget(state, budget) {
   };
 }
 
+export function saveSyncSettings(state, draft) {
+  const current = normalizeSyncSettings(state.syncSettings);
+  const targets = draft.targets === undefined ? undefined : new Set(parseSyncTargetList(draft.targets));
+  return {
+    ...state,
+    syncSettings: normalizeSyncSettings({
+      enabled: draft.enabled ?? current.enabled,
+      endpoint: draft.endpoint ?? current.endpoint,
+      includeChats: targets ? targets.has('chats') : draft.includeChats ?? current.includeChats,
+      includeSettings: targets ? targets.has('settings') : draft.includeSettings ?? current.includeSettings,
+      includeProviders: targets ? targets.has('providers') : draft.includeProviders ?? current.includeProviders,
+      includePrompts: targets ? targets.has('prompts') : draft.includePrompts ?? current.includePrompts,
+      includeAgents: targets ? targets.has('agents') : draft.includeAgents ?? current.includeAgents,
+      includeKnowledgeMetadata: targets
+        ? targets.has('knowledge-metadata')
+        : draft.includeKnowledgeMetadata ?? current.includeKnowledgeMetadata,
+      lastSyncAt: current.lastSyncAt,
+      lastError: current.lastError,
+    }),
+  };
+}
+
 export function summarizeUsage(session) {
   return session.messages.reduce((summary, message) => {
     const usage = message.usage;
@@ -262,6 +285,7 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
       agentPresets: Array.isArray(parsed.agentPresets) ? parsed.agentPresets : [],
       promptTemplates: Array.isArray(parsed.promptTemplates) ? parsed.promptTemplates : [],
       usageBudget: normalizeUsageBudget(parsed.usageBudget),
+      syncSettings: normalizeSyncSettings(parsed.syncSettings),
       attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],
     };
   } catch {
@@ -326,6 +350,44 @@ function normalizeUsageBudget(value) {
     monthlyLimit: parseOptionalPositiveNumber(value?.monthlyLimit),
     currency: value?.currency === 'CNY' ? 'CNY' : 'USD',
   };
+}
+
+function normalizeSyncSettings(value = {}) {
+  return {
+    enabled: Boolean(value.enabled),
+    endpoint: sanitizeEndpoint(value.endpoint),
+    includeChats: value.includeChats !== false,
+    includeSettings: value.includeSettings !== false,
+    includeProviders: value.includeProviders !== false,
+    includePrompts: value.includePrompts !== false,
+    includeAgents: value.includeAgents !== false,
+    includeKnowledgeMetadata: value.includeKnowledgeMetadata !== false,
+    lastSyncAt: typeof value.lastSyncAt === 'string' ? value.lastSyncAt : undefined,
+    lastError: typeof value.lastError === 'string' ? value.lastError : undefined,
+  };
+}
+
+function sanitizeEndpoint(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return '';
+  try {
+    const url = new URL(raw);
+    url.username = '';
+    url.password = '';
+    url.hash = '';
+    for (const key of [...url.searchParams.keys()]) {
+      if (/token|key|secret|password/i.test(key)) url.searchParams.delete(key);
+    }
+    return url.toString().replace(/\?$/, '');
+  } catch {
+    return raw.replace(/\s+/g, '');
+  }
+}
+
+function parseSyncTargetList(value) {
+  const requested = new Set(String(value ?? '').split(',').map((item) => item.trim().toLowerCase()));
+  return ['chats', 'settings', 'providers', 'prompts', 'agents', 'knowledge-metadata']
+    .filter((target) => requested.has(target));
 }
 
 function parseOptionalPositiveNumber(value) {

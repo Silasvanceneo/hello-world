@@ -1120,6 +1120,61 @@
         "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/cost-estimation-ui.png created for the Usage budget panel"
       ],
       "lastUpdated": "2026-04-30T05:33:55.193Z"
+    },
+    {
+      "id": "P2-M5-F001",
+      "title": "Local-first sync item manifests and planner",
+      "priority": "should",
+      "acceptance": [
+        "Chat sessions, settings, providers, agents, prompts, and knowledge metadata can be represented as sync items",
+        "Planner separates uploads, downloads, and visible conflicts",
+        "Conflict resolution requires an explicit keep-local or use-remote choice"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/sync/sync-engine.ts implements collectSyncItems, createSyncPlan, and resolveSyncConflict",
+        "tests/sync-engine.test.ts covers sync manifests, upload/download/conflict plans, and explicit conflict resolution"
+      ],
+      "lastUpdated": "2026-04-30T05:53:29.206Z"
+    },
+    {
+      "id": "P2-M5-F002",
+      "title": "Web sync settings and local preview panel",
+      "priority": "should",
+      "acceptance": [
+        "Web state persists sync endpoint and selected scopes locally",
+        "Runtime secrets and access tokens are not persisted",
+        "Settings panel previews uploads, downloads, and conflicts without sending network data"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js persists sanitized syncSettings and excludes token-like draft fields",
+        "apps/web/src/sync-dashboard.js builds dashboard counts and local preview plans",
+        "apps/web/index.html and apps/web/src/runtime.js add the Sync foundation panel",
+        "tests/web-sync-dashboard.test.mjs covers safe settings persistence, scope parsing, dashboard counts, and local preview uploads"
+      ],
+      "lastUpdated": "2026-04-30T05:53:29.206Z"
+    },
+    {
+      "id": "P2-M5-F003",
+      "title": "Sync foundation documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Sync behavior is documented as local-first and not a hosted sync service",
+        "Knowledge document body text is excluded from sync manifests",
+        "Full check and UI smoke verification pass"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/SYNC_FOUNDATION.md documents scope, local-first behavior, explicit conflict handling, and privacy boundaries",
+        "npm run check -> scaffold check passed (118 paths), tests 86/pass 86/fail 0, build:web passed, review passed",
+        "git diff --check passed",
+        "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/sync-foundation-ui.png created for the Sync foundation panel"
+      ],
+      "lastUpdated": "2026-04-30T05:53:29.206Z"
     }
   ]
 }

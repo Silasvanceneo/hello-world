@@ -184,6 +184,25 @@
           <ul id="cost-trends" class="security-list cost-trends" aria-label="Usage trends"></ul>
         </div>
 
+        <div class="panel-card">
+          <p class="section-label">Sync foundation</p>
+          <h2>Local sync</h2>
+          <label>Status
+            <select id="sync-enabled">
+              <option value="disabled">Local only</option>
+              <option value="enabled">Enabled</option>
+            </select>
+          </label>
+          <label>Endpoint<input id="sync-endpoint" placeholder="https://sync.example.invalid/workspaces/main" /></label>
+          <label>Scopes<input id="sync-targets" placeholder="chats, settings, prompts, agents, knowledge-metadata" /></label>
+          <div class="panel-actions">
+            <button id="preview-sync-plan" class="secondary-button" type="button">Preview</button>
+            <button id="save-sync-settings" class="primary-button" type="button">Save sync</button>
+          </div>
+          <p id="sync-status" class="status-text">Local sync is disabled.</p>
+          <ul id="sync-counts" class="security-list" aria-label="Sync counts"></ul>
+        </div>
+
         <div class="panel-card inverted-card">
           <p class="section-label">Security defaults</p>
           <ul class="security-list">
