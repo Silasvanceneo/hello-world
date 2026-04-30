@@ -3,79 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#4f46e5" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="./brand-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./app.css" />
     <title>hello-world</title>
   </head>
   <body>
+    <a class="skip-link" href="#prompt">Skip to composer</a>
     <main id="app" class="app-shell" aria-label="hello-world AI client">
       <section class="sidebar" aria-label="Workspace">
         <div class="brand">
-          <div class="brand-mark" aria-hidden="true">hw</div>
+          <img class="brand-mark" src="./brand-icon.png" alt="" />
           <div>
+            <p class="section-label">Local first</p>
             <h1>hello-world</h1>
-            <p>Local-first AI client</p>
           </div>
         </div>
-        <button id="new-session" class="secondary-button" type="button">New chat</button>
-        <nav id="session-list" class="session-list" aria-label="Chat history"></nav>
+
+        <button id="new-session" class="new-chat-button" type="button">New chat <span aria-hidden="true">&rarr;</span></button>
+
+        <div class="sidebar-section">
+          <p class="section-label">Conversations</p>
+          <nav id="session-list" class="session-list" aria-label="Chat history"></nav>
+        </div>
+
+        <div class="sidebar-footer" aria-label="Local status">
+          <span class="status-square" aria-hidden="true"></span>
+          Runtime keys only
+        </div>
       </section>
 
       <section class="chat-panel" aria-label="Chat">
         <header class="topbar">
           <div>
-            <p class="eyebrow">P0 Web MVP</p>
+            <p class="eyebrow">Private AI workspace</p>
             <h2 id="session-title">Untitled chat</h2>
           </div>
-          <div id="usage-summary" class="usage-pill">0 tokens</div>
+          <div class="topbar-actions">
+            <span class="model-pill">Ollama / OpenAI compatible</span>
+            <div id="usage-summary" class="usage-pill">0 tokens</div>
+          </div>
         </header>
 
         <div id="messages" class="messages" aria-live="polite"></div>
 
-        <form id="composer" class="composer">
-          <label class="file-picker">
-            <span>Attach</span>
-            <input id="file-input" type="file" multiple accept=".txt,.md,.markdown,.pdf,.docx,.xlsx,image/png,image/jpeg,image/webp,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-          </label>
-          <button id="capture-screen" class="secondary-button" type="button">Screenshot</button>
-          <button id="paste-image" class="secondary-button" type="button">Paste image</button>
-          <button id="capture-photo" class="secondary-button" type="button">Camera</button>
-          <button id="voice-input" class="secondary-button" type="button">Voice</button>
-          <button id="speak-last" class="secondary-button" type="button">Speak last</button>
-          <textarea id="prompt" rows="3" placeholder="Ask anything..." aria-label="Message"></textarea>
-          <button class="primary-button" type="submit">Send</button>
-          <button id="compare-models" class="secondary-button" type="button">Compare</button>
-          <button id="stop-generation" class="secondary-button" type="button" disabled>Stop</button>
-        </form>
-        <section id="comparison-results" class="comparison-results" aria-label="Model comparison results"></section>
-        <div id="attachments" class="attachments" aria-label="Attachments"></div>
+        <div class="chat-dock">
+          <section id="comparison-results" class="comparison-results" aria-label="Model comparison results"></section>
+          <div id="attachments" class="attachments" aria-label="Attachments"></div>
+
+          <form id="composer" class="composer">
+            <div class="composer-tools" aria-label="Input tools">
+              <label class="tool-button file-picker">
+                <span>Attach</span>
+                <input id="file-input" type="file" multiple accept=".txt,.md,.markdown,.pdf,.docx,.xlsx,image/png,image/jpeg,image/webp,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+              </label>
+              <button id="capture-screen" class="tool-button" type="button">Screenshot</button>
+              <button id="paste-image" class="tool-button" type="button">Paste image</button>
+              <button id="capture-photo" class="tool-button" type="button">Camera</button>
+              <button id="voice-input" class="tool-button" type="button">Voice</button>
+              <button id="speak-last" class="tool-button" type="button">Speak last</button>
+            </div>
+
+            <div class="composer-main">
+              <textarea id="prompt" rows="3" placeholder="Message hello-world..." aria-label="Message"></textarea>
+              <div class="composer-actions">
+                <button class="primary-button" type="submit">Send <span aria-hidden="true">&rarr;</span></button>
+                <button id="compare-models" class="secondary-button" type="button">Compare</button>
+                <button id="stop-generation" class="secondary-button" type="button" disabled>Stop</button>
+              </div>
+            </div>
+          </form>
+        </div>
       </section>
 
       <aside class="settings-panel" aria-label="Settings">
-        <h2>Provider</h2>
-        <label>Name<input id="provider-name" placeholder="Local Ollama" /></label>
-        <label>Type
-          <select id="provider-type">
-            <option value="openai-compatible">OpenAI-compatible</option>
-            <option value="ollama">Ollama</option>
-            <option value="openai">OpenAI</option>
-          </select>
-        </label>
-        <label>Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>
-        <label>Model<input id="provider-model" placeholder="gpt-4.1-mini or llama3.2" /></label>
-        <label>API key<input id="provider-api-key" type="password" placeholder="Runtime only; not persisted" /></label>
-        <button id="detect-local-ollama" class="secondary-button" type="button">Detect local Ollama</button>
-        <button id="save-provider" class="secondary-button" type="button">Save provider</button>
-        <p id="provider-status" class="status-text">No provider configured.</p>
+        <div class="panel-card">
+          <p class="section-label">Provider</p>
+          <h2>Connection</h2>
+          <label>Name<input id="provider-name" placeholder="Local Ollama" /></label>
+          <label>Type
+            <select id="provider-type">
+              <option value="openai-compatible">OpenAI-compatible</option>
+              <option value="ollama">Ollama</option>
+              <option value="openai">OpenAI</option>
+            </select>
+          </label>
+          <label>Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>
+          <label>Model<input id="provider-model" placeholder="gpt-4.1-mini or llama3.2" /></label>
+          <label>API key<input id="provider-api-key" type="password" placeholder="Runtime only; not persisted" /></label>
+          <div class="panel-actions">
+            <button id="detect-local-ollama" class="secondary-button" type="button">Detect Ollama</button>
+            <button id="save-provider" class="primary-button" type="button">Save</button>
+          </div>
+          <p id="provider-status" class="status-text">No provider configured.</p>
+        </div>
 
-        <h2>Security defaults</h2>
-        <ul class="security-list">
-          <li>Terminal: off</li>
-          <li>Code execution: off</li>
-          <li>stdio MCP: off</li>
-          <li>Broad filesystem: off</li>
-        </ul>
+        <div class="panel-card inverted-card">
+          <p class="section-label">Security defaults</p>
+          <ul class="security-list">
+            <li>Terminal <span>off</span></li>
+            <li>Code execution <span>off</span></li>
+            <li>stdio MCP <span>off</span></li>
+            <li>Broad filesystem <span>off</span></li>
+          </ul>
+        </div>
       </aside>
     </main>
     <script type="module" src="./runtime.js"></script>

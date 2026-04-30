@@ -1,4 +1,4 @@
-# hello-world Progress
+﻿# hello-world Progress
 
 ## 2026-04-29T14:36:11.971092+00:00
 
@@ -147,3 +147,22 @@
 - Verification passed at 2026-04-29T17:26:13.5116836Z: `npm run check` -> scaffold check passed (94 paths), tests 60/pass 60/fail 0, build:web passed, review passed.
 - Verification passed: `npm run build:mobile` -> Capacitor sync copied the shared Web build and finished successfully.
 - Verification passed: `npm run build:desktop` -> Tauri release executable rebuilt with the updated shared Web UI at 2026-04-29T17:26:56.5642317Z.
+
+## 2026-04-30T01:36:13.6864074Z
+
+- Reworked the Web UI toward a HaloWebUI/Open WebUI-style app shell after user feedback that the previous UI was too rough.
+- Preserved existing runtime IDs and functionality while redesigning the left conversation rail, central chat canvas, bottom composer dock, and right provider/security panel.
+- Added richer empty-state prompt suggestions and avatar chat bubbles in pps/web/src/runtime.js.
+- Verification passed:
+pm run check -> scaffold check passed (94 paths), tests 60/pass 60/fail 0, build:web passed, review passed.
+- Browser smoke passed at http://127.0.0.1:4173: page title hello-world, redesigned shell rendered; only a browser verbose password-field advisory remained.
+
+## 2026-04-30T04:40:52.0747878Z
+
+- Replaced the previous color/glass UI direction with the user-provided Minimalist Monochrome design system.
+- Centralized UI tokens in pps/web/src/app.css: pure black/white palette, serif display typography, mono labels, zero border radius, line-based layout, no shadows, and subtle paper/grid textures.
+- Integrated the provided mascot app icon lightly as a contained brand asset: sidebar mark, empty-state assistant card, assistant avatar, favicon, PWA manifest icon, and static rand-icon.png.
+- Preserved existing DOM IDs and runtime behavior for chat, provider settings, attachments, native inputs, voice, compare, and stop controls.
+- Verification passed:
+pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed.
+- Static smoke passed: HTTP 200 for /, image/png for /brand-icon.png; Edge headless produced .tmp-tests/monochrome-ui.png. Playwright MCP browser was unavailable because its target page/context had closed, so Edge headless was used as fallback.

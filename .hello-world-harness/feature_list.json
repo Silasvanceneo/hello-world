@@ -868,6 +868,29 @@
         "apps/web/src/runtime.js uses describeModelList and describeProviderValidationError"
       ],
       "lastUpdated": "2026-04-29T16:01:59.5174002Z"
+    },
+    {
+      "id": "P1-UX-F001",
+      "title": "Minimalist Monochrome UI with mascot icon adaptation",
+      "priority": "should",
+      "acceptance": [
+        "UI keeps the existing chat/provider/native controls and DOM IDs",
+        "Design tokens centralize pure black/white, serif typography, zero radius, borders, and texture rules",
+        "The provided mascot app icon is integrated as a restrained brand asset",
+        "Responsive behavior remains available for narrow screens",
+        "Web build and smoke verification pass"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/app.css defines Minimalist Monochrome tokens: pure black/white palette, serif/mono font stacks, zero radius, no shadows, line-based borders, and subtle paper textures",
+        "apps/web/index.html preserves runtime IDs while restructuring the app shell into editorial sidebar, chat canvas, composer, and provider panels",
+        "apps/web/static/brand-icon.png stores the provided mascot icon and is used by the brand mark, empty state, assistant avatar, favicon, and PWA manifest",
+        "apps/web/src/runtime.js renders the mascot empty state and assistant avatar without changing chat/provider behavior",
+        "npm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed",
+        "Static smoke -> HTTP 200 for / and image/png for /brand-icon.png; Edge headless produced .tmp-tests/monochrome-ui.png"
+      ],
+      "lastUpdated": "2026-04-30T04:40:52.069Z"
     }
   ]
 }

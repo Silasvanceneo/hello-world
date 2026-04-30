@@ -73,7 +73,7 @@ function render() {
     </button>
   `).join('');
   elements.messages.innerHTML = session.messages.length === 0
-    ? '<div class="empty-state">Start a local-first chat. Configure Ollama or an OpenAI-compatible endpoint to stream a real provider response; otherwise local echo is used.</div>'
+    ? renderEmptyState()
     : session.messages.map(renderMessage).join('');
   const usage = summarizeUsage(session);
   elements.usageSummary.textContent = `${usage.totalTokens} tokens`;
@@ -87,7 +87,35 @@ function render() {
 
 function renderMessage(message) {
   const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n');
-  return `<article class="message ${message.role}"><strong>${message.role}</strong><p>${escapeHtml(text)}</p></article>`;
+  const label = message.role === 'assistant' ? 'Assistant' : 'You';
+  const avatar = message.role === 'assistant'
+    ? '<img src="./brand-icon.png" alt="" />'
+    : '<span>Y</span>';
+  return `<article class="message ${message.role}">
+    <div class="message-avatar" aria-hidden="true">${avatar}</div>
+    <div class="message-bubble">
+      <strong>${escapeHtml(label)}</strong>
+      <p>${escapeHtml(text)}</p>
+    </div>
+  </article>`;
+}
+
+function renderEmptyState() {
+  return `<div class="empty-state">
+    <figure class="mascot-card">
+      <img src="./brand-icon.png" alt="" />
+      <figcaption>hello-world assistant</figcaption>
+    </figure>
+    <p class="eyebrow">Local-first, multi-model, private by default</p>
+    <h3>Ask less.<br />Know more.</h3>
+    <p>Connect Ollama or an OpenAI-compatible endpoint, then chat with files, screenshots, camera images, voice input, and model comparison.</p>
+    <div class="prompt-suggestions" aria-label="Prompt ideas">
+      <span>Explain this PDF</span>
+      <span>Compare two models</span>
+      <span>Analyze a screenshot</span>
+      <span>Draft a plan</span>
+    </div>
+  </div>`;
 }
 
 function renderComparisonResults() {

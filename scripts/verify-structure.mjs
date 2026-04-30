@@ -18,6 +18,7 @@ const requiredPaths = [
   'apps/web/src/runtime.js',
   'apps/web/src/pwa.ts',
   'apps/web/static/sw.js',
+  'apps/web/static/brand-icon.png',
   'apps/web/static/manifest.webmanifest',
   'apps/web/index.html',
   'apps/web/src/provider-settings.ts',
