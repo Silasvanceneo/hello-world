@@ -152,6 +152,22 @@
           <p id="prompt-template-status" class="status-text">No template selected.</p>
         </div>
 
+        <div class="panel-card">
+          <p class="section-label">Model router</p>
+          <h2>Route</h2>
+          <label>Strategy
+            <select id="model-routing-strategy">
+              <option value="balanced">Balanced</option>
+              <option value="cheap">Cheap first</option>
+              <option value="fast">Fast first</option>
+              <option value="long-context">Long context</option>
+              <option value="privacy">Privacy first</option>
+              <option value="fallback">Fallback</option>
+            </select>
+          </label>
+          <p id="routing-status" class="status-text">No enabled provider is available for routing.</p>
+        </div>
+
         <div class="panel-card inverted-card">
           <p class="section-label">Security defaults</p>
           <ul class="security-list">

@@ -1009,6 +1009,62 @@
         "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/prompt-template-ui.png created for Agent and Prompt panels"
       ],
       "lastUpdated": "2026-04-30T05:10:18.365Z"
+    },
+    {
+      "id": "P2-M3-F001",
+      "title": "Core model routing strategies",
+      "priority": "should",
+      "acceptance": [
+        "Routing supports cheap, fast, long-context, privacy, fallback, and balanced strategies",
+        "Routing filters unavailable and incompatible models",
+        "Routing explains selected candidates with reasons"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/model/model-routing.ts implements rankModelRoutes and chooseModelRoute",
+        "tests/model-routing.test.ts covers cheap, fast, long-context, privacy, fallback, and compatibility filtering"
+      ],
+      "lastUpdated": "2026-04-30T05:16:56.862Z"
+    },
+    {
+      "id": "P2-M3-F002",
+      "title": "Web model routing selector and send flow",
+      "priority": "should",
+      "acceptance": [
+        "Web settings can select a routing strategy",
+        "Normal sends choose an enabled provider through the router",
+        "Image/file attachments infer vision/file routing tasks",
+        "Agent preset model override still wins after provider route selection"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/model-routing.js implements browser-side provider routing and route explanations",
+        "apps/web/src/web-state.js persists routingStrategy with safe fallback",
+        "apps/web/src/runtime.js routes provider sends and keeps active Agent model overrides",
+        "apps/web/index.html adds the Model router strategy panel",
+        "tests/web-model-routing.test.mjs and tests/web-state.test.mjs cover browser routing and state persistence"
+      ],
+      "lastUpdated": "2026-04-30T05:16:56.862Z"
+    },
+    {
+      "id": "P2-M3-F003",
+      "title": "Model routing documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Model routing behavior is documented",
+        "Full check passes",
+        "Web UI smoke verification covers the Model router panel"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/MODEL_ROUTING.md documents strategies, compatibility, runtime behavior, and local-first boundaries",
+        "npm run check -> scaffold check passed (108 paths), tests 74/pass 74/fail 0, build:web passed, review passed",
+        "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/model-routing-ui.png created for the Model router panel"
+      ],
+      "lastUpdated": "2026-04-30T05:16:56.862Z"
     }
   ]
 }

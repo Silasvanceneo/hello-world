@@ -542,6 +542,37 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P2-M3",
+      "scope": "Intelligent model routing",
+      "dependencies": [
+        "P1-M1",
+        "P1-M6",
+        "P2-M1"
+      ],
+      "doneCriteria": [
+        "Routing supports cheap, fast, long-context, privacy, fallback, and balanced strategies",
+        "Web can select a routing strategy and route normal sends",
+        "Incompatible/unavailable routes are filtered",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

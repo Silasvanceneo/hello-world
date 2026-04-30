@@ -13,6 +13,7 @@ await cp(join(webRoot, 'src', 'runtime.js'), join(buildDir, 'runtime.js'));
 await cp(join(webRoot, 'src', 'web-state.js'), join(buildDir, 'web-state.js'));
 await cp(join(webRoot, 'src', 'provider-runtime.js'), join(buildDir, 'provider-runtime.js'));
 await cp(join(webRoot, 'src', 'model-comparison.js'), join(buildDir, 'model-comparison.js'));
+await cp(join(webRoot, 'src', 'model-routing.js'), join(buildDir, 'model-routing.js'));
 await cp(join(webRoot, 'src', 'native-desktop.js'), join(buildDir, 'native-desktop.js'));
 await cp(join(webRoot, 'src', 'native-media.js'), join(buildDir, 'native-media.js'));
 await cp(join(webRoot, 'src', 'native-voice.js'), join(buildDir, 'native-voice.js'));

@@ -10,4 +10,5 @@ export * from './usage/usage-ledger.ts';
 export * from './security/security-policy.ts';
 export * from './model/model-capability.ts';
 export * from './model/model-comparison.ts';
+export * from './model/model-routing.ts';
 export * from './knowledge/knowledge-base.ts';

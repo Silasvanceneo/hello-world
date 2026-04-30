@@ -18,11 +18,13 @@ import {
   serializeState,
   setActiveAgentPreset,
   setActivePromptTemplate,
+  setModelRoutingStrategy,
   summarizeUsage,
   upsertAgentPreset,
   upsertPromptTemplate,
   upsertProvider,
 } from './web-state.js';
+import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { detectLocalOllama } from './native-desktop.js';
 import {
@@ -79,6 +81,8 @@ const elements = {
   providerApiKey: document.querySelector('#provider-api-key'),
   providerStatus: document.querySelector('#provider-status'),
   providerType: document.querySelector('#provider-type'),
+  routingStatus: document.querySelector('#routing-status'),
+  routingStrategy: document.querySelector('#model-routing-strategy'),
   saveProvider: document.querySelector('#save-provider'),
   saveAgentPreset: document.querySelector('#save-agent-preset'),
   savePromptTemplate: document.querySelector('#save-prompt-template'),
@@ -115,6 +119,7 @@ function render() {
     : 'No provider configured. Local echo mode is active.';
   renderAgentPresetPanel();
   renderPromptTemplatePanel();
+  renderRoutingPanel();
 }
 
 function renderMessage(message) {
@@ -175,7 +180,11 @@ elements.composer.addEventListener('submit', async (event) => {
   if (!text || activeAbortController) {
     return;
   }
-  const provider = state.providers[0];
+  const routeChoice = chooseProviderForRouting(state.providers, {
+    strategy: state.routingStrategy ?? 'balanced',
+    task: inferRoutingTask(getActiveSession(state)),
+  });
+  const provider = routeChoice?.provider;
   state = addMessageToActiveSession(state, createTextMessage('user', text));
   elements.prompt.value = '';
   saveState();
@@ -194,7 +203,7 @@ elements.composer.addEventListener('submit', async (event) => {
   try {
     streamedText = await streamChatInBrowser({
       provider,
-      modelId: getActiveAgentPreset(state)?.defaultModelId ?? provider.defaultModelId ?? defaultModel(provider.type),
+      modelId: getActiveAgentPreset(state)?.defaultModelId ?? routeChoice.modelId ?? provider.defaultModelId ?? defaultModel(provider.type),
       apiKey: providerSecrets.get(provider.id),
       signal: activeAbortController.signal,
       messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
@@ -424,6 +433,12 @@ elements.promptTemplateSelect.addEventListener('change', () => {
   render();
 });
 
+elements.routingStrategy.addEventListener('change', () => {
+  state = setModelRoutingStrategy(state, elements.routingStrategy.value);
+  saveState();
+  render();
+});
+
 elements.applyPromptTemplate.addEventListener('click', () => {
   const template = getActivePromptTemplate(state);
   if (!template) {
@@ -512,6 +527,13 @@ function findLastAssistantText(session) {
     .trim() ?? '';
 }
 
+function inferRoutingTask(session) {
+  const attachments = session?.attachments ?? [];
+  if (attachments.some((attachment) => attachment.kind === 'image')) return 'vision';
+  if (attachments.length > 0) return 'files';
+  return 'text';
+}
+
 function detectBrowserFileKind(file) {
   const name = file.name.toLowerCase();
   if (file.type.startsWith('image/')) return 'image';
@@ -560,6 +582,16 @@ function renderPromptTemplatePanel() {
     return;
   }
   elements.promptTemplateStatus.textContent = 'No template selected. Save one to reuse prompts.';
+}
+
+function renderRoutingPanel() {
+  const strategy = state.routingStrategy ?? 'balanced';
+  elements.routingStrategy.value = strategy;
+  const choice = chooseProviderForRouting(state.providers, {
+    strategy,
+    task: inferRoutingTask(getActiveSession(state)),
+  });
+  elements.routingStatus.textContent = describeRoutingChoice(choice);
 }
 
 function parsePromptTemplateValues() {

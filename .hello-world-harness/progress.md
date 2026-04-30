@@ -190,3 +190,11 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (103 paths), tests 68/pass 68/fail 0, build:web passed, review passed.
 - UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/prompt-template-ui.png for Agent and Prompt panels.
 - Next recommended sprint: P2-M3 intelligent model routing.
+
+## 2026-04-30T05:16:56.862Z
+
+- Implemented P2-M3 intelligent model routing: core ranking for balanced/cheap/fast/long-context/privacy/fallback strategies plus browser-side provider routing.
+- Added Web Model router strategy selection and persisted routingStrategy in local state. Normal sends now choose an enabled provider through the router, infer vision/file tasks from attachments, and still honor active Agent preset model overrides.
+- Verification passed: `npm run check` -> scaffold check passed (108 paths), tests 74/pass 74/fail 0, build:web passed, review passed.
+- UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/model-routing-ui.png for the Model router panel.
+- Next recommended sprint: P2-M4 usage and cost estimation.

@@ -20,6 +20,7 @@ import {
   serializeState,
   setActiveAgentPreset,
   setActivePromptTemplate,
+  setModelRoutingStrategy,
   summarizeUsage,
   upsertAgentPreset,
   upsertPromptTemplate,
@@ -105,4 +106,13 @@ test('web state falls back safely when persisted state is invalid', () => {
   const restored = parseState('{bad json', '2026-04-29T00:00:00.000Z');
   assert.equal(restored.sessions.length, 1);
   assert.equal(getActiveSession(restored).title, 'Untitled chat');
+});
+
+test('web state persists model routing strategy with safe fallback', () => {
+  const state = setModelRoutingStrategy(createInitialWebState('2026-04-30T00:00:00.000Z'), 'privacy');
+  const restored = parseState(serializeState(state));
+  const invalid = parseState(JSON.stringify({ ...restored, routingStrategy: 'unknown-route' }));
+
+  assert.equal(restored.routingStrategy, 'privacy');
+  assert.equal(invalid.routingStrategy, 'balanced');
 });

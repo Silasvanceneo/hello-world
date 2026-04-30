@@ -4,6 +4,7 @@ export function createInitialWebState(now = new Date().toISOString()) {
     activeSessionId: session.id,
     activeAgentPresetId: undefined,
     activePromptTemplateId: undefined,
+    routingStrategy: 'balanced',
     sessions: [session],
     providers: [],
     agentPresets: [],
@@ -173,6 +174,13 @@ export function renderPromptTemplateWithVariables(template, values) {
   return { text, missingVariables };
 }
 
+export function setModelRoutingStrategy(state, strategy) {
+  return {
+    ...state,
+    routingStrategy: normalizeRoutingStrategy(strategy),
+  };
+}
+
 export function summarizeUsage(session) {
   return session.messages.reduce((summary, message) => {
     const usage = message.usage;
@@ -236,6 +244,7 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
       activeSessionId: parsed.activeSessionId ?? parsed.sessions[0].id,
       activeAgentPresetId: parsed.activeAgentPresetId,
       activePromptTemplateId: parsed.activePromptTemplateId,
+      routingStrategy: normalizeRoutingStrategy(parsed.routingStrategy),
       sessions: parsed.sessions,
       providers: Array.isArray(parsed.providers) ? parsed.providers : [],
       agentPresets: Array.isArray(parsed.agentPresets) ? parsed.agentPresets : [],
@@ -292,6 +301,10 @@ function extractPromptVariables(body) {
 
 function normalizeKnowledgeScope(value) {
   return ['session', 'library'].includes(value) ? value : 'none';
+}
+
+function normalizeRoutingStrategy(value) {
+  return ['balanced', 'cheap', 'fast', 'long-context', 'privacy', 'fallback'].includes(value) ? value : 'balanced';
 }
 
 function textMessagesForProvider(session) {
