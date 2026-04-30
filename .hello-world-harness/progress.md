@@ -166,3 +166,10 @@ pm run check -> scaffold check passed (94 paths), tests 60/pass 60/fail 0, build
 - Verification passed:
 pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed.
 - Static smoke passed: HTTP 200 for /, image/png for /brand-icon.png; Edge headless produced .tmp-tests/monochrome-ui.png. Playwright MCP browser was unavailable because its target page/context had closed, so Edge headless was used as fallback.
+
+## 2026-04-30T04:48:53.821Z
+
+- Polished the Minimalist Monochrome UI after user feedback: smoother hover/focus/composer/message state transitions, antialiased typography, smooth scroll, and reduced-motion safeguards.
+- Reframed the provided mascot icon as a round cropped brand asset for the sidebar mark, empty-state card, and assistant avatar while preserving the stored source asset and all runtime DOM IDs.
+- Verification passed before checkpoint update: `npm run check` -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed.
+- Next action: commit this UI polish checkpoint, then continue into the next planned P2 agent preset foundation.

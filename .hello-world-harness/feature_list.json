@@ -888,9 +888,12 @@
         "apps/web/static/brand-icon.png stores the provided mascot icon and is used by the brand mark, empty state, assistant avatar, favicon, and PWA manifest",
         "apps/web/src/runtime.js renders the mascot empty state and assistant avatar without changing chat/provider behavior",
         "npm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed",
-        "Static smoke -> HTTP 200 for / and image/png for /brand-icon.png; Edge headless produced .tmp-tests/monochrome-ui.png"
+        "Static smoke -> HTTP 200 for / and image/png for /brand-icon.png; Edge headless produced .tmp-tests/monochrome-ui.png",
+        "UI polish checkpoint: brand mark, empty-state mascot, and assistant avatar use round cropped mascot framing with restrained monochrome borders",
+        "UI polish checkpoint: hover/focus, composer, session, message, and empty-state transitions are smoother and respect reduced-motion preferences",
+        "npm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed after UI polish"
       ],
-      "lastUpdated": "2026-04-30T04:40:52.069Z"
+      "lastUpdated": "2026-04-30T04:48:53.821Z"
     }
   ]
 }
