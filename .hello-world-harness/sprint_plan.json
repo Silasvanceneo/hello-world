@@ -416,7 +416,7 @@
     },
     {
       "id": "P1-M5",
-      "scope": "Mobile camera, secure storage, share foundation, and Android debug build",
+      "scope": "Mobile camera, voice, speech playback, secure storage, share foundation, and Android debug build",
       "dependencies": [
         "P0-M6",
         "P0-M9"
@@ -424,8 +424,8 @@
       "doneCriteria": [
         "Capacitor Android project syncs the shared Web build",
         "Camera and secure-storage native plugins are installed and wrapped",
-        "Android debug APK builds successfully",
-        "Voice input/TTS gaps remain explicitly tracked instead of silently claimed"
+        "Voice input and speech playback controls are available in the shared Web/Mobile UI with unsupported-runtime errors",
+        "Android debug APK builds successfully"
       ],
       "allowedFilesOrAreas": [
         "apps/web/",

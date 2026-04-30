@@ -21,6 +21,7 @@ import {
   createImageAttachmentFromDataUrl,
   readClipboardImage,
 } from './native-media.js';
+import { listenForSpeech, speakText } from './native-voice.js';
 import { describeModelList, describeProviderValidationError } from './provider-diagnostics.js';
 import { defaultModel, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
 
@@ -54,7 +55,9 @@ const elements = {
   sessionList: document.querySelector('#session-list'),
   sessionTitle: document.querySelector('#session-title'),
   stopGeneration: document.querySelector('#stop-generation'),
+  speakLast: document.querySelector('#speak-last'),
   usageSummary: document.querySelector('#usage-summary'),
+  voiceInput: document.querySelector('#voice-input'),
 };
 
 function saveState() {
@@ -239,6 +242,44 @@ elements.capturePhoto.addEventListener('click', () => {
   attachNativeImage('camera-photo.jpg', () => captureMobilePhoto());
 });
 
+elements.voiceInput.addEventListener('click', async () => {
+  elements.voiceInput.disabled = true;
+  elements.providerStatus.textContent = 'Listening for voice input...';
+  try {
+    const transcript = await listenForSpeech();
+    if (!transcript) {
+      elements.providerStatus.textContent = 'No speech was captured.';
+      return;
+    }
+    appendPromptText(transcript);
+    elements.providerStatus.textContent = 'Voice input added to the prompt.';
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown voice input error.';
+    elements.providerStatus.textContent = `Voice input unavailable: ${message}`;
+  } finally {
+    elements.voiceInput.disabled = false;
+  }
+});
+
+elements.speakLast.addEventListener('click', async () => {
+  const text = findLastAssistantText(getActiveSession(state));
+  if (!text) {
+    elements.providerStatus.textContent = 'No assistant message is available for speech playback.';
+    return;
+  }
+  elements.speakLast.disabled = true;
+  elements.providerStatus.textContent = 'Reading the latest assistant reply aloud...';
+  try {
+    await speakText(text);
+    elements.providerStatus.textContent = 'Speech playback finished.';
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown speech playback error.';
+    elements.providerStatus.textContent = `Speech playback unavailable: ${message}`;
+  } finally {
+    elements.speakLast.disabled = false;
+  }
+});
+
 elements.messages.addEventListener('dragover', (event) => {
   event.preventDefault();
   elements.messages.classList.add('drop-active');
@@ -338,6 +379,23 @@ async function attachNativeImage(name, producer) {
     const message = error instanceof Error ? error.message : 'Unknown native input error.';
     elements.providerStatus.textContent = `Native image input unavailable: ${message}`;
   }
+}
+
+function appendPromptText(text) {
+  const current = elements.prompt.value.trim();
+  elements.prompt.value = current ? `${current}\n${text}` : text;
+  elements.prompt.focus();
+}
+
+function findLastAssistantText(session) {
+  return [...(session?.messages ?? [])]
+    .reverse()
+    .find((message) => message.role === 'assistant')
+    ?.content
+    .filter((item) => item.type === 'text')
+    .map((item) => item.text)
+    .join('\n')
+    .trim() ?? '';
 }
 
 function detectBrowserFileKind(file) {

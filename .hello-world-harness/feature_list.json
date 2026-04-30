@@ -809,12 +809,16 @@
         "Voice input is available",
         "Speech playback is available"
       ],
-      "status": "pending",
-      "passes": false,
+      "status": "passed",
+      "passes": true,
       "evidence": [
-        "Explicitly deferred in docs/NATIVE_INPUTS.md; no speech recognition/TTS plugin added yet"
+        "apps/web/src/native-voice.js implements Speech Recognition voice input and Speech Synthesis playback helpers with unsupported-runtime errors",
+        "apps/web/index.html and apps/web/src/runtime.js wire Voice and Speak last controls into the shared Web/Mobile UI",
+        "tests/native-voice.test.mjs covers capability detection, transcript capture, playback, and unsupported runtime failures",
+        "npm run check -> scaffold check passed (94 paths), tests 60/pass 60/fail 0, build:web passed, review passed",
+        "npm run build:mobile -> Capacitor sync copied the shared Web build and found Camera/Share/Preferences/Secure Storage plugins"
       ],
-      "lastUpdated": "2026-04-29T17:10:34.557Z"
+      "lastUpdated": "2026-04-29T17:26:13.506Z"
     },
     {
       "id": "P1-M6-F001",

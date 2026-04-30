@@ -137,3 +137,13 @@
 - Toolchain setup completed on this machine: JDK 21, Android Studio, Android command-line tools, Android SDK platform-tools, platforms;android-36, build-tools;36.0.0.
 - Verification passed: npm run check -> scaffold check passed (92 paths), tests 56/pass 56/fail 0, build:web passed, review passed; npm run build:desktop passed; npm run build:mobile passed; npm --workspace apps/mobile run android:debug passed.
 - Remaining native gaps explicitly tracked: desktop tray/global shortcut/desktop keychain, mobile voice input/TTS, and actual UI/device launch smoke tests.
+
+## 2026-04-29T17:25:10.9918245Z
+
+- Implemented P1-M5 mobile voice input and speech playback foundation in the shared Web/Mobile UI.
+- Added pps/web/src/native-voice.js for Speech Recognition transcript capture and Speech Synthesis playback with user-readable unsupported-runtime errors.
+- Wired Voice and Speak last controls into the composer; voice appends transcript to the prompt, and playback reads the latest assistant reply.
+- Updated P1-M5 feature/sprint state and native input documentation; verification pending for this checkpoint.
+- Verification passed at 2026-04-29T17:26:13.5116836Z: `npm run check` -> scaffold check passed (94 paths), tests 60/pass 60/fail 0, build:web passed, review passed.
+- Verification passed: `npm run build:mobile` -> Capacitor sync copied the shared Web build and finished successfully.
+- Verification passed: `npm run build:desktop` -> Tauri release executable rebuilt with the updated shared Web UI at 2026-04-29T17:26:56.5642317Z.

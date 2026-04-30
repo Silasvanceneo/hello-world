@@ -23,12 +23,14 @@ Not complete yet:
 - `@capacitor/camera` captures photos as data URLs for image question workflows.
 - `@capacitor/share` provides a foundation for "share to hello-world" flows.
 - `@aparajita/capacitor-secure-storage` provides native secure storage. On Android it uses Android KeyStore-backed encryption for values stored in SharedPreferences; the web fallback must not be treated as production-secret storage.
+- Voice input and speech playback are exposed from the shared Web UI through `apps/web/src/native-voice.js`.
+  - `Voice` uses the browser/WebView Speech Recognition API when available.
+  - `Speak last` uses the browser/WebView Speech Synthesis API to read the latest assistant reply.
+  - Unsupported runtimes return user-readable status messages instead of silently failing.
 
 Not complete yet:
 
-- Voice input.
-- Text-to-speech playback.
-- A full Android debug APK verification on this machine.
+- A full Android emulator/device launch smoke test.
 
 ## Toolchain status
 
