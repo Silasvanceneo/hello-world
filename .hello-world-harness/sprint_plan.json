@@ -638,6 +638,41 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P2-M6",
+      "scope": "Import, export, and backup foundations",
+      "dependencies": [
+        "P0-M4",
+        "P0-M9",
+        "P2-M1",
+        "P2-M2",
+        "P2-M5"
+      ],
+      "doneCriteria": [
+        "Single-session Markdown export redacts obvious sensitive strings",
+        "Full JSON backup and restore supports local sessions, providers, agents, prompts, usage budget, and sync settings",
+        "Provider runtime secret references are excluded from backups",
+        "ChatGPT and Open WebUI import foundations normalize common export shapes",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

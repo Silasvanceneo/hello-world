@@ -26,6 +26,13 @@ import {
   upsertPromptTemplate,
   upsertProvider,
 } from './web-state.js';
+import {
+  createWebBackupArchive,
+  exportActiveSessionMarkdown,
+  restoreWebBackupArchive,
+  safeJson,
+  summarizeBackupArchive,
+} from './backup-dashboard.js';
 import { createCostDashboardViewModel, createUsageRecordsFromWebState } from './cost-dashboard.js';
 import { createLocalPreviewPlan, createSyncDashboardViewModel } from './sync-dashboard.js';
 import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
@@ -62,6 +69,11 @@ const elements = {
   budgetCurrency: document.querySelector('#budget-currency'),
   budgetDaily: document.querySelector('#budget-daily'),
   budgetMonthly: document.querySelector('#budget-monthly'),
+  backupExport: document.querySelector('#backup-export-json'),
+  backupPayload: document.querySelector('#backup-payload'),
+  backupRestore: document.querySelector('#backup-restore-json'),
+  backupSessionMarkdown: document.querySelector('#backup-session-markdown'),
+  backupStatus: document.querySelector('#backup-status'),
   compareModels: document.querySelector('#compare-models'),
   costStatus: document.querySelector('#cost-status'),
   costTrends: document.querySelector('#cost-trends'),
@@ -139,6 +151,7 @@ function render() {
   renderRoutingPanel();
   renderCostPanel();
   renderSyncPanel();
+  renderBackupPanel();
 }
 
 function renderMessage(message) {
@@ -485,6 +498,29 @@ elements.previewSyncPlan.addEventListener('click', () => {
   elements.syncStatus.textContent = `${createSyncDashboardViewModel(state.syncSettings, plan).statusLabel} Preview only; conflicts will require explicit choice.`;
 });
 
+elements.backupExport.addEventListener('click', () => {
+  const archive = createWebBackupArchive(state);
+  elements.backupPayload.value = safeJson(archive);
+  elements.backupStatus.textContent = `JSON backup ready: ${summarizeBackupArchive(archive)} Copy it to a local file.`;
+});
+
+elements.backupSessionMarkdown.addEventListener('click', () => {
+  elements.backupPayload.value = exportActiveSessionMarkdown(state);
+  elements.backupStatus.textContent = 'Active session Markdown export is ready with sensitive text redacted.';
+});
+
+elements.backupRestore.addEventListener('click', () => {
+  try {
+    state = restoreWebBackupArchive(state, elements.backupPayload.value);
+    saveState();
+    render();
+    elements.backupStatus.textContent = 'Backup restored locally. Provider API keys must be re-entered at runtime.';
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Invalid backup JSON.';
+    elements.backupStatus.textContent = `Restore failed: ${message}`;
+  }
+});
+
 elements.applyPromptTemplate.addEventListener('click', () => {
   const template = getActivePromptTemplate(state);
   if (!template) {
@@ -668,6 +704,11 @@ function renderSyncPanel(plan = createLocalPreviewPlan(state)) {
     `<li>Download <span>${view.counts.download}</span></li>`,
     `<li>Conflicts <span>${view.counts.conflicts}</span></li>`,
   ].join('');
+}
+
+function renderBackupPanel() {
+  const archive = createWebBackupArchive(state);
+  elements.backupStatus.textContent = `Ready to export: ${summarizeBackupArchive(archive)}`;
 }
 
 function parsePromptTemplateValues() {

@@ -217,3 +217,12 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `git diff --check`.
 - UI smoke passed: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/sync-foundation-ui.png for the Sync foundation panel.
 - Next recommended sprint: P2-M6 export/import and backup foundations, unless the plan prioritizes another P2 item.
+
+## 2026-04-30T19:07:21.142Z
+
+- Implemented P2-M6 import/export foundations: redacted Markdown session export, secret-free JSON backup archives, and Web restore flow.
+- Added ChatGPT and Open WebUI import normalizers in the core backup module; imported sessions are marked dirty for local-first sync safety.
+- Added the Web Import / export Backup panel for Markdown export, JSON backup, and local restore. Provider API keys remain runtime-only and must be re-entered after restore.
+- Verification passed: `npm run check` -> scaffold check passed (123 paths), tests 92/pass 92/fail 0, build:web passed, review passed.
+- UI smoke passed: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/import-export-ui.png for the Import/export panel.
+- Next recommended sprint: review remaining P2 backlog and promote the next highest-value personal workspace feature.

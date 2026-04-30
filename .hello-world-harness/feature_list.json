@@ -1175,6 +1175,61 @@
         "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/sync-foundation-ui.png created for the Sync foundation panel"
       ],
       "lastUpdated": "2026-04-30T05:53:29.206Z"
+    },
+    {
+      "id": "P2-M6-F001",
+      "title": "Markdown session export and JSON backup archive",
+      "priority": "should",
+      "acceptance": [
+        "A single chat session can be exported as Markdown",
+        "A full local archive can include sessions, provider metadata, prompt templates, agent presets, usage budget, and sync settings",
+        "Provider secret references are excluded from backup archives"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/backup/import-export.ts implements exportSessionMarkdown, createBackupArchive, and restoreBackupArchive",
+        "apps/web/src/backup-dashboard.js implements Web JSON backup, restore, summary, and active session Markdown export",
+        "tests/import-export.test.ts and tests/web-backup-dashboard.test.mjs cover redacted Markdown and secret-free backup archives"
+      ],
+      "lastUpdated": "2026-04-30T19:07:21.142Z"
+    },
+    {
+      "id": "P2-M6-F002",
+      "title": "Open WebUI and ChatGPT import foundations",
+      "priority": "should",
+      "acceptance": [
+        "ChatGPT conversation mapping exports can be normalized into local chat sessions",
+        "Open WebUI chat/message export shapes can be normalized into local chat sessions",
+        "Imported sessions are marked dirty for local-first sync safety"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "importChatGPTExport normalizes mapping nodes into ordered ChatMessage arrays",
+        "importOpenWebUIExport accepts chats, chat.messages, messages, and chat.history.messages shapes",
+        "tests/import-export.test.ts covers ChatGPT and Open WebUI import normalization"
+      ],
+      "lastUpdated": "2026-04-30T19:07:21.142Z"
+    },
+    {
+      "id": "P2-M6-F003",
+      "title": "Import/export Web panel, docs, and verification",
+      "priority": "should",
+      "acceptance": [
+        "Web settings expose Markdown export, JSON backup, and restore controls",
+        "Import/export behavior and privacy boundaries are documented",
+        "Full check and UI smoke verification pass"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html and apps/web/src/runtime.js add the Import / export Backup panel",
+        "docs/IMPORT_EXPORT.md documents exports, restore, imports, and privacy boundaries",
+        "npm run check -> scaffold check passed (123 paths), tests 92/pass 92/fail 0, build:web passed, review passed",
+        "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/import-export-ui.png created for the Import/export panel"
+      ],
+      "lastUpdated": "2026-04-30T19:07:21.142Z"
     }
   ]
 }

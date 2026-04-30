@@ -203,6 +203,19 @@
           <ul id="sync-counts" class="security-list" aria-label="Sync counts"></ul>
         </div>
 
+        <div class="panel-card">
+          <p class="section-label">Import / export</p>
+          <h2>Backup</h2>
+          <p class="status-text">Export Markdown for one session or JSON for a full local restore.</p>
+          <label>Backup payload<textarea id="backup-payload" rows="6" placeholder="Exported Markdown or hello-world JSON backup appears here. Paste JSON here before restore."></textarea></label>
+          <div class="panel-actions">
+            <button id="backup-session-markdown" class="secondary-button" type="button">Markdown</button>
+            <button id="backup-export-json" class="secondary-button" type="button">JSON backup</button>
+            <button id="backup-restore-json" class="primary-button" type="button">Restore</button>
+          </div>
+          <p id="backup-status" class="status-text">Ready to export local data.</p>
+        </div>
+
         <div class="panel-card inverted-card">
           <p class="section-label">Security defaults</p>
           <ul class="security-list">
