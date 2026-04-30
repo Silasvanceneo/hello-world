@@ -583,6 +583,14 @@ label {
   margin: 16px 0;
   font-size: 0.95rem;
 }
+.compact-check {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+.compact-check input {
+  width: auto;
+  min-height: auto;
+}
 .composer-actions {
   display: grid;
   border-left: var(--line-medium);

@@ -951,6 +951,64 @@
         "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/agent-presets-ui.png created for the Agent preset UI"
       ],
       "lastUpdated": "2026-04-30T05:01:26.110Z"
+    },
+    {
+      "id": "P2-M2-F001",
+      "title": "Prompt template contracts and storage",
+      "priority": "should",
+      "acceptance": [
+        "Prompt templates store title, body, variables, tags, favorite, and local/sync scope",
+        "Variables can be inferred from {{ variable }} placeholders",
+        "Shared storage adapters can list/save/delete prompt templates",
+        "Prompt templates can be imported/exported as deterministic JSON"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/shared/src/types/prompt-template.ts defines PromptTemplate and PromptTemplateDraft",
+        "packages/core/src/prompt/prompt-template.ts normalizes, renders, imports, and exports prompt templates",
+        "packages/storage/src/storage-adapter.ts and snapshot-backed adapters persist promptTemplates",
+        "tests/prompt-templates.test.ts and tests/storage-adapters.test.ts cover templates and persistence"
+      ],
+      "lastUpdated": "2026-04-30T05:10:18.365Z"
+    },
+    {
+      "id": "P2-M2-F002",
+      "title": "Web Prompt template library UI",
+      "priority": "should",
+      "acceptance": [
+        "Web settings can save and select prompt templates",
+        "Variables JSON can be applied to a selected template",
+        "Rendered templates append to the composer",
+        "Missing variables remain visible and are reported to the user"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html adds the Prompt library panel with template, variables, tags, scope, favorite, save, and apply controls",
+        "apps/web/src/web-state.js stores promptTemplates and activePromptTemplateId and renders variables",
+        "apps/web/src/runtime.js applies selected templates to the composer and reports unresolved variables",
+        "tests/web-state.test.mjs covers prompt template persistence and variable rendering"
+      ],
+      "lastUpdated": "2026-04-30T05:10:18.365Z"
+    },
+    {
+      "id": "P2-M2-F003",
+      "title": "Prompt template documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Prompt template behavior is documented",
+        "Full check passes",
+        "Web UI smoke verification covers the Prompt library panel"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/PROMPT_TEMPLATES.md documents fields, runtime behavior, and sync boundary",
+        "npm run check -> scaffold check passed (103 paths), tests 68/pass 68/fail 0, build:web passed, review passed",
+        "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/prompt-template-ui.png created for Agent and Prompt panels"
+      ],
+      "lastUpdated": "2026-04-30T05:10:18.365Z"
     }
   ]
 }

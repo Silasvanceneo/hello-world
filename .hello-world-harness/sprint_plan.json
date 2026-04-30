@@ -510,6 +510,38 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P2-M2",
+      "scope": "Prompt template library",
+      "dependencies": [
+        "P0-M9",
+        "P2-M1"
+      ],
+      "doneCriteria": [
+        "Templates support favorites, variables, tags, import/export, and local/sync metadata",
+        "Web can save/select/apply templates to the composer",
+        "Shared storage snapshot persists templates",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "packages/storage/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

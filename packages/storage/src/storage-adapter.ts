@@ -1,4 +1,4 @@
-import type { AgentPreset, AppSettings, ChatSession, ProviderConnection, StorageResult } from '@hello-world/shared';
+import type { AgentPreset, AppSettings, ChatSession, PromptTemplate, ProviderConnection, StorageResult } from '@hello-world/shared';
 
 export interface StorageAdapter {
   listSessions(): Promise<StorageResult<ChatSession[]>>;
@@ -10,6 +10,9 @@ export interface StorageAdapter {
   listAgentPresets(): Promise<StorageResult<AgentPreset[]>>;
   saveAgentPreset(preset: AgentPreset): Promise<StorageResult<AgentPreset>>;
   deleteAgentPreset(presetId: string): Promise<StorageResult<void>>;
+  listPromptTemplates(): Promise<StorageResult<PromptTemplate[]>>;
+  savePromptTemplate(template: PromptTemplate): Promise<StorageResult<PromptTemplate>>;
+  deletePromptTemplate(templateId: string): Promise<StorageResult<void>>;
   getSettings(): Promise<StorageResult<AppSettings>>;
   saveSettings(settings: AppSettings): Promise<StorageResult<AppSettings>>;
 }

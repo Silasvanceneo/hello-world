@@ -3,6 +3,7 @@ import {
   type AgentPreset,
   type AppSettings,
   type ChatSession,
+  type PromptTemplate,
   type ProviderConnection,
   type StorageResult,
 } from '@hello-world/shared';
@@ -11,11 +12,12 @@ export type StorageSnapshot = {
   sessions: ChatSession[];
   providerConnections: ProviderConnection[];
   agentPresets: AgentPreset[];
+  promptTemplates: PromptTemplate[];
   settings: AppSettings;
 };
 
 export function createEmptyStorageSnapshot(now: () => string = () => new Date().toISOString()): StorageSnapshot {
-  return { sessions: [], providerConnections: [], agentPresets: [], settings: createDefaultAppSettings(now()) };
+  return { sessions: [], providerConnections: [], agentPresets: [], promptTemplates: [], settings: createDefaultAppSettings(now()) };
 }
 
 export function ok<T>(value: T): StorageResult<T> {

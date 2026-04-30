@@ -7,17 +7,22 @@ import {
   createAgentPresetFromForm,
   createAssistantEchoMessage,
   createInitialWebState,
+  createPromptTemplateFromForm,
   createProviderFromForm,
   createProviderMessagesForActiveAgent,
   createSession,
   createTextMessage,
   getActiveAgentPreset,
+  getActivePromptTemplate,
   getActiveSession,
   parseState,
+  renderPromptTemplateWithVariables,
   serializeState,
   setActiveAgentPreset,
+  setActivePromptTemplate,
   summarizeUsage,
   upsertAgentPreset,
+  upsertPromptTemplate,
   upsertProvider,
 } from '../apps/web/src/web-state.js';
 
@@ -69,6 +74,31 @@ test('web state stores active agent presets and prepends system prompts for prov
   assert.equal(providerMessages[0].role, 'system');
   assert.equal(providerMessages[0].content, 'Answer with crisp bullets.');
   assert.equal(providerMessages[1].content, 'Summarize this');
+});
+
+test('web state stores prompt templates and renders variables for the composer', () => {
+  let state = createInitialWebState('2026-04-30T00:00:00.000Z');
+  const template = createPromptTemplateFromForm({
+    title: '  Bug report  ',
+    body: 'Debug {{ issue }} in {{ file }}.',
+    variables: '',
+    tags: 'debug, work, debug',
+    favorite: true,
+    scope: 'sync',
+  }, '2026-04-30T00:03:00.000Z', 'template-1');
+  state = upsertPromptTemplate(state, template);
+  state = setActivePromptTemplate(state, 'template-1');
+  const restored = parseState(serializeState(state));
+  const active = getActivePromptTemplate(restored);
+  const rendered = renderPromptTemplateWithVariables(active, { issue: 'startup crash' });
+
+  assert.equal(active.title, 'Bug report');
+  assert.deepEqual(active.variables, ['issue', 'file']);
+  assert.deepEqual(active.tags, ['debug', 'work']);
+  assert.equal(active.favorite, true);
+  assert.equal(active.scope, 'sync');
+  assert.equal(rendered.text, 'Debug startup crash in {{ file }}.');
+  assert.deepEqual(rendered.missingVariables, ['file']);
 });
 
 test('web state falls back safely when persisted state is invalid', () => {

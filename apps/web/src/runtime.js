@@ -5,17 +5,22 @@ import {
   createAgentPresetFromForm,
   createAssistantEchoMessage,
   createInitialWebState,
+  createPromptTemplateFromForm,
   createProviderMessagesForActiveAgent,
   createProviderFromForm,
   createSession,
   createTextMessage,
   getActiveAgentPreset,
+  getActivePromptTemplate,
   getActiveSession,
   parseState,
+  renderPromptTemplateWithVariables,
   serializeState,
   setActiveAgentPreset,
+  setActivePromptTemplate,
   summarizeUsage,
   upsertAgentPreset,
+  upsertPromptTemplate,
   upsertProvider,
 } from './web-state.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
@@ -46,6 +51,7 @@ const elements = {
   agentStatus: document.querySelector('#agent-status'),
   agentSystemPrompt: document.querySelector('#agent-system-prompt'),
   agentTools: document.querySelector('#agent-tools'),
+  applyPromptTemplate: document.querySelector('#apply-prompt-template'),
   attachments: document.querySelector('#attachments'),
   compareModels: document.querySelector('#compare-models'),
   comparisonResults: document.querySelector('#comparison-results'),
@@ -57,6 +63,15 @@ const elements = {
   newSession: document.querySelector('#new-session'),
   pasteImage: document.querySelector('#paste-image'),
   prompt: document.querySelector('#prompt'),
+  promptTemplateBody: document.querySelector('#prompt-template-body'),
+  promptTemplateFavorite: document.querySelector('#prompt-template-favorite'),
+  promptTemplateScope: document.querySelector('#prompt-template-scope'),
+  promptTemplateSelect: document.querySelector('#prompt-template-select'),
+  promptTemplateStatus: document.querySelector('#prompt-template-status'),
+  promptTemplateTags: document.querySelector('#prompt-template-tags'),
+  promptTemplateTitle: document.querySelector('#prompt-template-title'),
+  promptTemplateValues: document.querySelector('#prompt-template-values'),
+  promptTemplateVariables: document.querySelector('#prompt-template-variables'),
   providerBaseUrl: document.querySelector('#provider-base-url'),
   detectLocalOllama: document.querySelector('#detect-local-ollama'),
   providerModel: document.querySelector('#provider-model'),
@@ -66,6 +81,7 @@ const elements = {
   providerType: document.querySelector('#provider-type'),
   saveProvider: document.querySelector('#save-provider'),
   saveAgentPreset: document.querySelector('#save-agent-preset'),
+  savePromptTemplate: document.querySelector('#save-prompt-template'),
   sessionList: document.querySelector('#session-list'),
   sessionTitle: document.querySelector('#session-title'),
   stopGeneration: document.querySelector('#stop-generation'),
@@ -98,6 +114,7 @@ function render() {
     ? `Saved ${provider.name} (${provider.defaultModelId ?? defaultModel(provider.type)}). API keys stay in memory for this browser tab.`
     : 'No provider configured. Local echo mode is active.';
   renderAgentPresetPanel();
+  renderPromptTemplatePanel();
 }
 
 function renderMessage(message) {
@@ -384,6 +401,44 @@ elements.agentPresetSelect.addEventListener('change', () => {
   render();
 });
 
+elements.savePromptTemplate.addEventListener('click', () => {
+  const current = getActivePromptTemplate(state);
+  const normalized = createPromptTemplateFromForm({
+    title: elements.promptTemplateTitle.value,
+    body: elements.promptTemplateBody.value,
+    variables: elements.promptTemplateVariables.value,
+    tags: elements.promptTemplateTags.value,
+    favorite: elements.promptTemplateFavorite.checked,
+    scope: elements.promptTemplateScope.value,
+  }, new Date().toISOString(), current?.id);
+  const template = current ? { ...normalized, createdAt: current.createdAt } : normalized;
+  state = upsertPromptTemplate(state, template);
+  saveState();
+  render();
+  elements.promptTemplateStatus.textContent = `${template.title} saved and ready to apply.`;
+});
+
+elements.promptTemplateSelect.addEventListener('change', () => {
+  state = setActivePromptTemplate(state, elements.promptTemplateSelect.value);
+  saveState();
+  render();
+});
+
+elements.applyPromptTemplate.addEventListener('click', () => {
+  const template = getActivePromptTemplate(state);
+  if (!template) {
+    elements.promptTemplateStatus.textContent = 'Choose or save a template before applying.';
+    return;
+  }
+  const values = parsePromptTemplateValues();
+  if (!values) return;
+  const rendered = renderPromptTemplateWithVariables(template, values);
+  appendPromptText(rendered.text);
+  elements.promptTemplateStatus.textContent = rendered.missingVariables.length > 0
+    ? `Applied with unresolved variables: ${rendered.missingVariables.join(', ')}.`
+    : `${template.title} applied to the composer.`;
+});
+
 elements.detectLocalOllama.addEventListener('click', async () => {
   try {
     const status = await detectLocalOllama();
@@ -485,6 +540,42 @@ function renderAgentPresetPanel() {
     return;
   }
   elements.agentStatus.textContent = 'No preset active. Provider calls use the normal chat context.';
+}
+
+function renderPromptTemplatePanel() {
+  const active = getActivePromptTemplate(state);
+  elements.promptTemplateSelect.innerHTML = [
+    '<option value="">No template</option>',
+    ...state.promptTemplates.map((template) => `<option value="${escapeHtml(template.id)}">${escapeHtml(template.favorite ? `★ ${template.title}` : template.title)}</option>`),
+  ].join('');
+  elements.promptTemplateSelect.value = active?.id ?? '';
+  if (active) {
+    elements.promptTemplateTitle.value = active.title;
+    elements.promptTemplateBody.value = active.body;
+    elements.promptTemplateVariables.value = active.variables.join(', ');
+    elements.promptTemplateTags.value = active.tags.join(', ');
+    elements.promptTemplateFavorite.checked = active.favorite;
+    elements.promptTemplateScope.value = active.scope;
+    elements.promptTemplateStatus.textContent = `${active.title} selected. Fill Variables JSON, then apply.`;
+    return;
+  }
+  elements.promptTemplateStatus.textContent = 'No template selected. Save one to reuse prompts.';
+}
+
+function parsePromptTemplateValues() {
+  const raw = elements.promptTemplateValues.value.trim();
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('Variables JSON must be an object.');
+    }
+    return Object.fromEntries(Object.entries(parsed).map(([key, value]) => [key, String(value)]));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Invalid JSON.';
+    elements.promptTemplateStatus.textContent = `Template variables error: ${message}`;
+    return undefined;
+  }
 }
 
 render();

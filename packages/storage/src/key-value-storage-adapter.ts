@@ -91,6 +91,24 @@ export function createSnapshotBackedStorageAdapter(
         return ok(undefined);
       });
     },
+    async listPromptTemplates() {
+      return guard(async () => ok(cloneSnapshot(await readSnapshot()).promptTemplates));
+    },
+    async savePromptTemplate(template) {
+      return guard(async () => {
+        const snapshot = await readSnapshot();
+        const promptTemplates = upsertById(snapshot.promptTemplates, template);
+        await writeSnapshot({ ...snapshot, promptTemplates });
+        return ok(template);
+      });
+    },
+    async deletePromptTemplate(templateId) {
+      return guard(async () => {
+        const snapshot = await readSnapshot();
+        await writeSnapshot({ ...snapshot, promptTemplates: snapshot.promptTemplates.filter((template) => template.id !== templateId) });
+        return ok(undefined);
+      });
+    },
     async getSettings() {
       return guard(async () => ok(cloneSnapshot(await readSnapshot()).settings));
     },

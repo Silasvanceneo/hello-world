@@ -3,9 +3,11 @@ export function createInitialWebState(now = new Date().toISOString()) {
   return {
     activeSessionId: session.id,
     activeAgentPresetId: undefined,
+    activePromptTemplateId: undefined,
     sessions: [session],
     providers: [],
     agentPresets: [],
+    promptTemplates: [],
     attachments: [],
   };
 }
@@ -30,6 +32,12 @@ export function getActiveSession(state) {
 export function getActiveAgentPreset(state) {
   return state.activeAgentPresetId
     ? state.agentPresets.find((preset) => preset.id === state.activeAgentPresetId)
+    : undefined;
+}
+
+export function getActivePromptTemplate(state) {
+  return state.activePromptTemplateId
+    ? state.promptTemplates.find((template) => template.id === state.activePromptTemplateId)
     : undefined;
 }
 
@@ -115,6 +123,56 @@ export function createProviderMessagesForActiveAgent(state, session) {
     : messages;
 }
 
+export function createPromptTemplateFromForm(
+  { title, body, variables, tags, favorite, scope },
+  timestamp = new Date().toISOString(),
+  id = crypto.randomUUID(),
+) {
+  const trimmedBody = body.trim();
+  return {
+    id,
+    title: title.trim() || 'Untitled template',
+    body: trimmedBody,
+    variables: normalizeList(variables ? String(variables).split(',') : extractPromptVariables(trimmedBody)),
+    tags: normalizeList(tags ? String(tags).split(',') : []),
+    favorite: Boolean(favorite),
+    scope: scope === 'sync' ? 'sync' : 'local',
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+export function upsertPromptTemplate(state, template) {
+  const exists = state.promptTemplates.some((item) => item.id === template.id);
+  return {
+    ...state,
+    activePromptTemplateId: template.id,
+    promptTemplates: exists
+      ? state.promptTemplates.map((item) => item.id === template.id ? template : item)
+      : [template, ...state.promptTemplates],
+  };
+}
+
+export function setActivePromptTemplate(state, templateId) {
+  return {
+    ...state,
+    activePromptTemplateId: state.promptTemplates.some((template) => template.id === templateId) ? templateId : undefined,
+  };
+}
+
+export function renderPromptTemplateWithVariables(template, values) {
+  const missingVariables = [];
+  const text = template.body.replace(/\{\{\s*([a-zA-Z0-9_-]+)\s*\}\}/g, (match, name) => {
+    const value = values[name]?.trim();
+    if (!value) {
+      if (!missingVariables.includes(name)) missingVariables.push(name);
+      return match;
+    }
+    return value;
+  });
+  return { text, missingVariables };
+}
+
 export function summarizeUsage(session) {
   return session.messages.reduce((summary, message) => {
     const usage = message.usage;
@@ -177,9 +235,11 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
     return {
       activeSessionId: parsed.activeSessionId ?? parsed.sessions[0].id,
       activeAgentPresetId: parsed.activeAgentPresetId,
+      activePromptTemplateId: parsed.activePromptTemplateId,
       sessions: parsed.sessions,
       providers: Array.isArray(parsed.providers) ? parsed.providers : [],
       agentPresets: Array.isArray(parsed.agentPresets) ? parsed.agentPresets : [],
+      promptTemplates: Array.isArray(parsed.promptTemplates) ? parsed.promptTemplates : [],
       attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],
     };
   } catch {
@@ -217,6 +277,17 @@ function normalizeAgentTools(value) {
     return known.has(trimmed) && !tools.includes(trimmed) ? [...tools, trimmed] : tools;
   }, []);
   return normalized.length > 0 ? normalized : ['file-attachments', 'vision-input'];
+}
+
+function normalizeList(values) {
+  return values.reduce((items, value) => {
+    const trimmed = value.trim();
+    return trimmed && !items.includes(trimmed) ? [...items, trimmed] : items;
+  }, []);
+}
+
+function extractPromptVariables(body) {
+  return normalizeList(Array.from(body.matchAll(/\{\{\s*([a-zA-Z0-9_-]+)\s*\}\}/g), (match) => match[1]));
 }
 
 function normalizeKnowledgeScope(value) {

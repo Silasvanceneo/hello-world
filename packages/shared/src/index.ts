@@ -3,6 +3,7 @@ export * from './types/chat.ts';
 export * from './types/file.ts';
 export * from './types/knowledge.ts';
 export * from './types/provider.ts';
+export * from './types/prompt-template.ts';
 export * from './types/security.ts';
 export * from './types/settings.ts';
 export * from './types/storage.ts';

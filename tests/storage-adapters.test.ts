@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { deleteChatSession, loadChatSessions, saveChatSession } from '../packages/core/src/chat/chat-persistence.ts';
 import { createJsonFileStorageAdapter, createKeyValueStorageAdapter, createMobileStorageAdapter, type KeyValueStore } from '../packages/storage/src/index.ts';
-import type { AgentPreset, ChatSession, ProviderConnection } from '@hello-world/shared';
+import type { AgentPreset, ChatSession, PromptTemplate, ProviderConnection } from '@hello-world/shared';
 
 function session(id: string): ChatSession {
   return { id, title: id, messages: [], tags: [], createdAt: '2026-04-29T00:00:00.000Z', updatedAt: '2026-04-29T00:00:00.000Z', syncState: 'dirty' };
@@ -22,6 +22,20 @@ function agentPreset(id: string): AgentPreset {
     enabledTools: ['file-attachments'],
     knowledgeBase: { scope: 'none', documentIds: [] },
     icon: '◯',
+    createdAt: '2026-04-30T00:00:00.000Z',
+    updatedAt: '2026-04-30T00:00:00.000Z',
+  };
+}
+
+function promptTemplate(id: string): PromptTemplate {
+  return {
+    id,
+    title: id,
+    body: 'Explain {{topic}}.',
+    variables: ['topic'],
+    tags: ['demo'],
+    favorite: false,
+    scope: 'local',
     createdAt: '2026-04-30T00:00:00.000Z',
     updatedAt: '2026-04-30T00:00:00.000Z',
   };
@@ -55,17 +69,20 @@ test('JSON file storage persists sessions, provider connections, and settings ac
   await saveChatSession(first, session('session-1'));
   await first.saveProviderConnection(connection('provider-1'));
   await first.saveAgentPreset(agentPreset('agent-1'));
+  await first.savePromptTemplate(promptTemplate('template-1'));
   await first.saveSettings({ theme: 'dark', language: 'zh-CN', defaultProviderId: 'provider-1', updatedAt: '2026-04-29T01:00:00.000Z' });
 
   const second = createJsonFileStorageAdapter(filePath, { now: () => '2026-04-29T02:00:00.000Z' });
   const sessions = await loadChatSessions(second);
   const providers = await second.listProviderConnections();
   const agents = await second.listAgentPresets();
+  const templates = await second.listPromptTemplates();
   const settings = await second.getSettings();
 
   assert.equal(sessions.ok && sessions.value[0]?.id, 'session-1');
   assert.equal(providers.ok && providers.value[0]?.id, 'provider-1');
   assert.equal(agents.ok && agents.value[0]?.id, 'agent-1');
+  assert.equal(templates.ok && templates.value[0]?.id, 'template-1');
   assert.equal(settings.ok && settings.value.theme, 'dark');
 
   await deleteChatSession(second, 'session-1');
@@ -85,9 +102,12 @@ test('key-value and mobile storage adapters share the same persistence contract'
   const mobile = createMobileStorageAdapter(mobileStore);
   await mobile.saveProviderConnection(connection('mobile-provider'));
   await mobile.saveAgentPreset(agentPreset('mobile-agent'));
+  await mobile.savePromptTemplate(promptTemplate('mobile-template'));
   const mobileReloaded = createMobileStorageAdapter(mobileStore);
   const mobileProviders = await mobileReloaded.listProviderConnections();
   const mobileAgents = await mobileReloaded.listAgentPresets();
+  const mobileTemplates = await mobileReloaded.listPromptTemplates();
   assert.equal(mobileProviders.ok && mobileProviders.value[0]?.id, 'mobile-provider');
   assert.equal(mobileAgents.ok && mobileAgents.value[0]?.id, 'mobile-agent');
+  assert.equal(mobileTemplates.ok && mobileTemplates.value[0]?.id, 'mobile-template');
 });

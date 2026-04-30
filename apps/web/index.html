@@ -125,6 +125,33 @@
           <p id="agent-status" class="status-text">No preset active.</p>
         </div>
 
+        <div class="panel-card">
+          <p class="section-label">Prompt library</p>
+          <h2>Template</h2>
+          <label>Active template
+            <select id="prompt-template-select">
+              <option value="">No template</option>
+            </select>
+          </label>
+          <label>Title<input id="prompt-template-title" placeholder="Meeting summary" /></label>
+          <label>Template body<textarea id="prompt-template-body" rows="4" placeholder="Summarize {{ topic }} for {{ audience }}."></textarea></label>
+          <label>Variables<input id="prompt-template-variables" placeholder="topic, audience" /></label>
+          <label>Variables JSON<textarea id="prompt-template-values" rows="3" placeholder='{"topic":"launch plan","audience":"team"}'></textarea></label>
+          <label>Tags<input id="prompt-template-tags" placeholder="work, writing" /></label>
+          <label>Scope
+            <select id="prompt-template-scope">
+              <option value="local">Local</option>
+              <option value="sync">Sync-ready</option>
+            </select>
+          </label>
+          <label class="compact-check"><input id="prompt-template-favorite" type="checkbox" /> Favorite</label>
+          <div class="panel-actions">
+            <button id="apply-prompt-template" class="secondary-button" type="button">Apply</button>
+            <button id="save-prompt-template" class="primary-button" type="button">Save</button>
+          </div>
+          <p id="prompt-template-status" class="status-text">No template selected.</p>
+        </div>
+
         <div class="panel-card inverted-card">
           <p class="section-label">Security defaults</p>
           <ul class="security-list">

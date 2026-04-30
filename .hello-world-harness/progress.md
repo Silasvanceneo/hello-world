@@ -182,3 +182,11 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (99 paths), tests 64/pass 64/fail 0, build:web passed, review passed.
 - UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/agent-presets-ui.png.
 - Next recommended sprint: P2-M2 Prompt template library.
+
+## 2026-04-30T05:10:18.365Z
+
+- Implemented P2-M2 Prompt template library: shared PromptTemplate contracts, core normalization/render/import/export helpers, storage snapshot persistence, and Web local-state support.
+- Added a Prompt library panel for template title/body, variable inference, Variables JSON application, tags, favorite, and local/sync-ready scope. Applying a template appends rendered text to the composer and reports missing variables.
+- Verification passed: `npm run check` -> scaffold check passed (103 paths), tests 68/pass 68/fail 0, build:web passed, review passed.
+- UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/prompt-template-ui.png for Agent and Prompt panels.
+- Next recommended sprint: P2-M3 intelligent model routing.
