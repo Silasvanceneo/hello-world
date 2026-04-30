@@ -173,3 +173,12 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Reframed the provided mascot icon as a round cropped brand asset for the sidebar mark, empty-state card, and assistant avatar while preserving the stored source asset and all runtime DOM IDs.
 - Verification passed before checkpoint update: `npm run check` -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed.
 - Next action: commit this UI polish checkpoint, then continue into the next planned P2 agent preset foundation.
+
+## 2026-04-30T05:01:26.110Z
+
+- Implemented P2-M1 simple Agent presets: shared AgentPreset contracts, core normalization/runtime message helpers, storage snapshot persistence, and Web local-state support.
+- Added a Minimalist Monochrome Agent preset panel for Active preset, Name, Icon, Default model, System prompt, Enabled tools, and Knowledge base. The active preset prepends its system prompt and can override the provider model for normal sends.
+- Security boundary preserved: presets describe desired tools, but dangerous capabilities remain governed by the existing security policy and API keys remain runtime-only.
+- Verification passed: `npm run check` -> scaffold check passed (99 paths), tests 64/pass 64/fail 0, build:web passed, review passed.
+- UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/agent-presets-ui.png.
+- Next recommended sprint: P2-M2 Prompt template library.

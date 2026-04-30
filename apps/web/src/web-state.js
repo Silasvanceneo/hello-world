@@ -2,8 +2,10 @@ export function createInitialWebState(now = new Date().toISOString()) {
   const session = createSession('session-1', now);
   return {
     activeSessionId: session.id,
+    activeAgentPresetId: undefined,
     sessions: [session],
     providers: [],
+    agentPresets: [],
     attachments: [],
   };
 }
@@ -23,6 +25,12 @@ export function createSession(id = crypto.randomUUID(), timestamp = new Date().t
 
 export function getActiveSession(state) {
   return state.sessions.find((session) => session.id === state.activeSessionId) ?? state.sessions[0];
+}
+
+export function getActiveAgentPreset(state) {
+  return state.activeAgentPresetId
+    ? state.agentPresets.find((preset) => preset.id === state.activeAgentPresetId)
+    : undefined;
 }
 
 export function addSession(state, session) {
@@ -61,6 +69,50 @@ export function upsertProvider(state, provider) {
       ? state.providers.map((item) => item.id === provider.id ? provider : item)
       : [provider, ...state.providers],
   };
+}
+
+export function createAgentPresetFromForm(
+  { name, systemPrompt, defaultModelId, enabledTools, knowledgeBase, icon },
+  timestamp = new Date().toISOString(),
+  id = crypto.randomUUID(),
+) {
+  return {
+    id,
+    name: name.trim() || 'New agent',
+    systemPrompt: systemPrompt.trim(),
+    defaultModelId: defaultModelId?.trim() || undefined,
+    enabledTools: normalizeAgentTools(enabledTools),
+    knowledgeBase: { scope: normalizeKnowledgeScope(knowledgeBase), documentIds: [] },
+    icon: icon?.trim() || '◯',
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+export function upsertAgentPreset(state, preset) {
+  const exists = state.agentPresets.some((item) => item.id === preset.id);
+  return {
+    ...state,
+    activeAgentPresetId: preset.id,
+    agentPresets: exists
+      ? state.agentPresets.map((item) => item.id === preset.id ? preset : item)
+      : [preset, ...state.agentPresets],
+  };
+}
+
+export function setActiveAgentPreset(state, presetId) {
+  return {
+    ...state,
+    activeAgentPresetId: state.agentPresets.some((preset) => preset.id === presetId) ? presetId : undefined,
+  };
+}
+
+export function createProviderMessagesForActiveAgent(state, session) {
+  const preset = getActiveAgentPreset(state);
+  const messages = textMessagesForProvider(session);
+  return preset?.systemPrompt
+    ? [{ role: 'system', content: preset.systemPrompt }, ...messages]
+    : messages;
 }
 
 export function summarizeUsage(session) {
@@ -124,8 +176,10 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
     }
     return {
       activeSessionId: parsed.activeSessionId ?? parsed.sessions[0].id,
+      activeAgentPresetId: parsed.activeAgentPresetId,
       sessions: parsed.sessions,
       providers: Array.isArray(parsed.providers) ? parsed.providers : [],
+      agentPresets: Array.isArray(parsed.agentPresets) ? parsed.agentPresets : [],
       attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],
     };
   } catch {
@@ -153,4 +207,25 @@ function defaultProviderName(type) {
 
 function countTokens(text) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+function normalizeAgentTools(value) {
+  const values = Array.isArray(value) ? value : String(value ?? '').split(',');
+  const known = new Set(['file-attachments', 'vision-input', 'voice-io', 'model-comparison', 'http-mcp']);
+  const normalized = values.reduce((tools, tool) => {
+    const trimmed = tool.trim();
+    return known.has(trimmed) && !tools.includes(trimmed) ? [...tools, trimmed] : tools;
+  }, []);
+  return normalized.length > 0 ? normalized : ['file-attachments', 'vision-input'];
+}
+
+function normalizeKnowledgeScope(value) {
+  return ['session', 'library'].includes(value) ? value : 'none';
+}
+
+function textMessagesForProvider(session) {
+  return session.messages.map((message) => ({
+    role: message.role,
+    content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n'),
+  }));
 }

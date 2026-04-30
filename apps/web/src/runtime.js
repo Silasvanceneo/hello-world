@@ -2,15 +2,20 @@ import {
   addAttachmentToActiveSession,
   addMessageToActiveSession,
   addSession,
+  createAgentPresetFromForm,
   createAssistantEchoMessage,
   createInitialWebState,
+  createProviderMessagesForActiveAgent,
   createProviderFromForm,
   createSession,
   createTextMessage,
+  getActiveAgentPreset,
   getActiveSession,
   parseState,
   serializeState,
+  setActiveAgentPreset,
   summarizeUsage,
+  upsertAgentPreset,
   upsertProvider,
 } from './web-state.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
@@ -33,6 +38,14 @@ let comparisonPrompt = '';
 let comparisonResults = [];
 
 const elements = {
+  agentIcon: document.querySelector('#agent-icon'),
+  agentKnowledgeBase: document.querySelector('#agent-knowledge-base'),
+  agentModel: document.querySelector('#agent-model'),
+  agentName: document.querySelector('#agent-name'),
+  agentPresetSelect: document.querySelector('#agent-preset-select'),
+  agentStatus: document.querySelector('#agent-status'),
+  agentSystemPrompt: document.querySelector('#agent-system-prompt'),
+  agentTools: document.querySelector('#agent-tools'),
   attachments: document.querySelector('#attachments'),
   compareModels: document.querySelector('#compare-models'),
   comparisonResults: document.querySelector('#comparison-results'),
@@ -52,6 +65,7 @@ const elements = {
   providerStatus: document.querySelector('#provider-status'),
   providerType: document.querySelector('#provider-type'),
   saveProvider: document.querySelector('#save-provider'),
+  saveAgentPreset: document.querySelector('#save-agent-preset'),
   sessionList: document.querySelector('#session-list'),
   sessionTitle: document.querySelector('#session-title'),
   stopGeneration: document.querySelector('#stop-generation'),
@@ -83,6 +97,7 @@ function render() {
   elements.providerStatus.textContent = provider
     ? `Saved ${provider.name} (${provider.defaultModelId ?? defaultModel(provider.type)}). API keys stay in memory for this browser tab.`
     : 'No provider configured. Local echo mode is active.';
+  renderAgentPresetPanel();
 }
 
 function renderMessage(message) {
@@ -162,10 +177,10 @@ elements.composer.addEventListener('submit', async (event) => {
   try {
     streamedText = await streamChatInBrowser({
       provider,
-      modelId: provider.defaultModelId ?? defaultModel(provider.type),
+      modelId: getActiveAgentPreset(state)?.defaultModelId ?? provider.defaultModelId ?? defaultModel(provider.type),
       apiKey: providerSecrets.get(provider.id),
       signal: activeAbortController.signal,
-      messages: getActiveSession(state).messages.map((message) => ({ role: message.role, content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n') })),
+      messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
       onDelta: (_delta, fullText) => {
         elements.providerStatus.textContent = `Streaming ${fullText.length} chars...`;
       },
@@ -206,7 +221,7 @@ elements.compareModels.addEventListener('click', async () => {
       providers,
       prompt: text,
       providerSecrets,
-      messages: textMessagesForProvider(getActiveSession(state)),
+      messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
     });
     elements.providerStatus.textContent = `Comparison finished. Pick one answer to save as the main branch.`;
   } finally {
@@ -346,6 +361,29 @@ elements.saveProvider.addEventListener('click', async () => {
   }
 });
 
+elements.saveAgentPreset.addEventListener('click', () => {
+  const current = getActiveAgentPreset(state);
+  const normalized = createAgentPresetFromForm({
+    name: elements.agentName.value,
+    systemPrompt: elements.agentSystemPrompt.value,
+    defaultModelId: elements.agentModel.value,
+    enabledTools: elements.agentTools.value,
+    knowledgeBase: elements.agentKnowledgeBase.value,
+    icon: elements.agentIcon.value,
+  }, new Date().toISOString(), current?.id);
+  const preset = current ? { ...normalized, createdAt: current.createdAt } : normalized;
+  state = upsertAgentPreset(state, preset);
+  saveState();
+  render();
+  elements.agentStatus.textContent = `${preset.icon} ${preset.name} is active for new provider calls.`;
+});
+
+elements.agentPresetSelect.addEventListener('change', () => {
+  state = setActiveAgentPreset(state, elements.agentPresetSelect.value);
+  saveState();
+  render();
+});
+
 elements.detectLocalOllama.addEventListener('click', async () => {
   try {
     const status = await detectLocalOllama();
@@ -372,13 +410,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
-}
-
-function textMessagesForProvider(session) {
-  return session.messages.map((message) => ({
-    role: message.role,
-    content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n'),
-  }));
 }
 
 function attachBrowserFiles(files) {
@@ -434,6 +465,26 @@ function detectBrowserFileKind(file) {
   if (name.endsWith('.xlsx')) return 'xlsx';
   if (name.endsWith('.md') || name.endsWith('.markdown')) return 'markdown';
   return 'text';
+}
+
+function renderAgentPresetPanel() {
+  const active = getActiveAgentPreset(state);
+  elements.agentPresetSelect.innerHTML = [
+    '<option value="">No preset</option>',
+    ...state.agentPresets.map((preset) => `<option value="${escapeHtml(preset.id)}">${escapeHtml(`${preset.icon} ${preset.name}`)}</option>`),
+  ].join('');
+  elements.agentPresetSelect.value = active?.id ?? '';
+  if (active) {
+    elements.agentName.value = active.name;
+    elements.agentIcon.value = active.icon;
+    elements.agentModel.value = active.defaultModelId ?? '';
+    elements.agentSystemPrompt.value = active.systemPrompt;
+    elements.agentTools.value = active.enabledTools.join(', ');
+    elements.agentKnowledgeBase.value = active.knowledgeBase.scope;
+    elements.agentStatus.textContent = `${active.icon} ${active.name} active. System prompt is prepended at runtime; tools remain governed by security defaults.`;
+    return;
+  }
+  elements.agentStatus.textContent = 'No preset active. Provider calls use the normal chat context.';
 }
 
 render();

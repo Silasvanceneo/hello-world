@@ -101,6 +101,30 @@
           <p id="provider-status" class="status-text">No provider configured.</p>
         </div>
 
+        <div class="panel-card">
+          <p class="section-label">Agent preset</p>
+          <h2>Persona</h2>
+          <label>Active preset
+            <select id="agent-preset-select">
+              <option value="">No preset</option>
+            </select>
+          </label>
+          <label>Name<input id="agent-name" placeholder="Research editor" /></label>
+          <label>Icon<input id="agent-icon" maxlength="3" placeholder="◯" /></label>
+          <label>Default model<input id="agent-model" placeholder="Optional model override" /></label>
+          <label>System prompt<textarea id="agent-system-prompt" rows="4" placeholder="How should this agent behave?"></textarea></label>
+          <label>Enabled tools<input id="agent-tools" placeholder="file-attachments, vision-input" /></label>
+          <label>Knowledge base
+            <select id="agent-knowledge-base">
+              <option value="none">None</option>
+              <option value="session">Session</option>
+              <option value="library">Library</option>
+            </select>
+          </label>
+          <button id="save-agent-preset" class="primary-button" type="button">Save agent</button>
+          <p id="agent-status" class="status-text">No preset active.</p>
+        </div>
+
         <div class="panel-card inverted-card">
           <p class="section-label">Security defaults</p>
           <ul class="security-list">

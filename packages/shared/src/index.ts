@@ -1,3 +1,4 @@
+export * from './types/agent.ts';
 export * from './types/chat.ts';
 export * from './types/file.ts';
 export * from './types/knowledge.ts';

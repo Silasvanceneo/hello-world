@@ -563,6 +563,11 @@ textarea {
   font-size: 1.15rem;
   line-height: 1.55;
 }
+.panel-card textarea {
+  min-height: 132px;
+  border: var(--line-medium);
+  padding: 10px 11px;
+}
 input,
 select {
   min-height: 44px;
@@ -626,6 +631,9 @@ label {
 }
 .panel-actions .secondary-button {
   border-right: 0;
+}
+.panel-card > .primary-button {
+  width: 100%;
 }
 .status-text {
   margin: 18px 0 0;

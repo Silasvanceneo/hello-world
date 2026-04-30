@@ -73,6 +73,24 @@ export function createSnapshotBackedStorageAdapter(
         return ok(undefined);
       });
     },
+    async listAgentPresets() {
+      return guard(async () => ok(cloneSnapshot(await readSnapshot()).agentPresets));
+    },
+    async saveAgentPreset(preset) {
+      return guard(async () => {
+        const snapshot = await readSnapshot();
+        const agentPresets = upsertById(snapshot.agentPresets, preset);
+        await writeSnapshot({ ...snapshot, agentPresets });
+        return ok(preset);
+      });
+    },
+    async deleteAgentPreset(presetId) {
+      return guard(async () => {
+        const snapshot = await readSnapshot();
+        await writeSnapshot({ ...snapshot, agentPresets: snapshot.agentPresets.filter((preset) => preset.id !== presetId) });
+        return ok(undefined);
+      });
+    },
     async getSettings() {
       return guard(async () => ok(cloneSnapshot(await readSnapshot()).settings));
     },

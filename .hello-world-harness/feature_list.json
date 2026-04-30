@@ -894,6 +894,63 @@
         "npm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build:web passed, review passed after UI polish"
       ],
       "lastUpdated": "2026-04-30T04:48:53.821Z"
+    },
+    {
+      "id": "P2-M1-F001",
+      "title": "Agent preset contracts and storage",
+      "priority": "should",
+      "acceptance": [
+        "Agent presets store name, system prompt, default model, enabled tools, knowledge base binding, and icon",
+        "Shared storage adapters can list/save/delete agent presets",
+        "Agent preset normalization and immutable collection operations are tested"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/shared/src/types/agent.ts defines AgentPreset and AgentPresetDraft fields",
+        "packages/core/src/agent/agent-preset.ts normalizes presets and builds runtime system messages",
+        "packages/storage/src/storage-adapter.ts and snapshot-backed adapters persist agent presets",
+        "tests/agent-presets.test.ts and tests/storage-adapters.test.ts cover normalization, runtime messages, and persistence"
+      ],
+      "lastUpdated": "2026-04-30T05:01:26.110Z"
+    },
+    {
+      "id": "P2-M1-F002",
+      "title": "Web Agent preset UI and runtime application",
+      "priority": "should",
+      "acceptance": [
+        "Web settings can create/select a simple agent preset",
+        "The active preset is persisted in local state",
+        "The active preset prepends its system prompt to provider calls",
+        "The active preset can override the normal provider default model"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html adds the Agent preset panel with Active preset, Name, Icon, Default model, System prompt, Enabled tools, and Knowledge base controls",
+        "apps/web/src/web-state.js stores activeAgentPresetId and agentPresets, and creates provider messages with the active system prompt",
+        "apps/web/src/runtime.js applies active preset system prompts and default model overrides during provider streaming",
+        "tests/web-state.test.mjs covers active preset persistence and system prompt prepending"
+      ],
+      "lastUpdated": "2026-04-30T05:01:26.110Z"
+    },
+    {
+      "id": "P2-M1-F003",
+      "title": "Agent preset documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Agent preset behavior is documented",
+        "Full check passes",
+        "Web UI smoke verification covers the new panel"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/AGENT_PRESETS.md documents fields, runtime behavior, and security boundary",
+        "npm run check -> scaffold check passed (99 paths), tests 64/pass 64/fail 0, build:web passed, review passed",
+        "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/agent-presets-ui.png created for the Agent preset UI"
+      ],
+      "lastUpdated": "2026-04-30T05:01:26.110Z"
     }
   ]
 }

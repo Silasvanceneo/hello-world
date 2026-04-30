@@ -1,13 +1,21 @@
-import { createDefaultAppSettings, type AppSettings, type ChatSession, type ProviderConnection, type StorageResult } from '@hello-world/shared';
+import {
+  createDefaultAppSettings,
+  type AgentPreset,
+  type AppSettings,
+  type ChatSession,
+  type ProviderConnection,
+  type StorageResult,
+} from '@hello-world/shared';
 
 export type StorageSnapshot = {
   sessions: ChatSession[];
   providerConnections: ProviderConnection[];
+  agentPresets: AgentPreset[];
   settings: AppSettings;
 };
 
 export function createEmptyStorageSnapshot(now: () => string = () => new Date().toISOString()): StorageSnapshot {
-  return { sessions: [], providerConnections: [], settings: createDefaultAppSettings(now()) };
+  return { sessions: [], providerConnections: [], agentPresets: [], settings: createDefaultAppSettings(now()) };
 }
 
 export function ok<T>(value: T): StorageResult<T> {

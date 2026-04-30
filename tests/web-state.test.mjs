@@ -4,15 +4,20 @@ import {
   addAttachmentToActiveSession,
   addMessageToActiveSession,
   addSession,
+  createAgentPresetFromForm,
   createAssistantEchoMessage,
   createInitialWebState,
   createProviderFromForm,
+  createProviderMessagesForActiveAgent,
   createSession,
   createTextMessage,
+  getActiveAgentPreset,
   getActiveSession,
   parseState,
   serializeState,
+  setActiveAgentPreset,
   summarizeUsage,
+  upsertAgentPreset,
   upsertProvider,
 } from '../apps/web/src/web-state.js';
 
@@ -38,6 +43,32 @@ test('web state stores providers and attachments then survives serialization', (
   assert.equal(restored.providers[0]?.name, 'Local Ollama');
   assert.equal(restored.providers[0]?.apiKeyRef, undefined);
   assert.equal(getActiveSession(restored).attachments.length, 1);
+});
+
+test('web state stores active agent presets and prepends system prompts for providers', () => {
+  let state = createInitialWebState('2026-04-30T00:00:00.000Z');
+  state = addMessageToActiveSession(state, createTextMessage('user', 'Summarize this', '2026-04-30T00:01:00.000Z', 'msg-1'));
+  const preset = createAgentPresetFromForm({
+    name: '  Analyst  ',
+    systemPrompt: '  Answer with crisp bullets.  ',
+    defaultModelId: ' gpt-4.1-mini ',
+    enabledTools: 'file-attachments, vision-input, file-attachments',
+    knowledgeBase: 'library',
+    icon: ' ◎ ',
+  }, '2026-04-30T00:02:00.000Z', 'agent-1');
+  state = upsertAgentPreset(state, preset);
+  state = setActiveAgentPreset(state, 'agent-1');
+  const restored = parseState(serializeState(state));
+  const active = getActiveAgentPreset(restored);
+  const providerMessages = createProviderMessagesForActiveAgent(restored, getActiveSession(restored));
+
+  assert.equal(active.name, 'Analyst');
+  assert.equal(active.defaultModelId, 'gpt-4.1-mini');
+  assert.deepEqual(active.enabledTools, ['file-attachments', 'vision-input']);
+  assert.equal(active.knowledgeBase.scope, 'library');
+  assert.equal(providerMessages[0].role, 'system');
+  assert.equal(providerMessages[0].content, 'Answer with crisp bullets.');
+  assert.equal(providerMessages[1].content, 'Summarize this');
 });
 
 test('web state falls back safely when persisted state is invalid', () => {

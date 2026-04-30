@@ -476,6 +476,40 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P2-M1",
+      "scope": "Simple local-first Agent presets",
+      "dependencies": [
+        "P0-M9",
+        "P0-M10",
+        "P1-M3",
+        "P1-M6"
+      ],
+      "doneCriteria": [
+        "Agent preset fields cover name, system prompt, default model, enabled tools, knowledge base, and icon",
+        "Presets persist in local state and shared storage adapters",
+        "Active preset affects provider runtime without weakening security defaults",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "packages/storage/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }
