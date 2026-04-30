@@ -689,6 +689,17 @@ label {
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
+.cost-trends {
+  color: var(--foreground);
+}
+.cost-trends li {
+  border-color: var(--border-light);
+}
+.cost-trends span {
+  max-width: 55%;
+  text-align: right;
+  text-transform: none;
+}
 @media (max-width: 1180px) {
   body {
     overflow: auto;

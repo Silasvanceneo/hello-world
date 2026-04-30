@@ -9,6 +9,7 @@ export function createInitialWebState(now = new Date().toISOString()) {
     providers: [],
     agentPresets: [],
     promptTemplates: [],
+    usageBudget: { currency: 'USD' },
     attachments: [],
   };
 }
@@ -181,6 +182,17 @@ export function setModelRoutingStrategy(state, strategy) {
   };
 }
 
+export function saveUsageBudget(state, budget) {
+  return {
+    ...state,
+    usageBudget: {
+      dailyLimit: parseOptionalPositiveNumber(budget.dailyLimit),
+      monthlyLimit: parseOptionalPositiveNumber(budget.monthlyLimit),
+      currency: budget.currency === 'CNY' ? 'CNY' : 'USD',
+    },
+  };
+}
+
 export function summarizeUsage(session) {
   return session.messages.reduce((summary, message) => {
     const usage = message.usage;
@@ -249,6 +261,7 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
       providers: Array.isArray(parsed.providers) ? parsed.providers : [],
       agentPresets: Array.isArray(parsed.agentPresets) ? parsed.agentPresets : [],
       promptTemplates: Array.isArray(parsed.promptTemplates) ? parsed.promptTemplates : [],
+      usageBudget: normalizeUsageBudget(parsed.usageBudget),
       attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],
     };
   } catch {
@@ -305,6 +318,19 @@ function normalizeKnowledgeScope(value) {
 
 function normalizeRoutingStrategy(value) {
   return ['balanced', 'cheap', 'fast', 'long-context', 'privacy', 'fallback'].includes(value) ? value : 'balanced';
+}
+
+function normalizeUsageBudget(value) {
+  return {
+    dailyLimit: parseOptionalPositiveNumber(value?.dailyLimit),
+    monthlyLimit: parseOptionalPositiveNumber(value?.monthlyLimit),
+    currency: value?.currency === 'CNY' ? 'CNY' : 'USD',
+  };
+}
+
+function parseOptionalPositiveNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 function textMessagesForProvider(session) {

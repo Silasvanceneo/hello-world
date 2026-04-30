@@ -7,6 +7,7 @@ export * from './prompt/prompt-template.ts';
 export * from './provider/connection-diagnostics.ts';
 export * from './files/file-input.ts';
 export * from './usage/usage-ledger.ts';
+export * from './usage/cost-estimation.ts';
 export * from './security/security-policy.ts';
 export * from './model/model-capability.ts';
 export * from './model/model-comparison.ts';

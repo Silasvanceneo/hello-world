@@ -1065,6 +1065,61 @@
         "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/model-routing-ui.png created for the Model router panel"
       ],
       "lastUpdated": "2026-04-30T05:16:56.862Z"
+    },
+    {
+      "id": "P2-M4-F001",
+      "title": "Model price table and per-request cost estimation",
+      "priority": "should",
+      "acceptance": [
+        "A local model price table maps model patterns to input/output prices",
+        "One request cost can be estimated from prompt/completion tokens",
+        "Usage records can be enriched immutably with estimated cost and currency"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/usage/cost-estimation.ts defines defaultModelPrices, findModelPrice, estimateUsageCost, and applyEstimatedCosts",
+        "tests/cost-estimation.test.ts covers model price lookup and one-request estimation"
+      ],
+      "lastUpdated": "2026-04-30T05:33:55.193Z"
+    },
+    {
+      "id": "P2-M4-F002",
+      "title": "Daily/monthly cost trends and local budget reminders",
+      "priority": "should",
+      "acceptance": [
+        "Estimated cost can aggregate by day and month",
+        "Daily and monthly local budget reminders are generated",
+        "Web state persists budget settings with safe numeric parsing"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "aggregateCostByPeriod and createBudgetReminder are implemented in packages/core/src/usage/cost-estimation.ts",
+        "apps/web/src/cost-dashboard.js builds Web cost totals, trends, and budget messages from local chat state",
+        "apps/web/src/web-state.js persists usageBudget",
+        "tests/cost-estimation.test.ts, tests/web-cost-dashboard.test.mjs, and tests/web-state.test.mjs cover trends, reminders, and budget parsing"
+      ],
+      "lastUpdated": "2026-04-30T05:33:55.193Z"
+    },
+    {
+      "id": "P2-M4-F003",
+      "title": "Usage budget Web panel and verification",
+      "priority": "should",
+      "acceptance": [
+        "Web settings show total estimated cost, latest daily/monthly trends, and budget status",
+        "Cost estimation behavior is documented as local-only and non-billing",
+        "Full check and UI smoke verification pass"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html adds the Usage budget panel with daily/monthly limits, currency, total estimate, and trend list",
+        "docs/COST_ESTIMATION.md documents seed price table, calculation, trends, and non-billing boundary",
+        "npm run check -> scaffold check passed (113 paths), tests 79/pass 79/fail 0, build:web passed, review passed",
+        "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/cost-estimation-ui.png created for the Usage budget panel"
+      ],
+      "lastUpdated": "2026-04-30T05:33:55.193Z"
     }
   ]
 }

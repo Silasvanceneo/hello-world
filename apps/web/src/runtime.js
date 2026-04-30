@@ -15,6 +15,7 @@ import {
   getActiveSession,
   parseState,
   renderPromptTemplateWithVariables,
+  saveUsageBudget,
   serializeState,
   setActiveAgentPreset,
   setActivePromptTemplate,
@@ -24,6 +25,7 @@ import {
   upsertPromptTemplate,
   upsertProvider,
 } from './web-state.js';
+import { createCostDashboardViewModel, createUsageRecordsFromWebState } from './cost-dashboard.js';
 import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { detectLocalOllama } from './native-desktop.js';
@@ -55,7 +57,12 @@ const elements = {
   agentTools: document.querySelector('#agent-tools'),
   applyPromptTemplate: document.querySelector('#apply-prompt-template'),
   attachments: document.querySelector('#attachments'),
+  budgetCurrency: document.querySelector('#budget-currency'),
+  budgetDaily: document.querySelector('#budget-daily'),
+  budgetMonthly: document.querySelector('#budget-monthly'),
   compareModels: document.querySelector('#compare-models'),
+  costStatus: document.querySelector('#cost-status'),
+  costTrends: document.querySelector('#cost-trends'),
   comparisonResults: document.querySelector('#comparison-results'),
   composer: document.querySelector('#composer'),
   capturePhoto: document.querySelector('#capture-photo'),
@@ -85,6 +92,7 @@ const elements = {
   routingStrategy: document.querySelector('#model-routing-strategy'),
   saveProvider: document.querySelector('#save-provider'),
   saveAgentPreset: document.querySelector('#save-agent-preset'),
+  saveBudget: document.querySelector('#save-budget'),
   savePromptTemplate: document.querySelector('#save-prompt-template'),
   sessionList: document.querySelector('#session-list'),
   sessionTitle: document.querySelector('#session-title'),
@@ -120,6 +128,7 @@ function render() {
   renderAgentPresetPanel();
   renderPromptTemplatePanel();
   renderRoutingPanel();
+  renderCostPanel();
 }
 
 function renderMessage(message) {
@@ -439,6 +448,16 @@ elements.routingStrategy.addEventListener('change', () => {
   render();
 });
 
+elements.saveBudget.addEventListener('click', () => {
+  state = saveUsageBudget(state, {
+    dailyLimit: elements.budgetDaily.value,
+    monthlyLimit: elements.budgetMonthly.value,
+    currency: elements.budgetCurrency.value,
+  });
+  saveState();
+  render();
+});
+
 elements.applyPromptTemplate.addEventListener('click', () => {
   const template = getActivePromptTemplate(state);
   if (!template) {
@@ -592,6 +611,22 @@ function renderRoutingPanel() {
     task: inferRoutingTask(getActiveSession(state)),
   });
   elements.routingStatus.textContent = describeRoutingChoice(choice);
+}
+
+function renderCostPanel() {
+  const budget = state.usageBudget ?? { currency: 'USD' };
+  elements.budgetDaily.value = budget.dailyLimit ?? '';
+  elements.budgetMonthly.value = budget.monthlyLimit ?? '';
+  elements.budgetCurrency.value = budget.currency ?? 'USD';
+  const records = createUsageRecordsFromWebState(state);
+  const view = createCostDashboardViewModel(records, { ...budget, now: new Date().toISOString() });
+  elements.costStatus.textContent = `${view.totalCostLabel} estimated. ${view.budgetMessage}`;
+  const latestDay = view.byDay.at(-1);
+  const latestMonth = view.byMonth.at(-1);
+  elements.costTrends.innerHTML = [
+    `<li>Latest day <span>${escapeHtml(latestDay ? `${latestDay.key} / ${latestDay.totalTokens} tokens` : 'No usage')}</span></li>`,
+    `<li>Latest month <span>${escapeHtml(latestMonth ? `${latestMonth.key} / ${latestMonth.totalTokens} tokens` : 'No usage')}</span></li>`,
+  ].join('');
 }
 
 function parsePromptTemplateValues() {

@@ -198,3 +198,12 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (108 paths), tests 74/pass 74/fail 0, build:web passed, review passed.
 - UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/model-routing-ui.png for the Model router panel.
 - Next recommended sprint: P2-M4 usage and cost estimation.
+
+## 2026-04-30T05:33:55.193Z
+
+- Implemented P2-M4 usage and cost estimation: seed model price table, per-request cost estimates, daily/monthly trends, and local budget reminders.
+- Added a Web Usage budget panel for daily/monthly limits, currency, total estimated cost, latest day/month token trends, and local budget status.
+- Boundary preserved: estimates are local-only guidance, not real billing; no usage data is sent to a server.
+- Verification passed: `npm run check` -> scaffold check passed (113 paths), tests 79/pass 79/fail 0, build:web passed, review passed.
+- UI smoke: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/cost-estimation-ui.png for the Usage budget panel.
+- Next recommended sprint: P2-M5 sync capability foundation.

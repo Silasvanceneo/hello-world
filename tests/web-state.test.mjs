@@ -17,6 +17,7 @@ import {
   getActiveSession,
   parseState,
   renderPromptTemplateWithVariables,
+  saveUsageBudget,
   serializeState,
   setActiveAgentPreset,
   setActivePromptTemplate,
@@ -115,4 +116,17 @@ test('web state persists model routing strategy with safe fallback', () => {
 
   assert.equal(restored.routingStrategy, 'privacy');
   assert.equal(invalid.routingStrategy, 'balanced');
+});
+
+test('web state persists local budget settings with safe numeric parsing', () => {
+  const state = saveUsageBudget(createInitialWebState('2026-04-30T00:00:00.000Z'), {
+    dailyLimit: '0.25',
+    monthlyLimit: '-1',
+    currency: 'CNY',
+  });
+  const restored = parseState(serializeState(state));
+
+  assert.equal(restored.usageBudget.dailyLimit, 0.25);
+  assert.equal(restored.usageBudget.monthlyLimit, undefined);
+  assert.equal(restored.usageBudget.currency, 'CNY');
 });

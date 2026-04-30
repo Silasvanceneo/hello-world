@@ -168,6 +168,22 @@
           <p id="routing-status" class="status-text">No enabled provider is available for routing.</p>
         </div>
 
+        <div class="panel-card">
+          <p class="section-label">Usage budget</p>
+          <h2>Cost</h2>
+          <label>Daily limit<input id="budget-daily" type="number" min="0" step="0.0001" placeholder="0.2500" /></label>
+          <label>Monthly limit<input id="budget-monthly" type="number" min="0" step="0.0001" placeholder="5.0000" /></label>
+          <label>Currency
+            <select id="budget-currency">
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </label>
+          <button id="save-budget" class="primary-button" type="button">Save budget</button>
+          <p id="cost-status" class="status-text">$0.0000 estimated.</p>
+          <ul id="cost-trends" class="security-list cost-trends" aria-label="Usage trends"></ul>
+        </div>
+
         <div class="panel-card inverted-card">
           <p class="section-label">Security defaults</p>
           <ul class="security-list">

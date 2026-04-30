@@ -573,6 +573,37 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P2-M4",
+      "scope": "Usage and cost estimation",
+      "dependencies": [
+        "P0-M7",
+        "P2-M3"
+      ],
+      "doneCriteria": [
+        "Model price table and per-request estimates exist",
+        "Daily/monthly estimated cost trends exist",
+        "Local budget reminders exist without real billing scope",
+        "Web settings expose budget controls and current estimates",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }
