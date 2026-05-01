@@ -10,12 +10,13 @@ P1-M4/P1-M5 add the first real native input foundations while keeping Web as the
   - `desktop_native_capabilities`
   - `detect_local_ollama`
 - `apps/web/src/native-desktop.js` calls Tauri through `window.__TAURI__.core.invoke` when running inside the desktop shell.
+- `summarizeDesktopNativeCapabilities()` reports available desktop integrations separately from deferred OS integrations so the UI and docs do not imply tray, global shortcut, or keychain support before those plugins are added.
 
 Not complete yet:
 
-- Global shortcut registration.
-- System tray integration.
-- Desktop keychain-backed API key storage.
+- Global shortcut registration. This still needs a Tauri global shortcut plugin plus permission/enablement UI.
+- System tray integration. This still needs tray lifecycle handling in the desktop shell.
+- Desktop keychain-backed API key storage. Provider API keys remain runtime-only until OS keychain storage is implemented.
 
 ## Mobile
 
@@ -30,7 +31,7 @@ Not complete yet:
 
 Not complete yet:
 
-- A full Android emulator/device launch smoke test.
+- A full Android emulator/device launch smoke test. The APK builds, but this workstation currently has no online ADB device or AVD, and the Android emulator/system-image package could not be resolved from the SDK repository during this checkpoint.
 
 ## Toolchain status
 

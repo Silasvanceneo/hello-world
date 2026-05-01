@@ -338,9 +338,13 @@
         "npm run check -> scaffold check passed (92 paths), tests 56/pass 56/fail 0, review passed",
         "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
         "npm --workspace apps/mobile run android:debug -> BUILD SUCCESSFUL and app-debug.apk generated",
-        "Launch on Windows UI and Android emulator/device not yet verified in this checkpoint"
+        "2026-05-01T16:47Z npm run check -> scaffold check passed (130 paths), tests 108/pass 108/fail 0, build:web passed, review passed",
+        "2026-05-01T16:47Z npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "2026-05-01T16:47Z Windows desktop launch smoke -> hello-world-desktop.exe started and stayed alive for 5 seconds, then was stopped",
+        "2026-05-01T16:47Z npm --workspace apps/mobile run android:debug with ANDROID_HOME/ANDROID_SDK_ROOT -> BUILD SUCCESSFUL and app-debug.apk generated",
+        "Android launch smoke remains blocked: adb devices listed no attached device, no AVD is installed, no emulator.exe is installed, and sdkmanager failed to resolve emulator/system-image packages from the remote repository"
       ],
-      "lastUpdated": "2026-04-29T17:10:34.557Z"
+      "lastUpdated": "2026-05-01T16:47:00.000Z"
     },
     {
       "id": "P0-M7-F001",
@@ -740,12 +744,15 @@
         "System tray is available",
         "Desktop API keys can be stored in OS keychain"
       ],
-      "status": "pending",
+      "status": "evaluated",
       "passes": false,
       "evidence": [
-        "Explicitly deferred in docs/NATIVE_INPUTS.md; no tray/global-shortcut/keychain plugin added yet"
+        "apps/desktop/src-tauri/src/main.rs reports global_shortcut=false, tray=false, and keychain=false through desktop_native_capabilities",
+        "apps/web/src/native-desktop.js exposes summarizeDesktopNativeCapabilities so UI/docs can present deferred OS integrations explicitly",
+        "tests/native-desktop.test.mjs covers the deferred summary for tray, global shortcut, and keychain",
+        "docs/NATIVE_INPUTS.md and docs/DESKTOP.md document that these integrations remain deferred until Tauri plugins and permission UI are added"
       ],
-      "lastUpdated": "2026-04-29T17:10:34.557Z"
+      "lastUpdated": "2026-05-01T16:47:00.000Z"
     },
     {
       "id": "P1-M5-F001",

@@ -262,3 +262,12 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Added tests/web-message-list.test.mjs for window counts, expanded mode, HTML escaping, expand control escaping, and click binding.
 - Verification passed: npm run check -> scaffold check passed (130 paths), tests 108/pass 108/fail 0, build:web passed, review passed; git diff --check passed.
 - UI smoke passed: built runtime imports message-list.js, built message-list.js contains the expand control, and Edge headless captured .tmp-tests/message-list-window-ui.png from a seeded 120-message chat.
+
+## 2026-05-01T16:47:00.000Z
+
+- Re-evaluated the remaining native launch gap in P0-M6-F004.
+- Verification passed: npm run check -> scaffold check passed (130 paths), tests 108/pass 108/fail 0, build:web passed, review passed.
+- Verification passed: npm run build:desktop rebuilt apps/desktop/src-tauri/target/release/hello-world-desktop.exe, and a Windows launch smoke started the exe for 5 seconds before stopping it.
+- Verification passed: npm run build:mobile and npm --workspace apps/mobile run android:debug with ANDROID_HOME/ANDROID_SDK_ROOT generated apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk.
+- Android launch smoke remains blocked by local environment: adb devices lists no attached device, no AVD is installed, no emulator.exe is installed, and sdkmanager could not resolve emulator/system-image packages from the SDK repository.
+- Evaluated P1-M4-F003 as explicitly deferred rather than pending: desktop capabilities report tray/global shortcut/keychain as unavailable, native-desktop.js now summarizes those deferred integrations, and docs/NATIVE_INPUTS.md plus docs/DESKTOP.md document the boundary.
