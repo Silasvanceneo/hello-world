@@ -30,14 +30,28 @@ export type ChatMessage = {
   updatedAt: string;
 };
 
+export type ChatBranch = {
+  id: string;
+  fromMessageId: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ChatSession = {
   id: string;
   title: string;
   folderId?: string;
   messages: ChatMessage[];
+  branches?: ChatBranch[];
+  activeBranchId?: string;
   attachments?: ChatFileAttachment[];
   modelId?: string;
   tags: string[];
+  pinned?: boolean;
+  archived?: boolean;
+  deletedAt?: string;
   createdAt: string;
   updatedAt: string;
   syncState: SyncState;

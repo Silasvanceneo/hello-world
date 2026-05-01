@@ -1230,6 +1230,228 @@
         "Static browser smoke -> HTTP 200 and Chrome headless screenshot .tmp-tests/import-export-ui.png created for the Import/export panel"
       ],
       "lastUpdated": "2026-04-30T19:07:21.142Z"
+    },
+    {
+      "id": "P2-M7-F001",
+      "title": "Local conversation search and filters",
+      "priority": "should",
+      "acceptance": [
+        "Conversations can be searched by title, tags, and text message content",
+        "Conversations can be filtered by active, archived, all, and tag scope",
+        "Conversation counts distinguish active, archived, and total sessions"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/session-organizer.js implements createSessionListViewModel for query/tag/archive filters and counts",
+        "tests/web-session-organizer.test.mjs covers search, tag filtering, archive filtering, pinned sorting, counts, and rendered-label escaping"
+      ],
+      "lastUpdated": "2026-05-01T15:38:05.7306202Z"
+    },
+    {
+      "id": "P2-M7-F002",
+      "title": "Pinned and archived session organization metadata",
+      "priority": "should",
+      "acceptance": [
+        "Current session tags can be saved from the Web UI",
+        "Current session can be pinned or archived without deletion",
+        "Organization changes mark the session dirty for local-first sync safety"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js exports updateActiveSessionOrganization with immutable session updates",
+        "apps/web/index.html and apps/web/src/runtime.js add sidebar controls for tags, pin, archive, and filters",
+        "tests/web-state.test.mjs covers persisted tags, pinned, archived, updatedAt, and dirty syncState"
+      ],
+      "lastUpdated": "2026-05-01T15:38:05.7306202Z"
+    },
+    {
+      "id": "P2-M7-F003",
+      "title": "Session organization documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Session organization behavior and privacy boundary are documented",
+        "Full check passes",
+        "Web UI smoke verification covers the session organizer sidebar"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/SESSION_ORGANIZATION.md documents local search/filter/pin/archive behavior and privacy boundary",
+        "npm run check -> scaffold check passed (125 paths), tests 96/pass 96/fail 0, build:web passed, review passed",
+        "git diff --check passed",
+        "Static DOM smoke -> HTTP 200 and session-search/session-archive-filter/session-tag-filter/save-session-organization present in built index.html",
+        "Edge headless UI smoke -> .tmp-tests/session-organization-ui-wait.png captured the session organizer sidebar without visible overlap"
+      ],
+      "lastUpdated": "2026-05-01T15:52:41.000Z"
+    },
+    {
+      "id": "P2-M8-F001",
+      "title": "Trash lifecycle for local conversations",
+      "priority": "should",
+      "acceptance": [
+        "Active conversation can be moved to trash without immediate deletion",
+        "Trashed conversation can be restored and becomes active again",
+        "Trashed conversation can be permanently removed from local state"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js implements moveActiveSessionToTrash, restoreSessionFromTrash, and deleteSessionPermanently",
+        "packages/shared/src/types/chat.ts defines optional deletedAt on ChatSession",
+        "tests/web-state.test.mjs covers move-to-trash, restore, active-session fallback, and permanent delete behavior"
+      ],
+      "lastUpdated": "2026-05-01T16:11:59.000Z"
+    },
+    {
+      "id": "P2-M8-F002",
+      "title": "Trash scope in session organizer UI",
+      "priority": "should",
+      "acceptance": [
+        "Conversation filters include a trash scope",
+        "Deleted conversations are excluded from active/archive/all scopes",
+        "Trash UI exposes restore and delete-forever actions only for deleted sessions"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/session-organizer.js filters deleted conversations into the deleted scope and binds trash/restore/delete actions",
+        "apps/web/index.html adds Trash, Move to trash, Restore, and Delete forever controls",
+        "apps/web/src/app.css restores native [hidden] behavior over button display styles",
+        "tests/web-session-organizer.test.mjs covers trash filtering and deleted item flags"
+      ],
+      "lastUpdated": "2026-05-01T16:11:59.000Z"
+    },
+    {
+      "id": "P2-M8-F003",
+      "title": "Session trash documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Trash behavior and local-only deletion boundary are documented",
+        "Full check passes",
+        "Web UI smoke verification covers the trash controls"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/SESSION_ORGANIZATION.md documents trash, restore, deletedAt, and local permanent deletion boundary",
+        "npm run check -> scaffold check passed (125 paths), tests 98/pass 98/fail 0, build:web passed, review passed",
+        "git diff --check passed",
+        "Static DOM smoke -> HTTP 200 and trash-session/restore-session/delete-session-forever/value=\"deleted\" present in built index.html",
+        "Edge headless UI smoke -> .tmp-tests/session-trash-ui-fixed.png captured the session controls with only Move to trash visible for an active conversation"
+      ],
+      "lastUpdated": "2026-05-01T16:11:59.000Z"
+    },
+    {
+      "id": "P3-M1-F001",
+      "title": "Message branch contract and local state",
+      "priority": "should",
+      "acceptance": [
+        "Chat sessions can store message branches separately from the main timeline",
+        "A branch records the source message, title, branch-local messages, and timestamps",
+        "Branch creation marks the session dirty without mutating existing messages"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/shared/src/types/chat.ts defines ChatBranch plus optional branches and activeBranchId on ChatSession",
+        "apps/web/src/web-state.js implements createMessageBranch, getSessionBranchView, and createBranchFromLastAssistant",
+        "tests/web-state.test.mjs covers branch creation, source validation, latest-assistant branching, dirty syncState, and unchanged main timeline"
+      ],
+      "lastUpdated": "2026-05-01T16:27:53.000Z"
+    },
+    {
+      "id": "P3-M1-F002",
+      "title": "Web branch dashboard foundation",
+      "priority": "should",
+      "acceptance": [
+        "Web UI exposes a local branch action for the latest assistant reply",
+        "Branch summaries render in the chat area",
+        "Rendered branch labels escape user-controlled title and source id values"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html adds branch-last and branch-results controls",
+        "apps/web/src/branch-dashboard.js renders branch summaries and binds the Branch last action",
+        "tests/web-branch-dashboard.test.mjs covers branch label escaping and click-to-create behavior",
+        "Static DOM smoke -> HTTP 200 and branch-last/branch-results present in built index.html"
+      ],
+      "lastUpdated": "2026-05-01T16:27:53.000Z"
+    },
+    {
+      "id": "P3-M1-F003",
+      "title": "Branch foundation documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Branch behavior is documented as local-first editing foundation",
+        "Full check passes",
+        "Web UI smoke verification covers the branch controls"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/CHAT_PROTOCOL.md documents the P3-M1 branch foundation and local-first dirty-state behavior",
+        "npm run check -> scaffold check passed (128 paths), tests 103/pass 103/fail 0, build:web passed, review passed",
+        "git diff --check passed",
+        "Edge headless UI smoke -> .tmp-tests/branch-dashboard-ui.png captured the Web shell with branch controls available"
+      ],
+      "lastUpdated": "2026-05-01T16:27:53.000Z"
+    },
+    {
+      "id": "P3-M2-F001",
+      "title": "Windowed message list view model",
+      "priority": "should",
+      "acceptance": [
+        "Long conversations expose only the latest message window by default",
+        "Expanded mode exposes the full message list",
+        "Windowing never mutates the underlying session messages"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/message-list.js implements createMessageListViewModel with latest-message windowing",
+        "tests/web-message-list.test.mjs covers hidden-before counts, visible message ids, and expanded mode"
+      ],
+      "lastUpdated": "2026-05-01T16:34:00.000Z"
+    },
+    {
+      "id": "P3-M2-F002",
+      "title": "Web long chat render and expand control",
+      "priority": "should",
+      "acceptance": [
+        "The Web runtime renders messages through the windowed message list module",
+        "A local expand control reveals earlier messages for the active session",
+        "Rendered message text and control ids are escaped"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/runtime.js imports renderMessageList and bindMessageListWindow instead of rendering every message inline",
+        "apps/web/src/message-list.js renders a Show earlier messages button when a chat is windowed",
+        "tests/web-message-list.test.mjs covers empty state rendering, text escaping, expand control escaping, and click binding"
+      ],
+      "lastUpdated": "2026-05-01T16:34:00.000Z"
+    },
+    {
+      "id": "P3-M2-F003",
+      "title": "Long chat rendering documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "Long chat rendering behavior is documented",
+        "Full check passes",
+        "Web UI smoke verification covers the message list path"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/CHAT_PROTOCOL.md documents the P3-M2 windowed rendering foundation",
+        "npm run check -> scaffold check passed (130 paths), tests 108/pass 108/fail 0, build:web passed, review passed",
+        "git diff --check passed",
+        "Edge headless UI smoke -> .tmp-tests/message-list-window-ui.png captured a seeded 120-message chat through the windowed message list path"
+      ],
+      "lastUpdated": "2026-05-01T16:34:00.000Z"
     }
   ]
 }

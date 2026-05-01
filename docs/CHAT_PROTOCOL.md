@@ -21,3 +21,20 @@ Implemented foundations:
 - User message edit that truncates later messages for regeneration.
 
 Local persistence is handed off to P0-M4 storage adapters.
+
+## P3-M1 branch foundation
+
+Message branches are stored on a session separately from the main `messages`
+timeline. A branch records the source `fromMessageId`, a title, branch-local
+messages, and timestamps.
+
+The Web shell can save the latest assistant reply as a local branch. This keeps
+the main timeline unchanged and marks the session dirty for later sync/backup
+visibility.
+
+## P3-M2 long chat rendering foundation
+
+The Web message list uses a windowed view for long conversations. By default it
+renders the most recent messages and shows a local expand control for earlier
+messages. The full `ChatSession.messages` array remains unchanged in state and
+serialization; only the DOM rendering is limited.

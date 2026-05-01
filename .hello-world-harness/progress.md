@@ -226,3 +226,39 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (123 paths), tests 92/pass 92/fail 0, build:web passed, review passed.
 - UI smoke passed: local static HTTP 200 and Chrome headless screenshot created at .tmp-tests/import-export-ui.png for the Import/export panel.
 - Next recommended sprint: review remaining P2 backlog and promote the next highest-value personal workspace feature.
+
+## 2026-05-01T15:52:41.000Z
+
+- Implemented P2-M7 session organization: local conversation search, active/archived/all filters, tag filter, pinned-first ordering, and current-session tag/pin/archive controls.
+- Added apps/web/src/session-organizer.js plus Web sidebar wiring; organization changes stay local-first and mark sessions dirty for sync/backup safety.
+- Added docs/SESSION_ORGANIZATION.md and tests for state persistence, search/filter/sort/count behavior, and rendered-label escaping.
+- Verification passed: npm run check -> scaffold check passed (125 paths), tests 96/pass 96/fail 0, build:web passed, review passed; git diff --check passed.
+- UI smoke passed: built page returned HTTP 200, session organizer DOM IDs were present, and Edge headless captured .tmp-tests/session-organization-ui-wait.png with the new sidebar visible.
+- Note: no git commit checkpoint was created in this turn.
+
+## 2026-05-01T16:11:59.000Z
+
+- Implemented P2-M8 session trash lifecycle: move active conversation to trash, restore trashed conversation, and permanently delete from local state.
+- Refactored session organizer UI wiring out of apps/web/src/runtime.js into apps/web/src/session-organizer.js to keep runtime below the 800-line review gate.
+- Added deletedAt to the shared ChatSession contract and kept trash operations local-first; moving to trash marks sessions dirty for sync/backup visibility.
+- Fixed a UI regression found during smoke: CSS button display rules overrode the hidden attribute, so [hidden] now wins globally.
+- Verification passed: npm run check -> scaffold check passed (125 paths), tests 98/pass 98/fail 0, build:web passed, review passed; git diff --check passed.
+- UI smoke passed: built page returned HTTP 200, trash controls were present in DOM, and Edge headless captured .tmp-tests/session-trash-ui-fixed.png with only Move to trash visible for an active conversation.
+- Note: no git commit checkpoint was created in this turn.
+
+## 2026-05-01T16:27:53.000Z
+
+- Implemented P3-M1 richer editing branch foundation: ChatBranch contracts, per-session branch metadata, activeBranchId placeholder, and local branch creation helpers.
+- Added apps/web/src/branch-dashboard.js and Web controls for saving the latest assistant reply as a local branch without changing the main message timeline.
+- Documented the branch foundation in docs/CHAT_PROTOCOL.md and added tests for branch state, source validation, rendered-label escaping, and click-to-create UI behavior.
+- Verification passed: npm run check -> scaffold check passed (128 paths), tests 103/pass 103/fail 0, build:web passed, review passed; git diff --check passed.
+- UI smoke passed: built page returned HTTP 200, branch-last and branch-results were present in DOM, and Edge headless captured .tmp-tests/branch-dashboard-ui.png.
+- Note: no git commit checkpoint was created in this turn.
+
+## 2026-05-01T16:34:00.000Z
+
+- Implemented P3-M2 long chat rendering foundation: apps/web/src/message-list.js now creates a latest-message window, renders escaped messages and empty state, and binds a local expand action.
+- Updated the Web runtime to render through the message-list module and track expanded sessions in memory, leaving ChatSession.messages unchanged.
+- Added tests/web-message-list.test.mjs for window counts, expanded mode, HTML escaping, expand control escaping, and click binding.
+- Verification passed: npm run check -> scaffold check passed (130 paths), tests 108/pass 108/fail 0, build:web passed, review passed; git diff --check passed.
+- UI smoke passed: built runtime imports message-list.js, built message-list.js contains the expand control, and Edge headless captured .tmp-tests/message-list-window-ui.png from a seeded 120-message chat.

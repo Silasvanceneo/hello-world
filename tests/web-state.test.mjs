@@ -6,23 +6,30 @@ import {
   addSession,
   createAgentPresetFromForm,
   createAssistantEchoMessage,
+  createBranchFromLastAssistant,
   createInitialWebState,
   createPromptTemplateFromForm,
   createProviderFromForm,
   createProviderMessagesForActiveAgent,
   createSession,
   createTextMessage,
+  createMessageBranch,
+  deleteSessionPermanently,
   getActiveAgentPreset,
   getActivePromptTemplate,
   getActiveSession,
+  getSessionBranchView,
   parseState,
   renderPromptTemplateWithVariables,
+  restoreSessionFromTrash,
   saveUsageBudget,
   serializeState,
   setActiveAgentPreset,
   setActivePromptTemplate,
   setModelRoutingStrategy,
+  moveActiveSessionToTrash,
   summarizeUsage,
+  updateActiveSessionOrganization,
   upsertAgentPreset,
   upsertPromptTemplate,
   upsertProvider,
@@ -129,4 +136,82 @@ test('web state persists local budget settings with safe numeric parsing', () =>
   assert.equal(restored.usageBudget.dailyLimit, 0.25);
   assert.equal(restored.usageBudget.monthlyLimit, undefined);
   assert.equal(restored.usageBudget.currency, 'CNY');
+});
+
+test('web state persists active session organization metadata', () => {
+  let state = createInitialWebState('2026-05-01T00:00:00.000Z');
+  state = updateActiveSessionOrganization(state, {
+    tags: 'research, work, research',
+    pinned: true,
+    archived: false,
+  }, '2026-05-01T00:01:00.000Z');
+  const restored = parseState(serializeState(state));
+  const active = getActiveSession(restored);
+
+  assert.deepEqual(active.tags, ['research', 'work']);
+  assert.equal(active.pinned, true);
+  assert.equal(active.archived, false);
+  assert.equal(active.updatedAt, '2026-05-01T00:01:00.000Z');
+  assert.equal(active.syncState, 'dirty');
+});
+
+test('web state moves sessions to trash, restores them, and deletes permanently', () => {
+  let state = createInitialWebState('2026-05-02T00:00:00.000Z');
+  state = addSession(state, createSession('session-2', '2026-05-02T00:01:00.000Z'));
+  state = moveActiveSessionToTrash(state, '2026-05-02T00:02:00.000Z');
+
+  assert.equal(state.activeSessionId, 'session-1');
+  assert.equal(state.sessions.find((session) => session.id === 'session-2')?.deletedAt, '2026-05-02T00:02:00.000Z');
+  assert.equal(state.sessions.find((session) => session.id === 'session-2')?.syncState, 'dirty');
+
+  state = restoreSessionFromTrash(state, 'session-2', '2026-05-02T00:03:00.000Z');
+  assert.equal(state.activeSessionId, 'session-2');
+  assert.equal(getActiveSession(state).deletedAt, undefined);
+  assert.equal(getActiveSession(state).updatedAt, '2026-05-02T00:03:00.000Z');
+
+  state = moveActiveSessionToTrash(state, '2026-05-02T00:04:00.000Z');
+  state = deleteSessionPermanently(state, 'session-2');
+  assert.equal(state.sessions.some((session) => session.id === 'session-2'), false);
+});
+
+test('web state creates message branches without mutating the main timeline', () => {
+  let state = createInitialWebState('2026-05-02T01:00:00.000Z');
+  state = addMessageToActiveSession(state, createTextMessage('user', 'Draft a launch note', '2026-05-02T01:01:00.000Z', 'user-1'));
+  state = addMessageToActiveSession(state, createTextMessage('assistant', 'Main answer', '2026-05-02T01:02:00.000Z', 'assistant-1'));
+  state = createMessageBranch(state, {
+    fromMessageId: 'assistant-1',
+    title: 'Shorter version',
+    messages: [createTextMessage('assistant', 'Short answer', '2026-05-02T01:03:00.000Z', 'assistant-branch')],
+  }, '2026-05-02T01:04:00.000Z', 'branch-1');
+  const session = getActiveSession(state);
+  const view = getSessionBranchView(session);
+
+  assert.equal(session.messages.length, 2);
+  assert.equal(session.branches[0]?.id, 'branch-1');
+  assert.equal(session.branches[0]?.fromMessageId, 'assistant-1');
+  assert.equal(session.branches[0]?.messages[0]?.id, 'assistant-branch');
+  assert.equal(session.syncState, 'dirty');
+  assert.equal(view.branches[0]?.messageCount, 1);
+  assert.equal(view.activeBranchId, undefined);
+});
+
+test('web state rejects branches from unknown source messages', () => {
+  const state = createInitialWebState('2026-05-02T01:00:00.000Z');
+  assert.throws(() => createMessageBranch(state, {
+    fromMessageId: 'missing',
+    title: 'Invalid',
+    messages: [],
+  }), /Branch source message not found/);
+});
+
+test('web state creates a branch from the latest assistant message', () => {
+  let state = createInitialWebState('2026-05-02T01:00:00.000Z');
+  state = addMessageToActiveSession(state, createTextMessage('user', 'Draft', '2026-05-02T01:01:00.000Z', 'user-1'));
+  state = addMessageToActiveSession(state, createTextMessage('assistant', 'First answer', '2026-05-02T01:02:00.000Z', 'assistant-1'));
+  state = createBranchFromLastAssistant(state, '2026-05-02T01:05:00.000Z', 'branch-last');
+  const branch = getActiveSession(state).branches[0];
+
+  assert.equal(branch.fromMessageId, 'assistant-1');
+  assert.equal(branch.messages[0]?.id, 'branch-last:message');
+  assert.deepEqual(branch.messages[0]?.content, [{ type: 'text', text: 'First answer' }]);
 });

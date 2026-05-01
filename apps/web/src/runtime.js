@@ -33,10 +33,13 @@ import {
   safeJson,
   summarizeBackupArchive,
 } from './backup-dashboard.js';
+import { bindBranchDashboard, renderBranchResults } from './branch-dashboard.js';
 import { createCostDashboardViewModel, createUsageRecordsFromWebState } from './cost-dashboard.js';
 import { createLocalPreviewPlan, createSyncDashboardViewModel } from './sync-dashboard.js';
+import { bindSessionOrganizer, createInitialSessionFilters, renderSessionOrganizer } from './session-organizer.js';
 import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
+import { bindMessageListWindow, renderMessageList } from './message-list.js';
 import { detectLocalOllama } from './native-desktop.js';
 import {
   captureMobilePhoto,
@@ -54,6 +57,8 @@ let activeAbortController;
 let state = parseState(localStorage.getItem(STORAGE_KEY));
 let comparisonPrompt = '';
 let comparisonResults = [];
+let sessionFilters = createInitialSessionFilters();
+const expandedMessageSessions = new Set();
 
 const elements = {
   agentIcon: document.querySelector('#agent-icon'),
@@ -74,6 +79,8 @@ const elements = {
   backupRestore: document.querySelector('#backup-restore-json'),
   backupSessionMarkdown: document.querySelector('#backup-session-markdown'),
   backupStatus: document.querySelector('#backup-status'),
+  branchLast: document.querySelector('#branch-last'),
+  branchResults: document.querySelector('#branch-results'),
   compareModels: document.querySelector('#compare-models'),
   costStatus: document.querySelector('#cost-status'),
   costTrends: document.querySelector('#cost-trends'),
@@ -108,8 +115,16 @@ const elements = {
   saveAgentPreset: document.querySelector('#save-agent-preset'),
   saveBudget: document.querySelector('#save-budget'),
   savePromptTemplate: document.querySelector('#save-prompt-template'),
+  saveSessionOrganization: document.querySelector('#save-session-organization'),
   saveSyncSettings: document.querySelector('#save-sync-settings'),
+  sessionArchived: document.querySelector('#session-archived'),
+  sessionArchiveFilter: document.querySelector('#session-archive-filter'),
   sessionList: document.querySelector('#session-list'),
+  sessionOrganizationStatus: document.querySelector('#session-organization-status'),
+  sessionPinned: document.querySelector('#session-pinned'),
+  sessionSearch: document.querySelector('#session-search'),
+  sessionTagFilter: document.querySelector('#session-tag-filter'),
+  sessionTags: document.querySelector('#session-tags'),
   sessionTitle: document.querySelector('#session-title'),
   stopGeneration: document.querySelector('#stop-generation'),
   syncCounts: document.querySelector('#sync-counts'),
@@ -118,6 +133,9 @@ const elements = {
   syncStatus: document.querySelector('#sync-status'),
   syncTargets: document.querySelector('#sync-targets'),
   previewSyncPlan: document.querySelector('#preview-sync-plan'),
+  trashSession: document.querySelector('#trash-session'),
+  restoreSession: document.querySelector('#restore-session'),
+  deleteSessionForever: document.querySelector('#delete-session-forever'),
   speakLast: document.querySelector('#speak-last'),
   usageSummary: document.querySelector('#usage-summary'),
   voiceInput: document.querySelector('#voice-input'),
@@ -130,17 +148,12 @@ function saveState() {
 function render() {
   const session = getActiveSession(state) ?? createInitialWebState().sessions[0];
   elements.sessionTitle.textContent = session.title;
-  elements.sessionList.innerHTML = state.sessions.map((item) => `
-    <button class="session-item ${item.id === session.id ? 'active' : ''}" data-session-id="${escapeHtml(item.id)}" type="button">
-      ${escapeHtml(item.title)}
-    </button>
-  `).join('');
-  elements.messages.innerHTML = session.messages.length === 0
-    ? renderEmptyState()
-    : session.messages.map(renderMessage).join('');
+  renderSessionOrganizer({ state, session, filters: sessionFilters, elements });
+  elements.messages.innerHTML = renderMessageList(session, { expanded: expandedMessageSessions.has(session.id) });
   const usage = summarizeUsage(session);
   elements.usageSummary.textContent = `${usage.totalTokens} tokens`;
   elements.attachments.innerHTML = (session.attachments ?? []).map((attachment) => `<span class="attachment-chip">${escapeHtml(attachment.name)}</span>`).join('');
+  elements.branchResults.innerHTML = renderBranchResults(session);
   elements.comparisonResults.innerHTML = renderComparisonResults();
   const provider = state.providers[0];
   elements.providerStatus.textContent = provider
@@ -152,39 +165,6 @@ function render() {
   renderCostPanel();
   renderSyncPanel();
   renderBackupPanel();
-}
-
-function renderMessage(message) {
-  const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n');
-  const label = message.role === 'assistant' ? 'Assistant' : 'You';
-  const avatar = message.role === 'assistant'
-    ? '<img src="./brand-icon.png" alt="" />'
-    : '<span>Y</span>';
-  return `<article class="message ${message.role}">
-    <div class="message-avatar" aria-hidden="true">${avatar}</div>
-    <div class="message-bubble">
-      <strong>${escapeHtml(label)}</strong>
-      <p>${escapeHtml(text)}</p>
-    </div>
-  </article>`;
-}
-
-function renderEmptyState() {
-  return `<div class="empty-state">
-    <figure class="mascot-card">
-      <img src="./brand-icon.png" alt="" />
-      <figcaption>hello-world assistant</figcaption>
-    </figure>
-    <p class="eyebrow">Local-first, multi-model, private by default</p>
-    <h3>Ask less.<br />Know more.</h3>
-    <p>Connect Ollama or an OpenAI-compatible endpoint, then chat with files, screenshots, camera images, voice input, and model comparison.</p>
-    <div class="prompt-suggestions" aria-label="Prompt ideas">
-      <span>Explain this PDF</span>
-      <span>Compare two models</span>
-      <span>Analyze a screenshot</span>
-      <span>Draft a plan</span>
-    </div>
-  </div>`;
 }
 
 function renderComparisonResults() {
@@ -286,6 +266,21 @@ elements.compareModels.addEventListener('click', async () => {
     elements.compareModels.disabled = false;
     render();
   }
+});
+
+bindBranchDashboard({
+  elements,
+  getState: () => state,
+  setState: (nextState) => { state = nextState; },
+  saveState,
+  render,
+});
+
+bindMessageListWindow({
+  elements,
+  getSession: () => getActiveSession(state),
+  expandSession: (sessionId) => expandedMessageSessions.add(sessionId),
+  render,
 });
 
 elements.comparisonResults.addEventListener('click', (event) => {
@@ -440,6 +435,16 @@ elements.agentPresetSelect.addEventListener('change', () => {
   state = setActiveAgentPreset(state, elements.agentPresetSelect.value);
   saveState();
   render();
+});
+
+bindSessionOrganizer({
+  elements,
+  getState: () => state,
+  setState: (nextState) => { state = nextState; },
+  getFilters: () => sessionFilters,
+  setFilters: (nextFilters) => { sessionFilters = nextFilters; },
+  saveState,
+  render,
 });
 
 elements.savePromptTemplate.addEventListener('click', () => {

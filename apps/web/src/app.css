@@ -64,6 +64,9 @@ textarea {
   color: inherit;
   font: inherit;
 }
+[hidden] {
+  display: none !important;
+}
 button,
 .file-picker {
   transition:
@@ -260,6 +263,10 @@ select:focus-visible,
   min-height: 0;
   gap: 14px;
 }
+.session-organizer {
+  display: grid;
+  gap: 8px;
+}
 .session-list {
   display: grid;
   gap: 0;
@@ -282,10 +289,34 @@ select:focus-visible,
     color var(--motion-fast),
     padding-left var(--motion-fast);
 }
+.session-item span,
+.session-item small {
+  display: block;
+}
+.session-item small {
+  margin-top: 4px;
+  color: inherit;
+  font-family: var(--mono-font);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 .session-item.active {
   padding-left: 12px;
   color: var(--background);
   background: var(--foreground);
+}
+.session-empty,
+.session-controls {
+  border-bottom: var(--line-thin);
+  margin: 0;
+  padding: 12px 0;
+}
+.session-controls label {
+  margin: 10px 0;
+}
+.session-controls .secondary-button {
+  width: 100%;
 }
 .sidebar-footer {
   display: flex;

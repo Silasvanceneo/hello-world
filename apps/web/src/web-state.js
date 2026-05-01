@@ -72,6 +72,132 @@ export function addAttachmentToActiveSession(state, attachment) {
   };
 }
 
+export function updateActiveSessionOrganization(state, draft, timestamp = new Date().toISOString()) {
+  const active = getActiveSession(state);
+  const tags = normalizeList(String(draft.tags ?? '').split(','));
+  return {
+    ...state,
+    sessions: state.sessions.map((session) => session.id === active.id
+      ? {
+        ...session,
+        tags,
+        pinned: Boolean(draft.pinned),
+        archived: Boolean(draft.archived),
+        updatedAt: timestamp,
+        syncState: 'dirty',
+      }
+      : session),
+  };
+}
+
+export function moveActiveSessionToTrash(state, timestamp = new Date().toISOString()) {
+  const active = getActiveSession(state);
+  const nextActive = state.sessions.find((session) => session.id !== active.id && !session.deletedAt);
+  return {
+    ...state,
+    activeSessionId: nextActive?.id ?? active.id,
+    sessions: state.sessions.map((session) => session.id === active.id
+      ? {
+        ...session,
+        deletedAt: timestamp,
+        updatedAt: timestamp,
+        syncState: 'dirty',
+      }
+      : session),
+  };
+}
+
+export function restoreSessionFromTrash(state, sessionId, timestamp = new Date().toISOString()) {
+  return {
+    ...state,
+    activeSessionId: sessionId,
+    sessions: state.sessions.map((session) => session.id === sessionId
+      ? {
+        ...session,
+        deletedAt: undefined,
+        updatedAt: timestamp,
+        syncState: 'dirty',
+      }
+      : session),
+  };
+}
+
+export function deleteSessionPermanently(state, sessionId) {
+  const sessions = state.sessions.filter((session) => session.id !== sessionId);
+  const fallback = sessions.find((session) => !session.deletedAt) ?? sessions[0];
+  const nextSession = fallback ?? createSession(undefined, new Date().toISOString());
+  return {
+    ...state,
+    activeSessionId: state.activeSessionId === sessionId ? nextSession.id : state.activeSessionId,
+    sessions: sessions.length > 0 ? sessions : [nextSession],
+  };
+}
+
+export function createMessageBranch(
+  state,
+  { fromMessageId, title, messages },
+  timestamp = new Date().toISOString(),
+  id = crypto.randomUUID(),
+) {
+  const active = getActiveSession(state);
+  if (!active.messages.some((message) => message.id === fromMessageId)) {
+    throw new Error(`Branch source message not found: ${fromMessageId}`);
+  }
+  const branch = {
+    id,
+    fromMessageId,
+    title: title?.trim() || `Branch ${((active.branches ?? []).length + 1)}`,
+    messages: messages ?? [],
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+  return {
+    ...state,
+    sessions: state.sessions.map((session) => session.id === active.id
+      ? {
+        ...session,
+        branches: [...(session.branches ?? []), branch],
+        updatedAt: timestamp,
+        syncState: 'dirty',
+      }
+      : session),
+  };
+}
+
+export function getSessionBranchView(session) {
+  const branches = (session.branches ?? []).map((branch) => ({
+    id: branch.id,
+    fromMessageId: branch.fromMessageId,
+    title: branch.title,
+    messageCount: branch.messages.length,
+    updatedAt: branch.updatedAt,
+    active: branch.id === session.activeBranchId,
+  }));
+  return {
+    activeBranchId: session.activeBranchId,
+    branches,
+    hasBranches: branches.length > 0,
+  };
+}
+
+export function createBranchFromLastAssistant(state, timestamp = new Date().toISOString(), id = crypto.randomUUID()) {
+  const active = getActiveSession(state);
+  const source = [...active.messages].reverse().find((message) => message.role === 'assistant');
+  if (!source) {
+    throw new Error('No assistant message is available to branch.');
+  }
+  return createMessageBranch(state, {
+    fromMessageId: source.id,
+    title: `Alternative ${((active.branches ?? []).length + 1)}`,
+    messages: [{
+      ...source,
+      id: `${id}:message`,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }],
+  }, timestamp, id);
+}
+
 export function upsertProvider(state, provider) {
   const exists = state.providers.some((item) => item.id === provider.id);
   return {

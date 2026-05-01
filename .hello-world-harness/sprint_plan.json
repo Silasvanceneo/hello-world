@@ -673,6 +673,131 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P2-M7",
+      "scope": "Session organization for local personal workspace navigation",
+      "dependencies": [
+        "P0-M9",
+        "P2-M5",
+        "P2-M6"
+      ],
+      "doneCriteria": [
+        "Local conversations can be searched and filtered by query, tags, and archive state",
+        "Current conversation can be tagged, pinned, or archived without deletion",
+        "Organization metadata remains local-first and sync/backup friendly",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
+    },
+    {
+      "id": "P2-M8",
+      "scope": "Session trash and recovery lifecycle",
+      "dependencies": [
+        "P2-M7"
+      ],
+      "doneCriteria": [
+        "Conversations can be moved to trash without immediate deletion",
+        "Trashed conversations can be restored or permanently deleted locally",
+        "Deleted conversations are excluded from normal conversation scopes",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "packages/shared/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
+    },
+    {
+      "id": "P3-M1",
+      "scope": "Richer editing branch foundation",
+      "dependencies": [
+        "P0-M3",
+        "P0-M9",
+        "P1-M2",
+        "P2-M8"
+      ],
+      "doneCriteria": [
+        "Chat sessions can store local branches separately from the main timeline",
+        "Web can save the latest assistant reply as a local branch",
+        "Branch summaries escape user-controlled labels",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "packages/shared/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
+    },
+    {
+      "id": "P3-M2",
+      "scope": "Virtualized long chat rendering foundation",
+      "dependencies": [
+        "P0-M9",
+        "P2-M8",
+        "P3-M1"
+      ],
+      "doneCriteria": [
+        "Long conversations render a bounded latest-message window by default",
+        "Users can expand earlier messages locally without mutating chat state",
+        "Message rendering escapes user-controlled text",
+        "Tests, Web build, review, and UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }
