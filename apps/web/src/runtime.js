@@ -23,6 +23,7 @@ import {
   saveUsageBudget,
   serializeState,
   setActiveAgentPreset,
+  setLocale,
   setActivePromptTemplate,
   setModelRoutingStrategy,
   summarizeUsage,
@@ -45,6 +46,7 @@ import { bindSessionOrganizer, createInitialSessionFilters, renderSessionOrganiz
 import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { bindMessageListWindow, renderMessageList } from './message-list.js';
+import { applyTranslations, createTranslator } from './localization.js';
 import { bindMultiWindowSync, writeStateAcrossWindows } from './multi-window-sync.js';
 import { bindDesktopCaptureRequests, detectLocalOllama } from './native-desktop.js';
 import { configureServiceWorker } from './pwa-runtime.js';
@@ -97,6 +99,7 @@ const elements = {
   capturePhoto: document.querySelector('#capture-photo'),
   captureScreen: document.querySelector('#capture-screen'),
   fileInput: document.querySelector('#file-input'),
+  languageSelect: document.querySelector('#language-select'),
   messages: document.querySelector('#messages'),
   newSession: document.querySelector('#new-session'),
   pasteImage: document.querySelector('#paste-image'),
@@ -151,6 +154,8 @@ const elements = {
   voiceInput: document.querySelector('#voice-input'),
 };
 
+let t = createTranslator(state.locale);
+
 function saveState() {
   const result = writeStateAcrossWindows({
     storageKey: STORAGE_KEY,
@@ -164,20 +169,25 @@ function saveState() {
 }
 
 function render() {
+  t = applyTranslations(document, state.locale);
+  elements.languageSelect.value = state.locale ?? 'en';
   const session = getActiveSession(state) ?? createInitialWebState().sessions[0];
   const messageView = createSessionMessageView(session);
   elements.sessionTitle.textContent = messageView.title;
-  renderSessionOrganizer({ state, session, filters: sessionFilters, elements });
-  elements.messages.innerHTML = renderMessageList({ ...session, messages: messageView.messages }, { expanded: expandedMessageSessions.has(session.id) });
+  renderSessionOrganizer({ state, session, filters: sessionFilters, elements, t });
+  elements.messages.innerHTML = renderMessageList(
+    { ...session, messages: messageView.messages },
+    { expanded: expandedMessageSessions.has(session.id), t },
+  );
   const usage = summarizeUsage(session);
-  elements.usageSummary.textContent = `${usage.totalTokens} tokens`;
+  elements.usageSummary.textContent = t('usage.tokens', { count: usage.totalTokens });
   elements.attachments.innerHTML = (session.attachments ?? []).map((attachment) => `<span class="attachment-chip">${escapeHtml(attachment.name)}</span>`).join('');
-  elements.branchResults.innerHTML = renderBranchResults(session);
+  elements.branchResults.innerHTML = renderBranchResults(session, { t });
   elements.comparisonResults.innerHTML = renderComparisonResults();
   const provider = state.providers[0];
   elements.providerStatus.textContent = provider
-    ? `Saved ${provider.name} (${provider.defaultModelId ?? defaultModel(provider.type)}). API keys stay in memory for this browser tab.`
-    : 'No provider configured. Local echo mode is active.';
+    ? t('provider.saved', { name: provider.name, model: provider.defaultModelId ?? defaultModel(provider.type) })
+    : t('provider.localEcho');
   renderAgentPresetPanel();
   renderPromptTemplatePanel();
   renderRoutingPanel();
@@ -191,15 +201,15 @@ function renderComparisonResults() {
     return '';
   }
   return comparisonResults.map((result) => {
-    const view = formatComparisonResult(result);
-    const body = result.status === 'fulfilled' ? result.text : (result.errorMessage ?? 'Unknown error');
+    const view = formatComparisonResult(result, { t });
+    const body = result.status === 'fulfilled' ? result.text : (result.errorMessage ?? t('comparison.unknownError'));
     const action = view.canSave
-      ? `<button class="secondary-button" data-save-comparison-id="${escapeHtml(result.id)}" type="button">Save as main branch</button>`
+      ? `<button class="secondary-button" data-save-comparison-id="${escapeHtml(result.id)}" type="button">${escapeHtml(t('comparison.saveMain'))}</button>`
       : '';
     return `<article class="comparison-card">
       <strong>${escapeHtml(view.title)}</strong>
-      <p class="comparison-meta">${escapeHtml(view.statusLabel)} · ${escapeHtml(view.speedLabel)} · ${escapeHtml(view.tokenLabel)}</p>
-      <pre>${escapeHtml(body || '(empty response)')}</pre>
+      <p class="comparison-meta">${escapeHtml(view.statusLabel)} / ${escapeHtml(view.speedLabel)} / ${escapeHtml(view.tokenLabel)}</p>
+      <pre>${escapeHtml(body || t('status.emptyResponse'))}</pre>
       ${action}
     </article>`;
   }).join('');
@@ -239,13 +249,13 @@ elements.composer.addEventListener('submit', async (event) => {
       signal: activeAbortController.signal,
       messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
       onDelta: (_delta, fullText) => {
-        elements.providerStatus.textContent = `Streaming ${fullText.length} chars...`;
+        elements.providerStatus.textContent = t('status.streaming', { count: fullText.length });
       },
     });
-    state = addMessageToActiveSession(state, createTextMessage('assistant', streamedText || '(empty response)'));
+    state = addMessageToActiveSession(state, createTextMessage('assistant', streamedText || t('status.emptyResponse')));
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown provider error.';
-    state = addMessageToActiveSession(state, createTextMessage('assistant', `Provider error: ${message}`));
+    const message = error instanceof Error ? error.message : t('status.unknownProviderError');
+    state = addMessageToActiveSession(state, createTextMessage('assistant', t('status.providerError', { message })));
   } finally {
     activeAbortController = undefined;
     elements.stopGeneration.disabled = true;
@@ -258,21 +268,31 @@ elements.stopGeneration.addEventListener('click', () => {
   activeAbortController?.abort();
 });
 
+elements.languageSelect.addEventListener('change', () => {
+  state = setLocale(state, elements.languageSelect.value);
+  saveState();
+  render();
+  elements.providerStatus.textContent = t('language.saved');
+});
+
 elements.compareModels.addEventListener('click', async () => {
   const text = elements.prompt.value.trim();
   const providers = state.providers.filter((provider) => provider.enabled !== false);
   if (!text) {
-    elements.providerStatus.textContent = 'Type a prompt before starting model comparison.';
+    elements.providerStatus.textContent = t('status.typePromptCompare');
     return;
   }
   if (providers.length === 0) {
-    elements.providerStatus.textContent = 'Save at least one provider before model comparison.';
+    elements.providerStatus.textContent = t('status.saveProviderCompare');
     return;
   }
 
   comparisonPrompt = text;
   elements.compareModels.disabled = true;
-  elements.providerStatus.textContent = `Comparing ${providers.length} model${providers.length === 1 ? '' : 's'}...`;
+  elements.providerStatus.textContent = t('status.comparing', {
+    count: providers.length,
+    plural: providers.length === 1 ? '' : 's',
+  });
   try {
     comparisonResults = await compareProvidersInBrowser({
       providers,
@@ -280,7 +300,7 @@ elements.compareModels.addEventListener('click', async () => {
       providerSecrets,
       messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
     });
-    elements.providerStatus.textContent = `Comparison finished. Pick one answer to save as the main branch.`;
+    elements.providerStatus.textContent = t('status.comparisonFinished');
   } finally {
     elements.compareModels.disabled = false;
     render();
@@ -293,6 +313,7 @@ bindBranchDashboard({
   setState: (nextState) => { state = nextState; },
   saveState,
   render,
+  getTranslator: () => t,
 });
 
 bindMessageListWindow({
@@ -318,7 +339,11 @@ bindMultiWindowSync({
   setState: (nextState) => { state = nextState; },
   parseState,
   render,
-  onStatus: (message) => { elements.providerStatus.textContent = message; },
+  onStatus: (message) => {
+    elements.providerStatus.textContent = message === 'Updated from another window.'
+      ? t('status.updatedOtherWindow')
+      : message;
+  },
 });
 
 bindSettingsView({
@@ -341,7 +366,7 @@ elements.comparisonResults.addEventListener('click', (event) => {
   }
   state = addMessageToActiveSession(state, createTextMessage('user', comparisonPrompt));
   state = addMessageToActiveSession(state, {
-    ...createTextMessage('assistant', result.text || '(empty response)'),
+    ...createTextMessage('assistant', result.text || t('status.emptyResponse')),
     modelId: result.modelId,
     usage: result.usage,
   });
@@ -387,18 +412,18 @@ elements.capturePhoto.addEventListener('click', () => {
 
 elements.voiceInput.addEventListener('click', async () => {
   elements.voiceInput.disabled = true;
-  elements.providerStatus.textContent = 'Listening for voice input...';
+  elements.providerStatus.textContent = t('status.voiceListening');
   try {
     const transcript = await listenForSpeech();
     if (!transcript) {
-      elements.providerStatus.textContent = 'No speech was captured.';
+      elements.providerStatus.textContent = t('status.noSpeech');
       return;
     }
     appendPromptText(transcript);
-    elements.providerStatus.textContent = 'Voice input added to the prompt.';
+    elements.providerStatus.textContent = t('status.voiceAdded');
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown voice input error.';
-    elements.providerStatus.textContent = `Voice input unavailable: ${message}`;
+    const message = error instanceof Error ? error.message : t('status.voiceUnknown');
+    elements.providerStatus.textContent = t('status.voiceUnavailable', { message });
   } finally {
     elements.voiceInput.disabled = false;
   }
@@ -407,17 +432,17 @@ elements.voiceInput.addEventListener('click', async () => {
 elements.speakLast.addEventListener('click', async () => {
   const text = findLastAssistantText(getActiveSession(state));
   if (!text) {
-    elements.providerStatus.textContent = 'No assistant message is available for speech playback.';
+    elements.providerStatus.textContent = t('status.noSpeechPlayback');
     return;
   }
   elements.speakLast.disabled = true;
-  elements.providerStatus.textContent = 'Reading the latest assistant reply aloud...';
+  elements.providerStatus.textContent = t('status.speechReading');
   try {
     await speakText(text);
-    elements.providerStatus.textContent = 'Speech playback finished.';
+    elements.providerStatus.textContent = t('status.speechFinished');
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown speech playback error.';
-    elements.providerStatus.textContent = `Speech playback unavailable: ${message}`;
+    const message = error instanceof Error ? error.message : t('status.speechUnknown');
+    elements.providerStatus.textContent = t('status.speechUnavailable', { message });
   } finally {
     elements.speakLast.disabled = false;
   }
@@ -455,9 +480,9 @@ elements.saveProvider.addEventListener('click', async () => {
   render();
   try {
     const models = await validateProviderInBrowser(provider, { apiKey: providerSecrets.get(provider.id) });
-    elements.providerStatus.textContent = describeModelList(models, provider.defaultModelId);
+    elements.providerStatus.textContent = describeModelList(models, provider.defaultModelId, { t });
   } catch (error) {
-    elements.providerStatus.textContent = `Saved, but ${describeProviderValidationError(error, provider)}`;
+    elements.providerStatus.textContent = t('status.savedBut', { message: describeProviderValidationError(error, provider, { t }) });
   }
 });
 
@@ -475,7 +500,7 @@ elements.saveAgentPreset.addEventListener('click', () => {
   state = upsertAgentPreset(state, preset);
   saveState();
   render();
-  elements.agentStatus.textContent = `${preset.icon} ${preset.name} is active for new provider calls.`;
+  elements.agentStatus.textContent = t('agent.savedActive', { icon: preset.icon, name: preset.name });
 });
 
 elements.agentPresetSelect.addEventListener('change', () => {
@@ -508,7 +533,7 @@ elements.savePromptTemplate.addEventListener('click', () => {
   state = upsertPromptTemplate(state, template);
   saveState();
   render();
-  elements.promptTemplateStatus.textContent = `${template.title} saved and ready to apply.`;
+  elements.promptTemplateStatus.textContent = t('prompt.saved', { title: template.title });
 });
 
 elements.promptTemplateSelect.addEventListener('change', () => {
@@ -541,24 +566,26 @@ elements.saveSyncSettings.addEventListener('click', () => {
   });
   saveState();
   render();
-  elements.syncStatus.textContent = 'Sync settings saved locally. No network call was sent.';
+  elements.syncStatus.textContent = t('sync.settingsSaved');
 });
 
 elements.previewSyncPlan.addEventListener('click', () => {
   const plan = createLocalPreviewPlan(state);
   renderSyncPanel(plan);
-  elements.syncStatus.textContent = `${createSyncDashboardViewModel(state.syncSettings, plan).statusLabel} Preview only; conflicts will require explicit choice.`;
+  elements.syncStatus.textContent = t('sync.previewOnly', {
+    status: createSyncDashboardViewModel(state.syncSettings, plan, { t }).statusLabel,
+  });
 });
 
 elements.backupExport.addEventListener('click', () => {
   const archive = createWebBackupArchive(state);
   elements.backupPayload.value = safeJson(archive);
-  elements.backupStatus.textContent = `JSON backup ready: ${summarizeBackupArchive(archive)} Copy it to a local file.`;
+  elements.backupStatus.textContent = t('backup.jsonReady', { summary: summarizeBackupArchive(archive, { t }) });
 });
 
 elements.backupSessionMarkdown.addEventListener('click', () => {
   elements.backupPayload.value = exportActiveSessionMarkdown(state);
-  elements.backupStatus.textContent = 'Active session Markdown export is ready with sensitive text redacted.';
+  elements.backupStatus.textContent = t('backup.markdownReady');
 });
 
 elements.backupRestore.addEventListener('click', () => {
@@ -566,17 +593,17 @@ elements.backupRestore.addEventListener('click', () => {
     state = restoreWebBackupArchive(state, elements.backupPayload.value);
     saveState();
     render();
-    elements.backupStatus.textContent = 'Backup restored locally. Provider API keys must be re-entered at runtime.';
+    elements.backupStatus.textContent = t('backup.restored');
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Invalid backup JSON.';
-    elements.backupStatus.textContent = `Restore failed: ${message}`;
+    const message = error instanceof Error ? error.message : t('backup.invalidJson');
+    elements.backupStatus.textContent = t('backup.restoreFailed', { message });
   }
 });
 
 elements.applyPromptTemplate.addEventListener('click', () => {
   const template = getActivePromptTemplate(state);
   if (!template) {
-    elements.promptTemplateStatus.textContent = 'Choose or save a template before applying.';
+    elements.promptTemplateStatus.textContent = t('prompt.chooseBeforeApply');
     return;
   }
   const values = parsePromptTemplateValues();
@@ -584,8 +611,8 @@ elements.applyPromptTemplate.addEventListener('click', () => {
   const rendered = renderPromptTemplateWithVariables(template, values);
   appendPromptText(rendered.text);
   elements.promptTemplateStatus.textContent = rendered.missingVariables.length > 0
-    ? `Applied with unresolved variables: ${rendered.missingVariables.join(', ')}.`
-    : `${template.title} applied to the composer.`;
+    ? t('prompt.appliedMissing', { variables: rendered.missingVariables.join(', ') })
+    : t('prompt.applied', { title: template.title });
 });
 
 elements.detectLocalOllama.addEventListener('click', async () => {
@@ -595,16 +622,16 @@ elements.detectLocalOllama.addEventListener('click', async () => {
     elements.providerBaseUrl.value = status.url;
     elements.providerName.value ||= 'Local Ollama';
     elements.providerStatus.textContent = status.reachable
-      ? `${status.message} Save the provider to use it.`
+      ? t('status.localOllamaReady', { message: status.message })
       : status.message;
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown desktop detection error.';
+    const message = error instanceof Error ? error.message : t('status.desktopDetectionUnknown');
     elements.providerStatus.textContent = message;
   }
 });
 
 bindDesktopCaptureRequests({
-  onCaptureRequest: () => attachNativeImage('Desktop shortcut screenshot', captureScreenImage),
+  onCaptureRequest: () => attachNativeImage(t('status.desktopShortcutScreenshotName'), captureScreenImage),
 }).catch(() => undefined);
 
 configureServiceWorker().catch(() => undefined);
@@ -639,10 +666,10 @@ async function attachNativeImage(name, producer) {
     state = addAttachmentToActiveSession(state, createImageAttachmentFromDataUrl(dataUrl, name));
     saveState();
     render();
-    elements.providerStatus.textContent = `${name} attached. Choose a vision-capable model before asking about it.`;
+    elements.providerStatus.textContent = t('status.imageAttached', { name });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown native input error.';
-    elements.providerStatus.textContent = `Native image input unavailable: ${message}`;
+    const message = error instanceof Error ? error.message : t('status.nativeInputUnknown');
+    elements.providerStatus.textContent = t('status.nativeInputUnavailable', { message });
   }
 }
 
@@ -683,7 +710,7 @@ function detectBrowserFileKind(file) {
 function renderAgentPresetPanel() {
   const active = getActiveAgentPreset(state);
   elements.agentPresetSelect.innerHTML = [
-    '<option value="">No preset</option>',
+    `<option value="">${escapeHtml(t('agent.noPreset'))}</option>`,
     ...state.agentPresets.map((preset) => `<option value="${escapeHtml(preset.id)}">${escapeHtml(`${preset.icon} ${preset.name}`)}</option>`),
   ].join('');
   elements.agentPresetSelect.value = active?.id ?? '';
@@ -694,16 +721,16 @@ function renderAgentPresetPanel() {
     elements.agentSystemPrompt.value = active.systemPrompt;
     elements.agentTools.value = active.enabledTools.join(', ');
     elements.agentKnowledgeBase.value = active.knowledgeBase.scope;
-    elements.agentStatus.textContent = `${active.icon} ${active.name} active. System prompt is prepended at runtime; tools remain governed by security defaults.`;
+    elements.agentStatus.textContent = t('agent.activeDetail', { icon: active.icon, name: active.name });
     return;
   }
-  elements.agentStatus.textContent = 'No preset active. Provider calls use the normal chat context.';
+  elements.agentStatus.textContent = t('agent.noneActiveDetail');
 }
 
 function renderPromptTemplatePanel() {
   const active = getActivePromptTemplate(state);
   elements.promptTemplateSelect.innerHTML = [
-    '<option value="">No template</option>',
+    `<option value="">${escapeHtml(t('prompt.noTemplate'))}</option>`,
     ...state.promptTemplates.map((template) => `<option value="${escapeHtml(template.id)}">${escapeHtml(template.favorite ? `★ ${template.title}` : template.title)}</option>`),
   ].join('');
   elements.promptTemplateSelect.value = active?.id ?? '';
@@ -714,10 +741,10 @@ function renderPromptTemplatePanel() {
     elements.promptTemplateTags.value = active.tags.join(', ');
     elements.promptTemplateFavorite.checked = active.favorite;
     elements.promptTemplateScope.value = active.scope;
-    elements.promptTemplateStatus.textContent = `${active.title} selected. Fill Variables JSON, then apply.`;
+    elements.promptTemplateStatus.textContent = t('prompt.selected', { title: active.title });
     return;
   }
-  elements.promptTemplateStatus.textContent = 'No template selected. Save one to reuse prompts.';
+  elements.promptTemplateStatus.textContent = t('prompt.noneSelectedDetail');
 }
 
 function renderRoutingPanel() {
@@ -727,7 +754,7 @@ function renderRoutingPanel() {
     strategy,
     task: inferRoutingTask(getActiveSession(state)),
   });
-  elements.routingStatus.textContent = describeRoutingChoice(choice);
+  elements.routingStatus.textContent = describeRoutingChoice(choice, { t });
 }
 
 function renderCostPanel() {
@@ -736,33 +763,33 @@ function renderCostPanel() {
   elements.budgetMonthly.value = budget.monthlyLimit ?? '';
   elements.budgetCurrency.value = budget.currency ?? 'USD';
   const records = createUsageRecordsFromWebState(state);
-  const view = createCostDashboardViewModel(records, { ...budget, now: new Date().toISOString() });
-  elements.costStatus.textContent = `${view.totalCostLabel} estimated. ${view.budgetMessage}`;
+  const view = createCostDashboardViewModel(records, { ...budget, now: new Date().toISOString() }, { t });
+  elements.costStatus.textContent = t('budget.estimated', { amount: view.totalCostLabel, message: view.budgetMessage });
   const latestDay = view.byDay.at(-1);
   const latestMonth = view.byMonth.at(-1);
   elements.costTrends.innerHTML = [
-    `<li>Latest day <span>${escapeHtml(latestDay ? `${latestDay.key} / ${latestDay.totalTokens} tokens` : 'No usage')}</span></li>`,
-    `<li>Latest month <span>${escapeHtml(latestMonth ? `${latestMonth.key} / ${latestMonth.totalTokens} tokens` : 'No usage')}</span></li>`,
+    `<li>${escapeHtml(t('budget.latestDay'))} <span>${escapeHtml(latestDay ? `${latestDay.key} / ${t('usage.tokens', { count: latestDay.totalTokens })}` : t('budget.noUsage'))}</span></li>`,
+    `<li>${escapeHtml(t('budget.latestMonth'))} <span>${escapeHtml(latestMonth ? `${latestMonth.key} / ${t('usage.tokens', { count: latestMonth.totalTokens })}` : t('budget.noUsage'))}</span></li>`,
   ].join('');
 }
 
 function renderSyncPanel(plan = createLocalPreviewPlan(state)) {
   const settings = state.syncSettings ?? {};
-  const view = createSyncDashboardViewModel(settings, plan);
+  const view = createSyncDashboardViewModel(settings, plan, { t });
   elements.syncEnabled.value = settings.enabled ? 'enabled' : 'disabled';
   elements.syncEndpoint.value = settings.endpoint ?? '';
   elements.syncTargets.value = syncTargetCsv(settings);
   elements.syncStatus.textContent = `${view.enabledLabel}. ${view.statusLabel}`;
   elements.syncCounts.innerHTML = [
-    `<li>Upload <span>${view.counts.upload}</span></li>`,
-    `<li>Download <span>${view.counts.download}</span></li>`,
-    `<li>Conflicts <span>${view.counts.conflicts}</span></li>`,
+    `<li>${escapeHtml(t('sync.upload'))} <span>${view.counts.upload}</span></li>`,
+    `<li>${escapeHtml(t('sync.download'))} <span>${view.counts.download}</span></li>`,
+    `<li>${escapeHtml(t('sync.conflicts'))} <span>${view.counts.conflicts}</span></li>`,
   ].join('');
 }
 
 function renderBackupPanel() {
   const archive = createWebBackupArchive(state);
-  elements.backupStatus.textContent = `Ready to export: ${summarizeBackupArchive(archive)}`;
+  elements.backupStatus.textContent = t('backup.readyDetail', { summary: summarizeBackupArchive(archive, { t }) });
 }
 
 function parsePromptTemplateValues() {
@@ -771,12 +798,12 @@ function parsePromptTemplateValues() {
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      throw new Error('Variables JSON must be an object.');
+      throw new Error(t('prompt.variablesObjectOnly'));
     }
     return Object.fromEntries(Object.entries(parsed).map(([key, value]) => [key, String(value)]));
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Invalid JSON.';
-    elements.promptTemplateStatus.textContent = `Template variables error: ${message}`;
+    const message = error instanceof Error ? error.message : t('prompt.invalidJson');
+    elements.promptTemplateStatus.textContent = t('prompt.variablesError', { message });
     return undefined;
   }
 }

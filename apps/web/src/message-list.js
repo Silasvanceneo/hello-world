@@ -1,4 +1,26 @@
 const defaultWindowSize = 80;
+const defaultT = (key, values = {}) => {
+  const defaults = {
+    'message.assistant': 'Assistant',
+    'message.you': 'You',
+    'message.edit': 'Edit',
+    'message.retry': 'Retry',
+    'message.now': 'now',
+    'message.showEarlier': 'Show {count} earlier messages',
+    'empty.caption': 'hello-world assistant',
+    'empty.eyebrow': 'Local-first, multi-model, private by default',
+    'empty.title': 'Start a focused workspace.',
+    'empty.description': 'Use local providers, files, screenshots, voice, and model comparison from one chat surface.',
+    'starter.files.label': 'Plan with files',
+    'starter.files.prompt': 'Review these files and turn them into a clear action plan.',
+    'starter.models.label': 'Compare models',
+    'starter.models.prompt': 'Answer this with two different models and show the tradeoffs.',
+    'starter.screenshot.label': 'Explain a screenshot',
+    'starter.screenshot.prompt': 'Analyze this screenshot and explain what matters most.',
+  };
+  const template = defaults[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+};
 
 export function createMessageListViewModel(session, { expanded = false, windowSize = defaultWindowSize } = {}) {
   const messages = session.messages ?? [];
@@ -13,16 +35,17 @@ export function createMessageListViewModel(session, { expanded = false, windowSi
 }
 
 export function renderMessageList(session, options = {}) {
+  const t = options.t ?? defaultT;
   const view = createMessageListViewModel(session, options);
   if (view.totalMessages === 0) {
-    return renderEmptyState();
+    return renderEmptyState(t);
   }
   const lastAssistantId = [...(session.messages ?? [])].reverse().find((message) => message.role === 'assistant')?.id;
   return [
     view.isWindowed
-      ? `<button class="secondary-button" data-expand-messages="${escapeHtml(session.id)}" type="button">Show ${view.hiddenBefore} earlier messages</button>`
+      ? `<button class="secondary-button" data-expand-messages="${escapeHtml(session.id)}" type="button">${escapeHtml(t('message.showEarlier', { count: view.hiddenBefore }))}</button>`
       : '',
-    ...view.visibleMessages.map((message) => renderMessage(message, { canRetry: message.id === lastAssistantId })),
+    ...view.visibleMessages.map((message) => renderMessage(message, { canRetry: message.id === lastAssistantId, t })),
   ].filter(Boolean).join('');
 }
 
@@ -65,9 +88,10 @@ export function bindMessageListWindow({
 }
 
 function renderMessage(message, options = {}) {
+  const t = options.t ?? defaultT;
   const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n');
-  const label = message.role === 'assistant' ? 'Assistant' : 'You';
-  const timestamp = formatMessageTime(message.createdAt);
+  const label = message.role === 'assistant' ? t('message.assistant') : t('message.you');
+  const timestamp = formatMessageTime(message.createdAt, t);
   const avatar = message.role === 'assistant'
     ? '<img src="./brand-icon.png" alt="" />'
     : '<span>Y</span>';
@@ -85,39 +109,40 @@ function renderMessage(message, options = {}) {
 }
 
 function renderMessageActions(message, options) {
+  const t = options.t ?? defaultT;
   if (message.role === 'user') {
-    return `<button class="secondary-button" data-edit-message="${escapeHtml(message.id)}" type="button">Edit</button>`;
+    return `<button class="secondary-button" data-edit-message="${escapeHtml(message.id)}" type="button">${escapeHtml(t('message.edit'))}</button>`;
   }
   if (message.role === 'assistant' && options.canRetry) {
-    return `<button class="secondary-button" data-retry-last="${escapeHtml(message.id)}" type="button">Retry</button>`;
+    return `<button class="secondary-button" data-retry-last="${escapeHtml(message.id)}" type="button">${escapeHtml(t('message.retry'))}</button>`;
   }
   return '';
 }
 
-function renderEmptyState() {
+function renderEmptyState(t = defaultT) {
   const starters = [
     {
-      label: 'Plan with files',
-      prompt: 'Review these files and turn them into a clear action plan.',
+      label: t('starter.files.label'),
+      prompt: t('starter.files.prompt'),
     },
     {
-      label: 'Compare models',
-      prompt: 'Answer this with two different models and show the tradeoffs.',
+      label: t('starter.models.label'),
+      prompt: t('starter.models.prompt'),
     },
     {
-      label: 'Explain a screenshot',
-      prompt: 'Analyze this screenshot and explain what matters most.',
+      label: t('starter.screenshot.label'),
+      prompt: t('starter.screenshot.prompt'),
     },
   ];
   return `<div class="empty-state">
     <div class="empty-copy">
       <figure class="mascot-card">
         <img src="./brand-icon.png" alt="" />
-        <figcaption>hello-world assistant</figcaption>
+        <figcaption>${escapeHtml(t('empty.caption'))}</figcaption>
       </figure>
-      <p class="eyebrow">Local-first, multi-model, private by default</p>
-      <h3>Start a focused workspace.</h3>
-      <p>Use local providers, files, screenshots, voice, and model comparison from one chat surface.</p>
+      <p class="eyebrow">${escapeHtml(t('empty.eyebrow'))}</p>
+      <h3>${escapeHtml(t('empty.title'))}</h3>
+      <p>${escapeHtml(t('empty.description'))}</p>
     </div>
     <div class="prompt-suggestions" aria-label="Prompt starters">
       ${starters.map((starter) => `<button class="prompt-starter" type="button" data-prompt-starter="${escapeHtml(starter.prompt)}">
@@ -138,10 +163,10 @@ function applyPromptStarter({ button, promptTarget }) {
   promptTarget.focus?.();
 }
 
-function formatMessageTime(value) {
+function formatMessageTime(value, t = defaultT) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return 'now';
+    return t('message.now');
   }
 
   return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });

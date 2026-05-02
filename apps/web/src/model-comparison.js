@@ -52,10 +52,24 @@ export async function compareProvidersInBrowser({
   }));
 }
 
-export function formatComparisonResult(result) {
+const defaultT = (key, values = {}) => {
+  const defaults = {
+    'comparison.noTokenData': 'No token data',
+    'comparison.ready': 'Ready',
+    'comparison.error': 'Error: {message}',
+    'comparison.unknownError': 'unknown error',
+    'usage.tokens': '{count} tokens',
+  };
+  const template = defaults[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+};
+
+export function formatComparisonResult(result, { t = defaultT } = {}) {
   const speedLabel = `${result.durationMs} ms`;
-  const tokenLabel = result.usage ? `${result.usage.totalTokens} tokens` : 'No token data';
-  const statusLabel = result.status === 'fulfilled' ? 'Ready' : `Error: ${result.errorMessage ?? 'unknown error'}`;
+  const tokenLabel = result.usage ? t('usage.tokens', { count: result.usage.totalTokens }) : t('comparison.noTokenData');
+  const statusLabel = result.status === 'fulfilled'
+    ? t('comparison.ready')
+    : t('comparison.error', { message: result.errorMessage ?? t('comparison.unknownError') });
   return {
     title: `${result.providerName} / ${result.modelId}`,
     statusLabel,

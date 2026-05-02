@@ -21,6 +21,7 @@ await cp(join(webRoot, 'src', 'cost-dashboard.js'), join(buildDir, 'cost-dashboa
 await cp(join(webRoot, 'src', 'sync-dashboard.js'), join(buildDir, 'sync-dashboard.js'));
 await cp(join(webRoot, 'src', 'session-organizer.js'), join(buildDir, 'session-organizer.js'));
 await cp(join(webRoot, 'src', 'message-list.js'), join(buildDir, 'message-list.js'));
+await cp(join(webRoot, 'src', 'localization.js'), join(buildDir, 'localization.js'));
 await cp(join(webRoot, 'src', 'multi-window-sync.js'), join(buildDir, 'multi-window-sync.js'));
 await cp(join(webRoot, 'src', 'model-comparison.js'), join(buildDir, 'model-comparison.js'));
 await cp(join(webRoot, 'src', 'model-routing.js'), join(buildDir, 'model-routing.js'));

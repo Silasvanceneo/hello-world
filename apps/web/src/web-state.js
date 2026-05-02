@@ -2,6 +2,7 @@ export function createInitialWebState(now = new Date().toISOString()) {
   const session = createSession('session-1', now);
   return {
     updatedAt: now,
+    locale: 'en',
     activeSessionId: session.id,
     activeAgentPresetId: undefined,
     activePromptTemplateId: undefined,
@@ -18,6 +19,10 @@ export function createInitialWebState(now = new Date().toISOString()) {
 
 export function markWebStateUpdated(state, timestamp = new Date().toISOString()) {
   return { ...state, updatedAt: timestamp };
+}
+
+export function setLocale(state, locale) {
+  return { ...state, locale: normalizeLocale(locale) };
 }
 
 export function createSession(id = crypto.randomUUID(), timestamp = new Date().toISOString()) {
@@ -523,6 +528,7 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
     }
     return {
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : latestStateTimestamp(parsed.sessions, fallbackNow),
+      locale: normalizeLocale(parsed.locale),
       activeSessionId: parsed.activeSessionId ?? parsed.sessions[0].id,
       activeAgentPresetId: parsed.activeAgentPresetId,
       activePromptTemplateId: parsed.activePromptTemplateId,
@@ -597,6 +603,10 @@ function normalizeKnowledgeScope(value) {
 
 function normalizeRoutingStrategy(value) {
   return ['balanced', 'cheap', 'fast', 'long-context', 'privacy', 'fallback'].includes(value) ? value : 'balanced';
+}
+
+function normalizeLocale(value) {
+  return ['en', 'zh'].includes(value) ? value : 'en';
 }
 
 function normalizeUsageBudget(value) {

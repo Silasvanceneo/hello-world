@@ -1971,6 +1971,48 @@
         "ANDROID_HOME/ANDROID_SDK_ROOT set to local Android SDK; npm --workspace apps/mobile run android:debug -> BUILD SUCCESSFUL and app-debug.apk generated"
       ],
       "lastUpdated": "2026-05-02T08:31:00.000Z"
+    },
+    {
+      "id": "P4-M7-F001",
+      "title": "Bilingual English and Chinese language switching",
+      "priority": "should",
+      "acceptance": [
+        "The Web/Desktop app exposes a visible English/Chinese language selector in the topbar",
+        "The selected locale is persisted in local Web state and restored safely",
+        "Static labels, placeholders, aria labels, and leading form labels switch between English and Chinese",
+        "Dynamic chat, session, branch, comparison, provider, routing, cost, sync, backup, voice, and native-input status strings use the active locale"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/localization.js provides locale normalization, translation lookup, and DOM translation application",
+        "apps/web/src/runtime.js wires the language selector to persisted state and passes translators into dynamic renderers",
+        "tests/web-localization.test.mjs covers locale fallback, DOM translation, persistence, and dynamic dashboard summaries",
+        "Targeted test command -> node --test --experimental-strip-types --test-isolation=none tests/web-localization.test.mjs tests/web-state.test.mjs tests/web-session-organizer.test.mjs tests/web-message-list.test.mjs tests/web-model-routing.test.mjs tests/web-cost-dashboard.test.mjs tests/web-sync-dashboard.test.mjs tests/web-backup-dashboard.test.mjs tests/web-provider-diagnostics.test.mjs tests/web-model-comparison.test.mjs tests/web-branch-dashboard.test.mjs tests/web-multi-window-sync.test.mjs -> tests 57/pass 57/fail 0"
+      ],
+      "lastUpdated": "2026-05-02T09:15:36.000Z"
+    },
+    {
+      "id": "P4-M7-F002",
+      "title": "Bilingual UI build and verification",
+      "priority": "should",
+      "acceptance": [
+        "The static Web build copies the localization module",
+        "Scaffold verification and npm test include localization coverage",
+        "Full check, diff whitespace check, and Web build smoke pass",
+        "No provider API keys or runtime secrets are persisted by the language-switching work"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "scripts/build-web.mjs copies apps/web/src/localization.js into apps/web/build",
+        "scripts/verify-structure.mjs and package.json include tests/web-localization.test.mjs",
+        "npm run check -> scaffold check passed (140 paths), tests 141/pass 141/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:web -> Built Web app to apps/web/build",
+        "Static build smoke -> apps/web/build/localization.js exists; apps/web/build/index.html contains language-select; build localization dictionary contains both English and Chinese settings.title entries"
+      ],
+      "lastUpdated": "2026-05-02T09:15:36.000Z"
     }
   ]
 }

@@ -7,11 +7,35 @@ export function chooseProviderForRouting(providers, { strategy = 'balanced', tas
   return candidates[0];
 }
 
-export function describeRoutingChoice(choice) {
+const defaultT = (key, values = {}) => {
+  const defaults = {
+    'routing.noProvider': 'No enabled provider is available for routing.',
+    'routing.chose': 'Routing chose {name} / {model} ({reasons}).',
+    'routing.reason.lowCostMini': 'low-cost mini model',
+    'routing.reason.localNoBilling': 'local model without provider billing',
+    'routing.reason.standardRemotePricing': 'standard remote pricing',
+    'routing.reason.smallFastModel': 'small fast model',
+    'routing.reason.localLatency': 'local model latency depends on device',
+    'routing.reason.standardLatency': 'standard model latency',
+    'routing.reason.contextWindow': '{context} context window',
+    'routing.reason.localPrivate': 'local/private provider',
+    'routing.reason.remoteProvider': 'remote provider',
+    'routing.reason.fallback': 'first available fallback',
+    'routing.reason.balanced': 'balanced priority',
+  };
+  const template = defaults[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+};
+
+export function describeRoutingChoice(choice, { t = defaultT } = {}) {
   if (!choice) {
-    return 'No enabled provider is available for routing.';
+    return t('routing.noProvider');
   }
-  return `Routing chose ${choice.provider.name} / ${choice.modelId} (${choice.reasons.join(', ')}).`;
+  return t('routing.chose', {
+    name: choice.provider.name,
+    model: choice.modelId,
+    reasons: choice.reasons.map((reason) => translateReason(reason, t)).join(', '),
+  });
 }
 
 function scoreProvider(provider, strategy, task, index) {
@@ -98,3 +122,24 @@ function defaultModel(type) {
 function isLocalUrl(url) {
   return typeof url === 'string' && /127\.0\.0\.1|localhost|0\.0\.0\.0/.test(url);
 }
+
+function translateReason(reason, t) {
+  const contextMatch = /^(\d+) context window$/.exec(reason);
+  if (contextMatch) {
+    return t('routing.reason.contextWindow', { context: contextMatch[1] });
+  }
+  return t(reasonKeys[reason] ?? reason);
+}
+
+const reasonKeys = {
+  'low-cost mini model': 'routing.reason.lowCostMini',
+  'local model without provider billing': 'routing.reason.localNoBilling',
+  'standard remote pricing': 'routing.reason.standardRemotePricing',
+  'small fast model': 'routing.reason.smallFastModel',
+  'local model latency depends on device': 'routing.reason.localLatency',
+  'standard model latency': 'routing.reason.standardLatency',
+  'local/private provider': 'routing.reason.localPrivate',
+  'remote provider': 'routing.reason.remoteProvider',
+  'first available fallback': 'routing.reason.fallback',
+  'balanced priority': 'routing.reason.balanced',
+};

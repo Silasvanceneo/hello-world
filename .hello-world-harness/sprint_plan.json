@@ -1117,6 +1117,36 @@
         "Record generated resource sizes and build evidence",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P4-M7",
+      "scope": "Bilingual English and Chinese language switching",
+      "dependencies": [
+        "P4-M6"
+      ],
+      "doneCriteria": [
+        "A visible topbar language selector switches between English and Chinese",
+        "The selected locale persists in local Web state and survives serialization",
+        "Static UI text, placeholders, aria labels, and dynamic runtime/status strings use the active locale",
+        "Localization tests, full check, Web build, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "node --test --experimental-strip-types --test-isolation=none tests/web-localization.test.mjs tests/web-state.test.mjs tests/web-session-organizer.test.mjs tests/web-message-list.test.mjs",
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record verification evidence",
+        "Create git checkpoint when verification passes"
+      ]
     }
   ]
 }

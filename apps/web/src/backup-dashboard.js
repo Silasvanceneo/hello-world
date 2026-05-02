@@ -61,12 +61,29 @@ export function exportSessionMarkdown(session) {
   return `${lines.join('\n').trim()}\n`;
 }
 
-export function summarizeBackupArchive(archive) {
+const defaultT = (key, values = {}) => {
+  const defaults = {
+    'backup.summary': '{sessions} session{sessionPlural}, {prompts} prompt{promptPlural}, {agents} agent{agentPlural}, {providers} provider{providerPlural}.',
+  };
+  const template = defaults[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+};
+
+export function summarizeBackupArchive(archive, { t = defaultT } = {}) {
   const sessions = archive.sessions?.length ?? 0;
   const prompts = archive.promptTemplates?.length ?? 0;
   const agents = archive.agentPresets?.length ?? 0;
   const providers = archive.providers?.length ?? 0;
-  return `${sessions} session${sessions === 1 ? '' : 's'}, ${prompts} prompt${prompts === 1 ? '' : 's'}, ${agents} agent${agents === 1 ? '' : 's'}, ${providers} provider${providers === 1 ? '' : 's'}.`;
+  return t('backup.summary', {
+    sessions,
+    sessionPlural: sessions === 1 ? '' : 's',
+    prompts,
+    promptPlural: prompts === 1 ? '' : 's',
+    agents,
+    agentPlural: agents === 1 ? '' : 's',
+    providers,
+    providerPlural: providers === 1 ? '' : 's',
+  });
 }
 
 export function safeJson(value) {

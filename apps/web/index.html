@@ -10,311 +10,318 @@
     <title>hello-world</title>
   </head>
   <body data-view="chat">
-    <a class="skip-link" href="#prompt">Skip to composer</a>
-    <main id="app" class="app-shell" aria-label="hello-world AI client">
-      <section class="sidebar" aria-label="Workspace">
+    <a class="skip-link" href="#prompt" data-i18n="skip.composer">Skip to composer</a>
+    <main id="app" class="app-shell" aria-label="hello-world AI client" data-i18n-aria-label="app.aria">
+      <section class="sidebar" aria-label="Workspace" data-i18n-aria-label="sidebar.workspace">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true">
             <img src="./brand-icon.png" alt="" />
           </span>
           <div>
-            <p class="section-label">Local first</p>
+            <p class="section-label" data-i18n="brand.localFirst">Local first</p>
             <h1>hello-world</h1>
           </div>
         </div>
 
-        <button id="new-session" class="new-chat-button" type="button">New chat <span aria-hidden="true">&rarr;</span></button>
+        <button id="new-session" class="new-chat-button" type="button"><span data-i18n="action.newChat">New chat</span> <span aria-hidden="true">&rarr;</span></button>
 
         <div class="sidebar-section">
           <div class="sidebar-heading">
-            <p class="section-label">Conversations</p>
+            <p class="section-label" data-i18n="session.conversations">Conversations</p>
             <p id="session-organization-status" class="status-text">0 active / 0 archived / 0 total</p>
           </div>
-          <div class="session-organizer" aria-label="Conversation navigation filters">
-            <input id="session-search" placeholder="Search chats" />
+          <div class="session-organizer" aria-label="Conversation navigation filters" data-i18n-aria-label="session.scope">
+            <input id="session-search" placeholder="Search chats" data-i18n-placeholder="session.searchPlaceholder" />
             <div class="session-filter-row">
-              <select id="session-archive-filter" aria-label="Conversation scope">
-                <option value="active">Active chats</option>
-                <option value="archived">Archived chats</option>
-                <option value="deleted">Trash</option>
-                <option value="all">All chats</option>
+              <select id="session-archive-filter" aria-label="Conversation scope" data-i18n-aria-label="session.scope">
+                <option value="active" data-i18n="session.scope.active">Active chats</option>
+                <option value="archived" data-i18n="session.scope.archived">Archived chats</option>
+                <option value="deleted" data-i18n="session.scope.deleted">Trash</option>
+                <option value="all" data-i18n="session.scope.all">All chats</option>
               </select>
-              <select id="session-tag-filter" aria-label="Conversation tag">
-                <option value="">All tags</option>
+              <select id="session-tag-filter" aria-label="Conversation tag" data-i18n-aria-label="session.tag">
+                <option value="" data-i18n="session.allTags">All tags</option>
               </select>
             </div>
           </div>
-          <nav id="session-list" class="session-list" aria-label="Chat history"></nav>
-          <details class="session-controls" aria-label="Current conversation organization">
+          <nav id="session-list" class="session-list" aria-label="Chat history" data-i18n-aria-label="session.history"></nav>
+          <details class="session-controls" aria-label="Current conversation organization" data-i18n-aria-label="session.current">
             <summary>
-              <span>Current chat</span>
-              <small>tags, pin, archive</small>
+              <span data-i18n="session.current">Current chat</span>
+              <small data-i18n="session.currentHint">tags, pin, archive</small>
             </summary>
             <div class="session-control-body">
-              <label>Tags<input id="session-tags" placeholder="research, work" /></label>
+              <label data-i18n-label="session.tags">Tags<input id="session-tags" placeholder="research, work" data-i18n-placeholder="session.tagPlaceholder" /></label>
               <div class="session-check-row">
-                <label class="compact-check"><input id="session-pinned" type="checkbox" /> Pin</label>
-                <label class="compact-check"><input id="session-archived" type="checkbox" /> Archive</label>
+                <label class="compact-check"><input id="session-pinned" type="checkbox" /> <span data-i18n="session.pin">Pin</span></label>
+                <label class="compact-check"><input id="session-archived" type="checkbox" /> <span data-i18n="session.archive">Archive</span></label>
               </div>
               <div class="session-action-grid">
-                <button id="save-session-organization" class="secondary-button" type="button">Save chat</button>
-                <button id="trash-session" class="secondary-button" type="button">Move to trash</button>
-                <button id="restore-session" class="secondary-button" type="button" hidden>Restore</button>
-                <button id="delete-session-forever" class="secondary-button" type="button" hidden>Delete forever</button>
+                <button id="save-session-organization" class="secondary-button" type="button" data-i18n="session.save">Save chat</button>
+                <button id="trash-session" class="secondary-button" type="button" data-i18n="session.moveTrash">Move to trash</button>
+                <button id="restore-session" class="secondary-button" type="button" hidden data-i18n="session.restore">Restore</button>
+                <button id="delete-session-forever" class="secondary-button" type="button" hidden data-i18n="session.deleteForever">Delete forever</button>
               </div>
             </div>
           </details>
         </div>
 
-        <div class="sidebar-footer" aria-label="Local status">
+        <div class="sidebar-footer" aria-label="Local status" data-i18n-aria-label="local.status">
           <span class="status-square" aria-hidden="true"></span>
-          Runtime keys only
+          <span data-i18n="local.runtimeKeysOnly">Runtime keys only</span>
         </div>
       </section>
 
-      <section class="chat-panel" aria-label="Chat">
+      <section class="chat-panel" aria-label="Chat" data-i18n-aria-label="chat.aria">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Private AI workspace</p>
+            <p class="eyebrow" data-i18n="chat.privateWorkspace">Private AI workspace</p>
             <h2 id="session-title">Untitled chat</h2>
           </div>
           <div class="topbar-actions">
-            <span class="model-pill">Ollama / OpenAI compatible</span>
+            <span class="model-pill" data-i18n="model.compatible">Ollama / OpenAI compatible</span>
             <div id="usage-summary" class="usage-pill">0 tokens</div>
-            <a class="settings-link" href="#settings" data-open-settings>Settings</a>
+            <label class="language-select">
+              <span data-i18n="language.label">Language</span>
+              <select id="language-select" aria-label="Language" data-i18n-aria-label="language.label">
+                <option value="en" data-i18n="language.english">English</option>
+                <option value="zh" data-i18n="language.chinese">中文</option>
+              </select>
+            </label>
+            <a class="settings-link" href="#settings" data-open-settings data-i18n="settings.link">Settings</a>
           </div>
         </header>
 
         <div id="messages" class="messages" aria-live="polite"></div>
 
         <div class="chat-dock">
-          <section id="branch-results" class="comparison-results" aria-label="Message branches"></section>
-          <section id="comparison-results" class="comparison-results" aria-label="Model comparison results"></section>
-          <div id="attachments" class="attachments" aria-label="Attachments"></div>
+          <section id="branch-results" class="comparison-results" aria-label="Message branches" data-i18n-aria-label="branch.results"></section>
+          <section id="comparison-results" class="comparison-results" aria-label="Model comparison results" data-i18n-aria-label="comparison.results"></section>
+          <div id="attachments" class="attachments" aria-label="Attachments" data-i18n-aria-label="attachments.aria"></div>
 
           <form id="composer" class="composer">
-            <div class="composer-tools" aria-label="Input tools">
+            <div class="composer-tools" aria-label="Input tools" data-i18n-aria-label="composer.tools">
               <label class="tool-button file-picker">
-                <span>Attach</span>
+                <span data-i18n="composer.attach">Attach</span>
                 <input id="file-input" type="file" multiple accept=".txt,.md,.markdown,.pdf,.docx,.xlsx,image/png,image/jpeg,image/webp,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
               </label>
-              <button id="capture-screen" class="tool-button" type="button">Screenshot</button>
-              <button id="paste-image" class="tool-button" type="button">Paste image</button>
-              <button id="capture-photo" class="tool-button" type="button">Camera</button>
-              <button id="voice-input" class="tool-button" type="button">Voice</button>
-              <button id="speak-last" class="tool-button" type="button">Speak last</button>
+              <button id="capture-screen" class="tool-button" type="button" data-i18n="composer.screenshot">Screenshot</button>
+              <button id="paste-image" class="tool-button" type="button" data-i18n="composer.pasteImage">Paste image</button>
+              <button id="capture-photo" class="tool-button" type="button" data-i18n="composer.camera">Camera</button>
+              <button id="voice-input" class="tool-button" type="button" data-i18n="composer.voice">Voice</button>
+              <button id="speak-last" class="tool-button" type="button" data-i18n="composer.speakLast">Speak last</button>
             </div>
 
             <div class="composer-main">
-              <textarea id="prompt" rows="3" placeholder="Message hello-world..." aria-label="Message"></textarea>
+              <textarea id="prompt" rows="3" placeholder="Message hello-world..." aria-label="Message" data-i18n-placeholder="composer.placeholder" data-i18n-aria-label="composer.message"></textarea>
               <div class="composer-actions">
-                <button class="primary-button" type="submit">Send <span aria-hidden="true">&rarr;</span></button>
-                <button id="branch-last" class="secondary-button" type="button">Branch last</button>
-                <button id="compare-models" class="secondary-button" type="button">Compare</button>
-                <button id="stop-generation" class="secondary-button" type="button" disabled>Stop</button>
+                <button class="primary-button" type="submit"><span data-i18n="composer.send">Send</span> <span aria-hidden="true">&rarr;</span></button>
+                <button id="branch-last" class="secondary-button" type="button" data-i18n="composer.branchLast">Branch last</button>
+                <button id="compare-models" class="secondary-button" type="button" data-i18n="composer.compare">Compare</button>
+                <button id="stop-generation" class="secondary-button" type="button" disabled data-i18n="composer.stop">Stop</button>
               </div>
             </div>
           </form>
         </div>
       </section>
 
-      <aside id="settings" class="settings-panel" aria-label="Settings">
+      <aside id="settings" class="settings-panel" aria-label="Settings" data-i18n-aria-label="settings.aria">
         <header class="settings-header">
           <div>
-            <p class="eyebrow">Workspace settings</p>
-            <h2>Settings</h2>
-            <p>Manage providers, assistants, prompts, routing, local data, and safety defaults outside the chat surface.</p>
+            <p class="eyebrow" data-i18n="settings.eyebrow">Workspace settings</p>
+            <h2 data-i18n="settings.title">Settings</h2>
+            <p data-i18n="settings.description">Manage providers, assistants, prompts, routing, local data, and safety defaults outside the chat surface.</p>
           </div>
-          <a class="settings-return" href="#chat" data-open-chat>Back to chat</a>
+          <a class="settings-return" href="#chat" data-open-chat data-i18n="settings.back">Back to chat</a>
         </header>
 
         <div class="settings-workspace">
-          <nav class="settings-nav" aria-label="Settings sections">
-            <p class="section-label">Sections</p>
-            <a href="#settings-provider"><span>01</span>Provider</a>
-            <a href="#settings-agent"><span>02</span>Agent</a>
-            <a href="#settings-prompts"><span>03</span>Prompts</a>
-            <a href="#settings-route"><span>04</span>Routing</a>
-            <a href="#settings-cost"><span>05</span>Cost</a>
-            <a href="#settings-sync"><span>06</span>Sync</a>
-            <a href="#settings-backup"><span>07</span>Backup</a>
-            <a href="#settings-security"><span>08</span>Security</a>
+          <nav class="settings-nav" aria-label="Settings sections" data-i18n-aria-label="settings.sections">
+            <p class="section-label" data-i18n="settings.sections">Sections</p>
+            <a href="#settings-provider"><span>01</span><span data-i18n="settings.provider">Provider</span></a>
+            <a href="#settings-agent"><span>02</span><span data-i18n="settings.agent">Agent</span></a>
+            <a href="#settings-prompts"><span>03</span><span data-i18n="settings.prompts">Prompts</span></a>
+            <a href="#settings-route"><span>04</span><span data-i18n="settings.routing">Routing</span></a>
+            <a href="#settings-cost"><span>05</span><span data-i18n="settings.cost">Cost</span></a>
+            <a href="#settings-sync"><span>06</span><span data-i18n="settings.sync">Sync</span></a>
+            <a href="#settings-backup"><span>07</span><span data-i18n="settings.backup">Backup</span></a>
+            <a href="#settings-security"><span>08</span><span data-i18n="settings.security">Security</span></a>
           </nav>
 
           <div class="settings-main">
             <section class="settings-section" aria-labelledby="settings-core-heading">
               <div class="settings-section-header">
-                <p class="section-label">Core setup</p>
-                <h3 id="settings-core-heading">Connection, assistant, and prompts</h3>
+                <p class="section-label" data-i18n="settings.coreSetup">Core setup</p>
+                <h3 id="settings-core-heading" data-i18n="settings.coreHeading">Connection, assistant, and prompts</h3>
               </div>
 
         <div id="settings-provider" class="panel-card settings-card-wide">
-          <p class="section-label">Provider</p>
-          <h2>Connection</h2>
-          <label>Name<input id="provider-name" placeholder="Local Ollama" /></label>
-          <label>Type
+          <p class="section-label" data-i18n="settings.provider">Provider</p>
+          <h2 data-i18n="provider.connection">Connection</h2>
+          <label data-i18n-label="field.name">Name<input id="provider-name" placeholder="Local Ollama" data-i18n-placeholder="provider.namePlaceholder" /></label>
+          <label data-i18n-label="field.type">Type
             <select id="provider-type">
               <option value="openai-compatible">OpenAI-compatible</option>
               <option value="ollama">Ollama</option>
               <option value="openai">OpenAI</option>
             </select>
           </label>
-          <label>Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>
-          <label>Model<input id="provider-model" placeholder="gpt-4.1-mini or llama3.2" /></label>
-          <label>API key<input id="provider-api-key" type="password" placeholder="Runtime only; not persisted" /></label>
+          <label data-i18n-label="field.baseUrl">Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>
+          <label data-i18n-label="field.model">Model<input id="provider-model" placeholder="gpt-4.1-mini or llama3.2" data-i18n-placeholder="provider.modelPlaceholder" /></label>
+          <label data-i18n-label="field.apiKey">API key<input id="provider-api-key" type="password" placeholder="Runtime only; not persisted" data-i18n-placeholder="provider.keyPlaceholder" /></label>
           <div class="panel-actions">
-            <button id="detect-local-ollama" class="secondary-button" type="button">Detect Ollama</button>
-            <button id="save-provider" class="primary-button" type="button">Save</button>
+            <button id="detect-local-ollama" class="secondary-button" type="button" data-i18n="provider.detectOllama">Detect Ollama</button>
+            <button id="save-provider" class="primary-button" type="button" data-i18n="action.save">Save</button>
           </div>
-          <p id="provider-status" class="status-text">No provider configured.</p>
+          <p id="provider-status" class="status-text" data-i18n="provider.noneConfigured">No provider configured.</p>
         </div>
 
         <div id="settings-agent" class="panel-card">
-          <p class="section-label">Agent preset</p>
-          <h2>Persona</h2>
-          <label>Active preset
+          <p class="section-label" data-i18n="agent.preset">Agent preset</p>
+          <h2 data-i18n="agent.persona">Persona</h2>
+          <label data-i18n-label="agent.activePreset">Active preset
             <select id="agent-preset-select">
-              <option value="">No preset</option>
+              <option value="" data-i18n="agent.noPreset">No preset</option>
             </select>
           </label>
-          <label>Name<input id="agent-name" placeholder="Research editor" /></label>
-          <label>Icon<input id="agent-icon" maxlength="3" placeholder="AI" /></label>
-          <label>Default model<input id="agent-model" placeholder="Optional model override" /></label>
-          <label>System prompt<textarea id="agent-system-prompt" rows="4" placeholder="How should this agent behave?"></textarea></label>
-          <label>Enabled tools<input id="agent-tools" placeholder="file-attachments, vision-input" /></label>
-          <label>Knowledge base
+          <label data-i18n-label="field.name">Name<input id="agent-name" placeholder="Research editor" data-i18n-placeholder="agent.namePlaceholder" /></label>
+          <label data-i18n-label="agent.icon">Icon<input id="agent-icon" maxlength="3" placeholder="AI" data-i18n-placeholder="agent.iconPlaceholder" /></label>
+          <label data-i18n-label="agent.defaultModel">Default model<input id="agent-model" placeholder="Optional model override" data-i18n-placeholder="agent.modelPlaceholder" /></label>
+          <label data-i18n-label="agent.systemPrompt">System prompt<textarea id="agent-system-prompt" rows="4" placeholder="How should this agent behave?" data-i18n-placeholder="agent.promptPlaceholder"></textarea></label>
+          <label data-i18n-label="agent.enabledTools">Enabled tools<input id="agent-tools" placeholder="file-attachments, vision-input" data-i18n-placeholder="agent.toolsPlaceholder" /></label>
+          <label data-i18n-label="agent.knowledgeBase">Knowledge base
             <select id="agent-knowledge-base">
-              <option value="none">None</option>
-              <option value="session">Session</option>
-              <option value="library">Library</option>
+              <option value="none" data-i18n="agent.knowledge.none">None</option>
+              <option value="session" data-i18n="agent.knowledge.session">Session</option>
+              <option value="library" data-i18n="agent.knowledge.library">Library</option>
             </select>
           </label>
-          <button id="save-agent-preset" class="primary-button" type="button">Save agent</button>
-          <p id="agent-status" class="status-text">No preset active.</p>
+          <button id="save-agent-preset" class="primary-button" type="button" data-i18n="agent.save">Save agent</button>
+          <p id="agent-status" class="status-text" data-i18n="agent.noneActive">No preset active.</p>
         </div>
 
         <div id="settings-prompts" class="panel-card">
-          <p class="section-label">Prompt library</p>
-          <h2>Template</h2>
-          <label>Active template
+          <p class="section-label" data-i18n="prompt.library">Prompt library</p>
+          <h2 data-i18n="prompt.template">Template</h2>
+          <label data-i18n-label="prompt.activeTemplate">Active template
             <select id="prompt-template-select">
-              <option value="">No template</option>
+              <option value="" data-i18n="prompt.noTemplate">No template</option>
             </select>
           </label>
-          <label>Title<input id="prompt-template-title" placeholder="Meeting summary" /></label>
-          <label>Template body<textarea id="prompt-template-body" rows="4" placeholder="Summarize {{ topic }} for {{ audience }}."></textarea></label>
-          <label>Variables<input id="prompt-template-variables" placeholder="topic, audience" /></label>
-          <label>Variables JSON<textarea id="prompt-template-values" rows="3" placeholder='{"topic":"launch plan","audience":"team"}'></textarea></label>
-          <label>Tags<input id="prompt-template-tags" placeholder="work, writing" /></label>
-          <label>Scope
+          <label data-i18n-label="prompt.title">Title<input id="prompt-template-title" placeholder="Meeting summary" data-i18n-placeholder="prompt.titlePlaceholder" /></label>
+          <label data-i18n-label="prompt.body">Template body<textarea id="prompt-template-body" rows="4" placeholder="Summarize {{ topic }} for {{ audience }}." data-i18n-placeholder="prompt.bodyPlaceholder"></textarea></label>
+          <label data-i18n-label="prompt.variables">Variables<input id="prompt-template-variables" placeholder="topic, audience" data-i18n-placeholder="prompt.variablesPlaceholder" /></label>
+          <label data-i18n-label="prompt.variablesJson">Variables JSON<textarea id="prompt-template-values" rows="3" placeholder='{"topic":"launch plan","audience":"team"}' data-i18n-placeholder="prompt.valuesPlaceholder"></textarea></label>
+          <label data-i18n-label="prompt.tags">Tags<input id="prompt-template-tags" placeholder="work, writing" data-i18n-placeholder="prompt.tagsPlaceholder" /></label>
+          <label data-i18n-label="prompt.scope">Scope
             <select id="prompt-template-scope">
-              <option value="local">Local</option>
-              <option value="sync">Sync-ready</option>
+              <option value="local" data-i18n="prompt.scope.local">Local</option>
+              <option value="sync" data-i18n="prompt.scope.sync">Sync-ready</option>
             </select>
           </label>
-          <label class="compact-check"><input id="prompt-template-favorite" type="checkbox" /> Favorite</label>
+          <label class="compact-check"><input id="prompt-template-favorite" type="checkbox" /> <span data-i18n="prompt.favorite">Favorite</span></label>
           <div class="panel-actions">
-            <button id="apply-prompt-template" class="secondary-button" type="button">Apply</button>
-            <button id="save-prompt-template" class="primary-button" type="button">Save</button>
+            <button id="apply-prompt-template" class="secondary-button" type="button" data-i18n="prompt.apply">Apply</button>
+            <button id="save-prompt-template" class="primary-button" type="button" data-i18n="action.save">Save</button>
           </div>
-          <p id="prompt-template-status" class="status-text">No template selected.</p>
+          <p id="prompt-template-status" class="status-text" data-i18n="prompt.noneSelected">No template selected.</p>
         </div>
 
             </section>
 
             <section class="settings-section" aria-labelledby="settings-workflow-heading">
               <div class="settings-section-header">
-                <p class="section-label">Workflow</p>
-                <h3 id="settings-workflow-heading">Routing and cost controls</h3>
+                <p class="section-label" data-i18n="settings.workflow">Workflow</p>
+                <h3 id="settings-workflow-heading" data-i18n="settings.workflowHeading">Routing and cost controls</h3>
               </div>
 
         <div id="settings-route" class="panel-card">
-          <p class="section-label">Model router</p>
-          <h2>Route</h2>
-          <label>Strategy
+          <p class="section-label" data-i18n="routing.router">Model router</p>
+          <h2 data-i18n="routing.route">Route</h2>
+          <label data-i18n-label="routing.strategy">Strategy
             <select id="model-routing-strategy">
-              <option value="balanced">Balanced</option>
-              <option value="cheap">Cheap first</option>
-              <option value="fast">Fast first</option>
-              <option value="long-context">Long context</option>
-              <option value="privacy">Privacy first</option>
-              <option value="fallback">Fallback</option>
+              <option value="balanced" data-i18n="routing.balanced">Balanced</option>
+              <option value="cheap" data-i18n="routing.cheap">Cheap first</option>
+              <option value="fast" data-i18n="routing.fast">Fast first</option>
+              <option value="long-context" data-i18n="routing.longContext">Long context</option>
+              <option value="privacy" data-i18n="routing.privacy">Privacy first</option>
+              <option value="fallback" data-i18n="routing.fallback">Fallback</option>
             </select>
           </label>
-          <p id="routing-status" class="status-text">No enabled provider is available for routing.</p>
+          <p id="routing-status" class="status-text" data-i18n="routing.noProvider">No enabled provider is available for routing.</p>
         </div>
 
         <div id="settings-cost" class="panel-card">
-          <p class="section-label">Usage budget</p>
-          <h2>Cost</h2>
-          <label>Daily limit<input id="budget-daily" type="number" min="0" step="0.0001" placeholder="0.2500" /></label>
-          <label>Monthly limit<input id="budget-monthly" type="number" min="0" step="0.0001" placeholder="5.0000" /></label>
-          <label>Currency
+          <p class="section-label" data-i18n="budget.usage">Usage budget</p>
+          <h2 data-i18n="settings.cost">Cost</h2>
+          <label data-i18n-label="budget.dailyLimit">Daily limit<input id="budget-daily" type="number" min="0" step="0.0001" placeholder="0.2500" /></label>
+          <label data-i18n-label="budget.monthlyLimit">Monthly limit<input id="budget-monthly" type="number" min="0" step="0.0001" placeholder="5.0000" /></label>
+          <label data-i18n-label="budget.currency">Currency
             <select id="budget-currency">
               <option value="USD">USD</option>
               <option value="CNY">CNY</option>
             </select>
           </label>
-          <button id="save-budget" class="primary-button" type="button">Save budget</button>
+          <button id="save-budget" class="primary-button" type="button" data-i18n="budget.save">Save budget</button>
           <p id="cost-status" class="status-text">$0.0000 estimated.</p>
-          <ul id="cost-trends" class="security-list cost-trends" aria-label="Usage trends"></ul>
+          <ul id="cost-trends" class="security-list cost-trends" aria-label="Usage trends" data-i18n-aria-label="budget.usage"></ul>
         </div>
 
             </section>
 
             <section class="settings-section" aria-labelledby="settings-data-heading">
               <div class="settings-section-header">
-                <p class="section-label">Local data</p>
-                <h3 id="settings-data-heading">Sync and backup</h3>
+                <p class="section-label" data-i18n="settings.localData">Local data</p>
+                <h3 id="settings-data-heading" data-i18n="settings.dataHeading">Sync and backup</h3>
               </div>
 
         <div id="settings-sync" class="panel-card">
-          <p class="section-label">Sync foundation</p>
-          <h2>Local sync</h2>
-          <label>Status
+          <p class="section-label" data-i18n="sync.foundation">Sync foundation</p>
+          <h2 data-i18n="sync.localSync">Local sync</h2>
+          <label data-i18n-label="sync.status">Status
             <select id="sync-enabled">
-              <option value="disabled">Local only</option>
-              <option value="enabled">Enabled</option>
+              <option value="disabled" data-i18n="sync.localOnly">Local only</option>
+              <option value="enabled" data-i18n="sync.enabled">Enabled</option>
             </select>
           </label>
-          <label>Endpoint<input id="sync-endpoint" placeholder="https://sync.example.invalid/workspaces/main" /></label>
-          <label>Scopes<input id="sync-targets" placeholder="chats, settings, prompts, agents, knowledge-metadata" /></label>
+          <label data-i18n-label="sync.endpoint">Endpoint<input id="sync-endpoint" placeholder="https://sync.example.invalid/workspaces/main" /></label>
+          <label data-i18n-label="sync.scopes">Scopes<input id="sync-targets" placeholder="chats, settings, prompts, agents, knowledge-metadata" /></label>
           <div class="panel-actions">
-            <button id="preview-sync-plan" class="secondary-button" type="button">Preview</button>
-            <button id="save-sync-settings" class="primary-button" type="button">Save sync</button>
+            <button id="preview-sync-plan" class="secondary-button" type="button" data-i18n="sync.preview">Preview</button>
+            <button id="save-sync-settings" class="primary-button" type="button" data-i18n="sync.save">Save sync</button>
           </div>
-          <p id="sync-status" class="status-text">Local sync is disabled.</p>
-          <ul id="sync-counts" class="security-list" aria-label="Sync counts"></ul>
+          <p id="sync-status" class="status-text" data-i18n="sync.disabled">Local sync is disabled.</p>
+          <ul id="sync-counts" class="security-list" aria-label="Sync counts" data-i18n-aria-label="sync.counts"></ul>
         </div>
 
         <div id="settings-backup" class="panel-card">
-          <p class="section-label">Import / export</p>
-          <h2>Backup</h2>
-          <p class="status-text">Export Markdown for one session or JSON for a full local restore.</p>
-          <label>Backup payload<textarea id="backup-payload" rows="6" placeholder="Exported Markdown or hello-world JSON backup appears here. Paste JSON here before restore."></textarea></label>
+          <p class="section-label" data-i18n="backup.importExport">Import / export</p>
+          <h2 data-i18n="settings.backup">Backup</h2>
+          <p class="status-text" data-i18n="backup.description">Export Markdown for one session or JSON for a full local restore.</p>
+          <label data-i18n-label="backup.payload">Backup payload<textarea id="backup-payload" rows="6" placeholder="Exported Markdown or hello-world JSON backup appears here. Paste JSON here before restore." data-i18n-placeholder="backup.payloadPlaceholder"></textarea></label>
           <div class="panel-actions">
-            <button id="backup-session-markdown" class="secondary-button" type="button">Markdown</button>
-            <button id="backup-export-json" class="secondary-button" type="button">JSON backup</button>
-            <button id="backup-restore-json" class="primary-button" type="button">Restore</button>
+            <button id="backup-session-markdown" class="secondary-button" type="button" data-i18n="backup.markdown">Markdown</button>
+            <button id="backup-export-json" class="secondary-button" type="button" data-i18n="backup.json">JSON backup</button>
+            <button id="backup-restore-json" class="primary-button" type="button" data-i18n="backup.restore">Restore</button>
           </div>
-          <p id="backup-status" class="status-text">Ready to export local data.</p>
+          <p id="backup-status" class="status-text" data-i18n="backup.ready">Ready to export local data.</p>
         </div>
 
             </section>
 
             <section class="settings-section" aria-labelledby="settings-safety-heading">
               <div class="settings-section-header">
-                <p class="section-label">Safety</p>
-                <h3 id="settings-safety-heading">Default blocked capabilities</h3>
+                <p class="section-label" data-i18n="settings.safety">Safety</p>
+                <h3 id="settings-safety-heading" data-i18n="settings.safetyHeading">Default blocked capabilities</h3>
               </div>
 
         <div id="settings-security" class="panel-card inverted-card">
-          <p class="section-label">Security defaults</p>
+          <p class="section-label" data-i18n="security.defaults">Security defaults</p>
           <ul class="security-list">
-            <li>Terminal <span>off</span></li>
-            <li>Code execution <span>off</span></li>
-            <li>stdio MCP <span>off</span></li>
-            <li>Broad filesystem <span>off</span></li>
+            <li><span data-i18n="security.terminal">Terminal</span> <span data-i18n="security.off">off</span></li>
+            <li><span data-i18n="security.codeExecution">Code execution</span> <span data-i18n="security.off">off</span></li>
+            <li><span data-i18n="security.stdioMcp">stdio MCP</span> <span data-i18n="security.off">off</span></li>
+            <li><span data-i18n="security.broadFilesystem">Broad filesystem</span> <span data-i18n="security.off">off</span></li>
           </ul>
         </div>
             </section>

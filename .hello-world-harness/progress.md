@@ -427,3 +427,14 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Regenerated Android launcher, round launcher, foreground, and splash PNG assets under `apps/mobile/android/app/src/main/res/` from the requested image.
 - Verification passed: PIL size/hash check covered 22 desktop/Android icon and splash assets.
 - Verification passed: `npm run check`, `git diff --check`, `npm run build:desktop`, `npm run build:mobile`, and `ANDROID_HOME`/`ANDROID_SDK_ROOT` scoped `npm --workspace apps/mobile run android:debug` -> BUILD SUCCESSFUL with `app-debug.apk` generated.
+
+## 2026-05-02T09:15:36.000Z
+
+- Started and implemented P4-M7 bilingual English/Chinese language switching.
+- Added `apps/web/src/localization.js` with locale normalization, translation lookup, and DOM translation application for text, placeholders, aria labels, and leading form labels.
+- Added a topbar language selector and persisted `locale` in Web state; `runtime.js` now applies translations on render and passes the active translator into session, message, branch, comparison, routing, cost, sync, backup, provider, voice, and native-input status paths.
+- Added `tests/web-localization.test.mjs` for locale fallback, DOM translation, persisted locale, and dynamic dashboard summaries.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-localization.test.mjs tests/web-state.test.mjs tests/web-session-organizer.test.mjs tests/web-message-list.test.mjs tests/web-model-routing.test.mjs tests/web-cost-dashboard.test.mjs tests/web-sync-dashboard.test.mjs tests/web-backup-dashboard.test.mjs tests/web-provider-diagnostics.test.mjs tests/web-model-comparison.test.mjs tests/web-branch-dashboard.test.mjs tests/web-multi-window-sync.test.mjs` -> tests 57/pass 57/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (140 paths), tests 141/pass 141/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:web` rebuilt `apps/web/build`.
+- Static build smoke passed: `apps/web/build/localization.js` exists, `apps/web/build/index.html` contains `language-select`, and the build localization dictionary contains both English and Chinese `settings.title` entries.

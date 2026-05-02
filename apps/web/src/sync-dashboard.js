@@ -1,11 +1,32 @@
 const targetOrder = ['chats', 'settings', 'providers', 'prompts', 'agents', 'knowledge-metadata'];
 
+const defaultT = (key, values = {}) => {
+  const defaults = {
+    'sync.enabled': 'Enabled',
+    'sync.localOnly': 'Local only',
+    'sync.noEndpoint': 'No sync endpoint configured',
+    'sync.noScopes': 'No scopes selected',
+    'sync.target.chats': 'chats',
+    'sync.target.settings': 'settings',
+    'sync.target.providers': 'providers',
+    'sync.target.prompts': 'prompts',
+    'sync.target.agents': 'agents',
+    'sync.target.knowledgeMetadata': 'knowledge metadata',
+    'sync.conflictNeedsReview': '{count} conflict{plural} need explicit review before sync.',
+    'sync.noPendingAt': 'No pending sync changes as of {checkedAt}.',
+    'sync.noPending': 'No pending sync changes.',
+    'sync.readyCounts': '{upload} upload{uploadPlural} and {download} download{downloadPlural} ready.',
+  };
+  const template = defaults[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+};
+
 export function parseSyncTargets(value) {
   const requested = new Set(String(value ?? '').split(',').map((item) => item.trim().toLowerCase()));
   return targetOrder.filter((target) => requested.has(target));
 }
 
-export function createSyncDashboardViewModel(settings = {}, plan = emptyPlan()) {
+export function createSyncDashboardViewModel(settings = {}, plan = emptyPlan(), { t = defaultT } = {}) {
   const counts = {
     upload: plan.upload?.length ?? 0,
     download: plan.download?.length ?? 0,
@@ -14,12 +35,12 @@ export function createSyncDashboardViewModel(settings = {}, plan = emptyPlan()) 
   const enabled = Boolean(settings.enabled);
   return {
     enabled,
-    enabledLabel: enabled ? 'Enabled' : 'Local only',
-    endpointLabel: settings.endpoint || 'No sync endpoint configured',
-    targetLabel: describeTargets(settings),
+    enabledLabel: enabled ? t('sync.enabled') : t('sync.localOnly'),
+    endpointLabel: settings.endpoint || t('sync.noEndpoint'),
+    targetLabel: describeTargets(settings, t),
     counts,
     canAutoApply: Boolean(plan.safeToAutoApply) && counts.conflicts === 0,
-    statusLabel: describePlan(counts, plan.checkedAt),
+    statusLabel: describePlan(counts, plan.checkedAt, t),
   };
 }
 
@@ -45,24 +66,32 @@ function emptyPlan() {
   return { upload: [], download: [], conflicts: [], safeToAutoApply: true };
 }
 
-function describePlan(counts, checkedAt) {
+function describePlan(counts, checkedAt, t = defaultT) {
   if (counts.conflicts > 0) {
-    return `${counts.conflicts} conflict${counts.conflicts === 1 ? '' : 's'} need explicit review before sync.`;
+    return t('sync.conflictNeedsReview', {
+      count: counts.conflicts,
+      plural: counts.conflicts === 1 ? '' : 's',
+    });
   }
   if (counts.upload === 0 && counts.download === 0) {
-    return checkedAt ? `No pending sync changes as of ${checkedAt}.` : 'No pending sync changes.';
+    return checkedAt ? t('sync.noPendingAt', { checkedAt }) : t('sync.noPending');
   }
-  return `${counts.upload} upload${counts.upload === 1 ? '' : 's'} and ${counts.download} download${counts.download === 1 ? '' : 's'} ready.`;
+  return t('sync.readyCounts', {
+    upload: counts.upload,
+    uploadPlural: counts.upload === 1 ? '' : 's',
+    download: counts.download,
+    downloadPlural: counts.download === 1 ? '' : 's',
+  });
 }
 
-function describeTargets(settings) {
+function describeTargets(settings, t = defaultT) {
   const targets = [
-    settings.includeChats !== false ? 'chats' : undefined,
-    settings.includeSettings !== false ? 'settings' : undefined,
-    settings.includeProviders !== false ? 'providers' : undefined,
-    settings.includePrompts !== false ? 'prompts' : undefined,
-    settings.includeAgents !== false ? 'agents' : undefined,
-    settings.includeKnowledgeMetadata !== false ? 'knowledge metadata' : undefined,
+    settings.includeChats !== false ? t('sync.target.chats') : undefined,
+    settings.includeSettings !== false ? t('sync.target.settings') : undefined,
+    settings.includeProviders !== false ? t('sync.target.providers') : undefined,
+    settings.includePrompts !== false ? t('sync.target.prompts') : undefined,
+    settings.includeAgents !== false ? t('sync.target.agents') : undefined,
+    settings.includeKnowledgeMetadata !== false ? t('sync.target.knowledgeMetadata') : undefined,
   ].filter(Boolean);
-  return targets.length > 0 ? targets.join(', ') : 'No scopes selected';
+  return targets.length > 0 ? targets.join(', ') : t('sync.noScopes');
 }

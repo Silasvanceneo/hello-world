@@ -23,12 +23,22 @@ export function createUsageRecordsFromWebState(state) {
     })));
 }
 
-export function createCostDashboardViewModel(records, budget) {
+const defaultT = (key, values = {}) => {
+  const defaults = {
+    'budget.monthlyReached': 'Monthly budget reached: {current} / {limit}.',
+    'budget.dailyReached': 'Daily budget reached: {current} / {limit}.',
+    'budget.ok': 'Budget OK: today {today}, month {month}.',
+  };
+  const template = defaults[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+};
+
+export function createCostDashboardViewModel(records, budget, { t = defaultT } = {}) {
   const priced = records.map(withEstimatedCost);
   const totalCost = priced.reduce((sum, record) => sum + (record.usage.estimatedCost ?? 0), 0);
   const byDay = aggregate(priced, 10);
   const byMonth = aggregate(priced, 7);
-  const reminder = createBudgetReminder(priced, budget);
+  const reminder = createBudgetReminder(priced, budget, t);
   return {
     totalCost,
     totalCostLabel: formatMoney(totalCost, budget.currency),
@@ -74,17 +84,35 @@ function aggregate(records, keyLength) {
   return [...buckets.values()].sort((left, right) => left.key.localeCompare(right.key));
 }
 
-function createBudgetReminder(records, budget) {
+function createBudgetReminder(records, budget, t = defaultT) {
   const now = budget.now ?? new Date().toISOString();
   const dailyCost = sumCost(records.filter((record) => record.createdAt.startsWith(now.slice(0, 10))));
   const monthlyCost = sumCost(records.filter((record) => record.createdAt.startsWith(now.slice(0, 7))));
   if (budget.monthlyLimit !== undefined && monthlyCost >= budget.monthlyLimit) {
-    return { level: 'warning', message: `Monthly budget reached: ${formatMoney(monthlyCost, budget.currency)} / ${formatMoney(budget.monthlyLimit, budget.currency)}.` };
+    return {
+      level: 'warning',
+      message: t('budget.monthlyReached', {
+        current: formatMoney(monthlyCost, budget.currency),
+        limit: formatMoney(budget.monthlyLimit, budget.currency),
+      }),
+    };
   }
   if (budget.dailyLimit !== undefined && dailyCost >= budget.dailyLimit) {
-    return { level: 'warning', message: `Daily budget reached: ${formatMoney(dailyCost, budget.currency)} / ${formatMoney(budget.dailyLimit, budget.currency)}.` };
+    return {
+      level: 'warning',
+      message: t('budget.dailyReached', {
+        current: formatMoney(dailyCost, budget.currency),
+        limit: formatMoney(budget.dailyLimit, budget.currency),
+      }),
+    };
   }
-  return { level: 'ok', message: `Budget OK: today ${formatMoney(dailyCost, budget.currency)}, month ${formatMoney(monthlyCost, budget.currency)}.` };
+  return {
+    level: 'ok',
+    message: t('budget.ok', {
+      today: formatMoney(dailyCost, budget.currency),
+      month: formatMoney(monthlyCost, budget.currency),
+    }),
+  };
 }
 
 function sumCost(records) {

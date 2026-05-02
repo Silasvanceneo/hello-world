@@ -40,24 +40,39 @@ export function createSessionListViewModel(sessions, filters = {}) {
       archived: sessions.filter((session) => session.archived && !session.deletedAt).length,
       deleted: sessions.filter((session) => session.deletedAt).length,
     },
+    emptyKey: createEmptyKey(normalizedFilters),
     emptyLabel: createEmptyLabel(normalizedFilters),
   };
 }
 
-export function renderSessionListItems(view) {
+const defaultT = (key, values = {}) => {
+  const defaults = {
+    'session.badge.pinned': 'Pinned',
+    'session.badge.archived': 'Archived',
+    'session.badge.trash': 'Trash',
+    'session.allTags': 'All tags',
+    'session.status': '{active} active / {archived} archived / {total} total',
+    'session.messageCount.one': '{count} message',
+    'session.messageCount.many': '{count} messages',
+  };
+  const template = defaults[key] ?? key;
+  return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+};
+
+export function renderSessionListItems(view, { t = defaultT } = {}) {
   if (view.items.length === 0) {
-    return `<p class="session-empty">${escapeHtml(view.emptyLabel)}</p>`;
+    return `<p class="session-empty">${escapeHtml(view.emptyKey ? t(view.emptyKey) : view.emptyLabel)}</p>`;
   }
   return view.items.map((item) => {
     const stateBadges = [
-      item.pinned ? 'Pinned' : undefined,
-      item.archived ? 'Archived' : undefined,
-      item.deleted ? 'Trash' : undefined,
+      item.pinned ? t('session.badge.pinned') : undefined,
+      item.archived ? t('session.badge.archived') : undefined,
+      item.deleted ? t('session.badge.trash') : undefined,
       ...item.tags,
     ].filter(Boolean);
     return `<button class="session-item ${item.active ? 'active' : ''}" data-session-id="${escapeHtml(item.id)}" type="button">
       <span class="session-title-text">${escapeHtml(item.title)}</span>
-      <small class="session-meta">${escapeHtml(formatMessageCount(item.messageCount))}</small>
+      <small class="session-meta">${escapeHtml(formatMessageCount(item.messageCount, t))}</small>
       ${stateBadges.length > 0
         ? `<span class="session-badges">${stateBadges.map((badge) => `<em>${escapeHtml(badge)}</em>`).join('')}</span>`
         : ''}
@@ -65,11 +80,11 @@ export function renderSessionListItems(view) {
   }).join('');
 }
 
-export function renderSessionOrganizer({ state, session, filters, elements }) {
+export function renderSessionOrganizer({ state, session, filters, elements, t = defaultT }) {
   const sessionView = createSessionListViewModel(state.sessions, { ...filters, activeSessionId: session.id });
-  elements.sessionList.innerHTML = renderSessionListItems(sessionView);
+  elements.sessionList.innerHTML = renderSessionListItems(sessionView, { t });
   elements.sessionTagFilter.innerHTML = [
-    '<option value="">All tags</option>',
+    `<option value="">${escapeHtml(t('session.allTags'))}</option>`,
     ...sessionView.availableTags.map((tag) => `<option value="${escapeHtml(tag)}">${escapeHtml(tag)}</option>`),
   ].join('');
   elements.sessionTagFilter.value = filters.tag;
@@ -81,7 +96,7 @@ export function renderSessionOrganizer({ state, session, filters, elements }) {
   elements.trashSession.hidden = Boolean(session.deletedAt);
   elements.restoreSession.hidden = !session.deletedAt;
   elements.deleteSessionForever.hidden = !session.deletedAt;
-  elements.sessionOrganizationStatus.textContent = `${sessionView.counts.active} active / ${sessionView.counts.archived} archived / ${sessionView.counts.total} total`;
+  elements.sessionOrganizationStatus.textContent = t('session.status', sessionView.counts);
 }
 
 export function bindSessionOrganizer({ elements, getState, setState, getFilters, setFilters, saveState, render }) {
@@ -191,8 +206,14 @@ function createEmptyLabel(filters) {
   return 'No conversations yet.';
 }
 
-function formatMessageCount(count) {
-  return `${count} ${count === 1 ? 'message' : 'messages'}`;
+function createEmptyKey(filters) {
+  if (filters.query || filters.tag) return 'session.empty.matching';
+  if (filters.archiveFilter === 'archived') return 'session.empty.archived';
+  return 'session.empty.default';
+}
+
+function formatMessageCount(count, t) {
+  return t(count === 1 ? 'session.messageCount.one' : 'session.messageCount.many', { count });
 }
 
 function escapeHtml(value) {
