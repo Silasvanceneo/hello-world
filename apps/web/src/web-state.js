@@ -564,6 +564,18 @@ function defaultProviderName(type) {
   if (type === 'openai') {
     return 'OpenAI';
   }
+  if (type === 'anthropic') {
+    return 'Anthropic Claude';
+  }
+  if (type === 'gemini') {
+    return 'Google Gemini';
+  }
+  if (type === 'azure-openai') {
+    return 'Azure OpenAI';
+  }
+  if (type === 'dashscope') {
+    return 'Alibaba Qwen';
+  }
   return 'OpenAI-compatible';
 }
 

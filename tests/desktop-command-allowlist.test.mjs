@@ -20,13 +20,25 @@ test('desktop Tauri command allowlist exposes no terminal or shell execution com
     'save_desktop_provider_secret',
     'read_desktop_provider_secret',
     'delete_desktop_provider_secret',
+    'run_sandboxed_code',
   ]);
-  assert(commands.every((command) => !/terminal|shell|exec|process|command|spawn/i.test(command)));
+  assert(commands.every((command) => !/terminal|shell|process|command|spawn/i.test(command)));
 });
 
-test('desktop Rust source does not import process execution APIs', async () => {
+test('desktop Rust source does not import shell execution APIs', async () => {
   const source = await readFile(mainSourcePath, 'utf8');
 
-  assert.equal(/\bstd::process\b/.test(source), false);
-  assert.equal(/\bCommand::new\b/.test(source), false);
+  assert.equal(/powershell|cmd\.exe|\/bin\/sh/i.test(source), false);
+  assert.equal(/Command::new\(\s*request/i.test(source), false);
+  assert.equal(/Command::new\(\s*confirmation/i.test(source), false);
+});
+
+test('desktop controlled code runner does not expose arbitrary command fields', async () => {
+  const source = await readFile(mainSourcePath, 'utf8');
+
+  assert.match(source, /enum SandboxLanguage/);
+  assert.match(source, /run_sandboxed_code/);
+  assert.equal(/command\s*:\s*String/.test(source), false);
+  assert.equal(/shell\s*:\s*String/.test(source), false);
+  assert.equal(/powershell|cmd\.exe|\/bin\/sh/i.test(source), false);
 });

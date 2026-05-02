@@ -56,6 +56,22 @@ export async function deleteDesktopProviderSecret({
   return invoke('delete_desktop_provider_secret', { providerId });
 }
 
+export function canUseDesktopCodeExecution(environment = globalThis) {
+  return Boolean(environment.__TAURI__?.core?.invoke);
+}
+
+export async function executeDesktopCode({
+  request,
+  confirmation,
+  environment = globalThis,
+  invoke = environment.__TAURI__?.core?.invoke,
+} = {}) {
+  if (!invoke) {
+    throw new Error('Desktop code execution is only available inside the Tauri app.');
+  }
+  return invoke('run_sandboxed_code', { request, confirmation });
+}
+
 export async function bindDesktopCaptureRequests({
   environment = globalThis,
   listen = environment.__TAURI__?.event?.listen,
@@ -113,6 +129,14 @@ export function summarizeDesktopNativeCapabilities(capabilities = {}) {
       reason: capabilities.keychain === true
         ? 'Stores provider secrets in the OS keychain through Tauri commands.'
         : 'Provider API keys remain runtime-only when the OS keychain is unavailable.',
+    },
+    {
+      id: 'sandboxed_code_execution',
+      label: 'Sandboxed code execution',
+      available: capabilities.sandboxed_code_execution === true,
+      reason: capabilities.sandboxed_code_execution === true
+        ? 'Runs supported snippets through controlled Desktop runner commands after confirmation.'
+        : 'Code execution stays hidden outside the Desktop sandbox runner.',
     },
   ];
   const ready = items.filter((item) => item.available);

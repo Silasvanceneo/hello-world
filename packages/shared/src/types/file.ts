@@ -1,4 +1,4 @@
-export type SupportedFileKind = 'text' | 'markdown' | 'pdf' | 'docx' | 'xlsx' | 'image' | 'unsupported';
+export type SupportedFileKind = 'text' | 'markdown' | 'pdf' | 'docx' | 'xlsx' | 'html' | 'url' | 'sitemap' | 'directory' | 'image' | 'unsupported';
 
 export type FilePageText = {
   pageNumber: number;

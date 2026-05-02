@@ -12,6 +12,7 @@ await cp(join(webRoot, 'static'), buildDir, { recursive: true });
 await cp(join(webRoot, 'src', 'runtime.js'), join(buildDir, 'runtime.js'));
 await cp(join(webRoot, 'src', 'web-state.js'), join(buildDir, 'web-state.js'));
 await cp(join(webRoot, 'src', 'provider-runtime.js'), join(buildDir, 'provider-runtime.js'));
+await cp(join(webRoot, 'src', 'provider-presets.js'), join(buildDir, 'provider-presets.js'));
 await cp(join(webRoot, 'src', 'pwa-runtime.js'), join(buildDir, 'pwa-runtime.js'));
 await cp(join(webRoot, 'src', 'settings-view.js'), join(buildDir, 'settings-view.js'));
 await cp(join(webRoot, 'src', 'backup-dashboard.js'), join(buildDir, 'backup-dashboard.js'));
@@ -22,6 +23,9 @@ await cp(join(webRoot, 'src', 'sync-dashboard.js'), join(buildDir, 'sync-dashboa
 await cp(join(webRoot, 'src', 'session-organizer.js'), join(buildDir, 'session-organizer.js'));
 await cp(join(webRoot, 'src', 'message-list.js'), join(buildDir, 'message-list.js'));
 await cp(join(webRoot, 'src', 'localization.js'), join(buildDir, 'localization.js'));
+await cp(join(webRoot, 'src', 'knowledge-ingestion.js'), join(buildDir, 'knowledge-ingestion.js'));
+await cp(join(webRoot, 'src', 'rag-eval.js'), join(buildDir, 'rag-eval.js'));
+await cp(join(webRoot, 'src', 'web-search.js'), join(buildDir, 'web-search.js'));
 await cp(join(webRoot, 'src', 'multi-window-sync.js'), join(buildDir, 'multi-window-sync.js'));
 await cp(join(webRoot, 'src', 'model-comparison.js'), join(buildDir, 'model-comparison.js'));
 await cp(join(webRoot, 'src', 'model-routing.js'), join(buildDir, 'model-routing.js'));

@@ -5,6 +5,7 @@ export type ToolCapability =
   | 'http_api'
   | 'knowledge_read'
   | 'file_write'
+  | 'sensitive'
   | 'filesystem_broad'
   | 'terminal'
   | 'code_execution'

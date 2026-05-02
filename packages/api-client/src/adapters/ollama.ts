@@ -18,6 +18,18 @@ export function createOllamaAdapter(): ProviderAdapter {
   return {
     id: 'ollama',
     type: 'ollama',
+    capabilities: {
+      protocol: 'ollama',
+      transport: 'local-http',
+      browserDirect: 'supported',
+      models: { list: true, dynamicCapabilities: false },
+      chat: { streaming: true, systemMessages: true, toolCalls: 'unknown' },
+      embeddings: 'unsupported',
+      imageGeneration: 'unsupported',
+      audioInput: 'unsupported',
+      audioOutput: 'unsupported',
+      toolCalls: 'unknown',
+    },
     async listModels(connection, context) {
       const fetchImpl = getFetch(context);
       const response = await fetchImpl(joinUrl(resolveBaseUrl(connection.baseUrl), '/api/tags'), { method: 'GET' });

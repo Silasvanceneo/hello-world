@@ -2,10 +2,14 @@
 
 use std::{
     ffi::c_void,
+    fs,
+    io::Write,
     net::{SocketAddr, TcpStream},
+    path::{Path, PathBuf},
+    process::{Command, Stdio},
     ptr,
     sync::atomic::{AtomicBool, Ordering},
-    time::Duration,
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
 use tauri::{
@@ -37,6 +41,7 @@ struct DesktopNativeCapabilities {
     tray: bool,
     keychain: bool,
     local_ollama_detection: bool,
+    sandboxed_code_execution: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -62,6 +67,40 @@ struct DesktopCaptureRequest {
     source: String,
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum SandboxLanguage {
+    Javascript,
+    Python,
+}
+
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SandboxCodeRequest {
+    language: SandboxLanguage,
+    code: String,
+    timeout_ms: Option<u64>,
+    stdin: Option<String>,
+    env_refs: Option<Vec<String>>,
+}
+
+#[derive(serde::Deserialize)]
+struct SandboxConfirmation {
+    accepted: bool,
+    reason: String,
+    confirmed_at: String,
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SandboxExecutionResult {
+    exit_code: Option<i32>,
+    stdout: String,
+    stderr: String,
+    duration_ms: u128,
+    timed_out: bool,
+}
+
 #[tauri::command]
 fn desktop_native_capabilities() -> DesktopNativeCapabilities {
     DesktopNativeCapabilities {
@@ -71,6 +110,7 @@ fn desktop_native_capabilities() -> DesktopNativeCapabilities {
         tray: true,
         keychain: true,
         local_ollama_detection: true,
+        sandboxed_code_execution: true,
     }
 }
 
@@ -122,6 +162,20 @@ fn delete_desktop_provider_secret(
     Ok(DesktopProviderSecretStatus { ok: true })
 }
 
+#[tauri::command]
+fn run_sandboxed_code(
+    request: SandboxCodeRequest,
+    confirmation: SandboxConfirmation,
+) -> Result<SandboxExecutionResult, String> {
+    validate_sandbox_confirmation(&confirmation)?;
+    validate_sandbox_request(&request)?;
+    let started = Instant::now();
+    let work_dir = create_sandbox_work_dir()?;
+    let result = run_sandboxed_code_in_dir(&request, &work_dir, started);
+    let _ = fs::remove_dir_all(&work_dir);
+    result
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -134,10 +188,142 @@ fn main() {
             detect_local_ollama,
             save_desktop_provider_secret,
             read_desktop_provider_secret,
-            delete_desktop_provider_secret
+            delete_desktop_provider_secret,
+            run_sandboxed_code
         ])
         .run(tauri::generate_context!())
         .expect("error while running hello-world desktop shell");
+}
+
+fn validate_sandbox_confirmation(confirmation: &SandboxConfirmation) -> Result<(), String> {
+    if confirmation.accepted
+        && !confirmation.reason.trim().is_empty()
+        && !confirmation.confirmed_at.trim().is_empty()
+    {
+        Ok(())
+    } else {
+        Err("Explicit confirmation is required before code execution.".to_string())
+    }
+}
+
+fn validate_sandbox_request(request: &SandboxCodeRequest) -> Result<(), String> {
+    if request.code.trim().is_empty() {
+        return Err("Code cannot be empty.".to_string());
+    }
+    if request.code.len() > 20_000 {
+        return Err("Code is too large for the sandbox runner.".to_string());
+    }
+    if request.stdin.as_ref().map_or(0, |value| value.len()) > 8_000 {
+        return Err("stdin is too large for the sandbox runner.".to_string());
+    }
+    if request.timeout_ms.unwrap_or(5000) > 10_000 {
+        return Err("Timeout exceeds sandbox limit.".to_string());
+    }
+    if request
+        .env_refs
+        .as_ref()
+        .is_some_and(|items| items.iter().any(|item| !is_safe_env_ref(item)))
+    {
+        return Err("Environment references must be safe variable names.".to_string());
+    }
+    Ok(())
+}
+
+fn run_sandboxed_code_in_dir(
+    request: &SandboxCodeRequest,
+    work_dir: &Path,
+    started: Instant,
+) -> Result<SandboxExecutionResult, String> {
+    let (runner, script_name) = match request.language {
+        SandboxLanguage::Javascript => ("node", "snippet.js"),
+        SandboxLanguage::Python => ("python", "snippet.py"),
+    };
+    let script_path = work_dir.join(script_name);
+    fs::write(&script_path, request.code.as_bytes())
+        .map_err(|error| format!("Could not write sandbox snippet: {error}"))?;
+
+    let mut child = Command::new(runner)
+        .arg(&script_path)
+        .current_dir(work_dir)
+        .env_clear()
+        .env("NO_COLOR", "1")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|error| format!("Could not start sandbox runner: {error}"))?;
+
+    if let Some(stdin) = &request.stdin {
+        if let Some(mut child_stdin) = child.stdin.take() {
+            child_stdin
+                .write_all(stdin.as_bytes())
+                .map_err(|error| format!("Could not write sandbox stdin: {error}"))?;
+        }
+    }
+
+    let timeout = Duration::from_millis(request.timeout_ms.unwrap_or(5000).clamp(500, 10_000));
+    loop {
+        if started.elapsed() > timeout {
+            let _ = child.kill();
+            let output = child
+                .wait_with_output()
+                .map_err(|error| format!("Could not collect timed-out sandbox output: {error}"))?;
+            return Ok(SandboxExecutionResult {
+                exit_code: output.status.code(),
+                stdout: limit_output(String::from_utf8_lossy(&output.stdout).to_string()),
+                stderr: limit_output(String::from_utf8_lossy(&output.stderr).to_string()),
+                duration_ms: started.elapsed().as_millis(),
+                timed_out: true,
+            });
+        }
+        if let Some(status) = child
+            .try_wait()
+            .map_err(|error| format!("Could not poll sandbox runner: {error}"))?
+        {
+            let output = child
+                .wait_with_output()
+                .map_err(|error| format!("Could not collect sandbox output: {error}"))?;
+            return Ok(SandboxExecutionResult {
+                exit_code: status.code(),
+                stdout: limit_output(String::from_utf8_lossy(&output.stdout).to_string()),
+                stderr: limit_output(String::from_utf8_lossy(&output.stderr).to_string()),
+                duration_ms: started.elapsed().as_millis(),
+                timed_out: false,
+            });
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    }
+}
+
+fn create_sandbox_work_dir() -> Result<PathBuf, String> {
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|error| format!("System clock error: {error}"))?
+        .as_millis();
+    let dir = std::env::temp_dir().join(format!("hello-world-sandbox-{stamp}"));
+    fs::create_dir_all(&dir)
+        .map_err(|error| format!("Could not create sandbox directory: {error}"))?;
+    Ok(dir)
+}
+
+fn is_safe_env_ref(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 64
+        && value.chars().enumerate().all(|(index, character)| {
+            if index == 0 {
+                character.is_ascii_uppercase()
+            } else {
+                character.is_ascii_uppercase() || character.is_ascii_digit() || character == '_'
+            }
+        })
+        && !value.contains("KEY")
+        && !value.contains("TOKEN")
+        && !value.contains("SECRET")
+        && !value.contains("PASSWORD")
+}
+
+fn limit_output(value: String) -> String {
+    value.chars().take(16_000).collect()
 }
 
 fn setup_desktop_tray(app: &tauri::AppHandle) -> tauri::Result<()> {

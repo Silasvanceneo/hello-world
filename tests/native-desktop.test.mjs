@@ -49,11 +49,12 @@ test('desktop capability summary reports native OS integrations when available',
     tray: true,
     keychain: true,
     local_ollama_detection: true,
+    sandboxed_code_execution: true,
   });
 
-  assert.equal(summary.ready.length, 6);
+  assert.equal(summary.ready.length, 7);
   assert.equal(summary.deferred.length, 0);
-  assert.match(summary.message, /6 available/);
+  assert.match(summary.message, /7 available/);
   assert(summary.ready.some((item) => item.id === 'keychain' && /OS keychain/.test(item.reason)));
 });
 

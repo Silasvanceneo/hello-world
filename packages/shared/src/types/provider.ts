@@ -1,7 +1,9 @@
 export type ProviderType =
   | 'openai'
+  | 'azure-openai'
   | 'anthropic'
   | 'gemini'
+  | 'dashscope'
   | 'grok'
   | 'ollama'
   | 'openai-compatible'
@@ -46,6 +48,59 @@ export type AIModel = {
   ownedBy?: string;
   capability: ModelCapability;
   status: 'available' | 'unavailable' | 'unknown';
+};
+
+export type ProviderFeatureSupport = 'supported' | 'unsupported' | 'unknown';
+
+export type ProviderRuntimeProtocol =
+  | 'openai-compatible'
+  | 'openai-responses'
+  | 'azure-openai'
+  | 'anthropic-messages'
+  | 'gemini-native'
+  | 'dashscope-native'
+  | 'ollama'
+  | 'custom';
+
+export type ProviderRuntimeTransport = 'https' | 'local-http' | 'desktop-bridge' | 'custom';
+
+export type ProviderBrowserDirectSupport = 'supported' | 'cors-dependent' | 'unsupported';
+
+export type ProviderRuntimeCapabilities = {
+  protocol: ProviderRuntimeProtocol;
+  transport: ProviderRuntimeTransport;
+  browserDirect: ProviderBrowserDirectSupport;
+  models: {
+    list: boolean;
+    dynamicCapabilities: boolean;
+  };
+  chat: {
+    streaming: boolean;
+    systemMessages: boolean;
+    toolCalls: ProviderFeatureSupport;
+  };
+  embeddings: ProviderFeatureSupport;
+  imageGeneration: ProviderFeatureSupport;
+  audioInput: ProviderFeatureSupport;
+  audioOutput: ProviderFeatureSupport;
+  toolCalls: ProviderFeatureSupport;
+};
+
+export type ProviderCapabilitySummary = {
+  providerType: ProviderType;
+  adapterId: string;
+  protocol: ProviderRuntimeProtocol;
+  transport: ProviderRuntimeTransport;
+  browserDirect: ProviderBrowserDirectSupport;
+  features: {
+    modelListing: boolean;
+    chatStreaming: boolean;
+    embeddings: ProviderFeatureSupport;
+    imageGeneration: ProviderFeatureSupport;
+    audioInput: ProviderFeatureSupport;
+    audioOutput: ProviderFeatureSupport;
+    toolCalls: ProviderFeatureSupport;
+  };
 };
 
 export type ProviderErrorReason = 'auth' | 'network' | 'model' | 'configuration' | 'unknown';

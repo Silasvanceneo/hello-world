@@ -466,3 +466,129 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run build:desktop` rebuilt `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`.
 - Verification passed: `npm audit --omit=dev --audit-level=moderate` -> found 0 vulnerabilities.
 - Static runtime execution scans found no `std::process`, `Command::new`, `child_process`, `execFile`, `spawnSync`, `process.spawn`, `powershell`, or `cmd.exe` process execution path in source runtime areas.
+
+## 2026-05-02T11:00:00.000Z
+
+- Completed P4-M11 common cloud API and relay provider preset expansion.
+- Added `apps/web/src/provider-presets.js` with grouped presets for OpenAI, Gemini OpenAI compatibility, xAI, DeepSeek, Alibaba Qwen/DashScope, Baidu Qianfan, Tencent Hunyuan, Volcengine Ark, Moonshot Kimi, Zhipu GLM, Mistral, Groq, Together AI, Fireworks AI, Cerebras, OpenRouter, Claude through OpenRouter, SiliconFlow, AiHubMix, 302.AI, One API relay, and Ollama.
+- Wired the Provider settings preset selector so choosing a preset fills name, type, Base URL, and model without touching the runtime API key field.
+- Documented the OpenAI-compatible runtime boundary: non-Ollama Web calls still use `/models` and `/chat/completions`; native-protocol providers should get dedicated adapters before direct exposure.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-provider-presets.test.mjs tests/web-localization.test.mjs` -> tests 11/pass 11/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (143 paths), tests 153/pass 153/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` rebuilt `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`; `npm audit --omit=dev --audit-level=moderate` found 0 vulnerabilities.
+
+## 2026-05-02T11:10:00.000Z
+
+- Registered the next roadmap in `.hello-world-harness/sprint_plan.json` and `.hello-world-harness/feature_list.json`.
+- New planned stages:
+  - P5: provider runtime v2 and native cloud provider adapters.
+  - P6: mature RAG ingestion, embeddings, vector/hybrid retrieval, citations, and RAG evals.
+  - P7: HTTP MCP, Desktop stdio MCP, plugin manifests, permissions, and tool audit logs.
+  - P8: Web search providers, page extraction, and grounded answers with citations.
+  - P9: Desktop-only sandboxed code execution with no Web/Mobile entry and no arbitrary shell endpoint.
+  - P10: three-platform integration, diagnostics, and product polish.
+- Started P5-M1 Provider runtime v2 capability contract. High-risk code execution remains deferred until P9 and Desktop-only.
+
+## 2026-05-02T11:20:00.000Z
+
+- Implemented the first slice of P5-M1 Provider runtime v2.
+- Added `ProviderRuntimeCapabilities` and `ProviderCapabilitySummary` shared types.
+- Added capability descriptors to the OpenAI-compatible/OpenAI and Ollama adapters without changing their existing request behavior.
+- Added registry helpers for offline capability summaries: `getProviderCapabilities` and `listProviderCapabilities`.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/provider-runtime-v2.test.ts tests/provider-adapters.test.ts` -> tests 8/pass 8/fail 0.
+- Native provider adapters are still pending for P5-M2; this checkpoint only adds the capability contract needed to build them safely.
+
+## 2026-05-02T11:25:00.000Z
+
+- Completed P5-M1 Provider runtime v2 capability contract.
+- Full verification passed: `npm run check` -> scaffold check passed (144 paths), tests 157/pass 157/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only.
+- Marked P5-M1-F001 as passed. Next planned sprint is P5-M2 native provider adapters.
+
+## 2026-05-02T12:05:00.000Z
+
+- Started P5-M2 native provider adapters with tests first.
+- Added mocked native provider coverage for OpenAI Responses, Anthropic Messages, Gemini native, Azure OpenAI, and DashScope native request shapes, streaming deltas, validation, and runtime-only auth headers.
+- Implemented API client native adapters, shared SSE parser helpers, registry wiring, Web provider runtime native dispatch, and native provider presets.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/provider-native-adapters.test.ts tests/web-provider-runtime.test.mjs tests/web-provider-presets.test.mjs tests/provider-runtime-v2.test.ts` -> tests 23/pass 23/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (155 paths), tests 167/pass 167/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm run build:mobile` completed Capacitor sync and scaffold verification.
+- Marked P5-M2-F001 as passed. Next planned sprint is P6-M1 mature RAG ingestion and indexing foundation.
+
+## 2026-05-02T13:00:00.000Z
+
+- Started P6-M1 mature RAG ingestion and indexing foundation with tests first.
+- Added ingestion coverage for queue states, failures/retry, TXT/Markdown/PDF/DOCX/XLSX/HTML/URL/sitemap normalization, content-hash dedupe, citation-ready chunk metadata, and three-platform ingestion capabilities.
+- Implemented knowledge ingestion source/job types, source normalization, HTML text extraction, URL sanitization, content hashing, and Web/Desktop/Mobile ingestion status view model.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/knowledge-ingestion.test.ts tests/knowledge-base.test.ts tests/sync-engine.test.ts tests/web-knowledge-ingestion.test.mjs` -> tests 14/pass 14/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (158 paths), tests 175/pass 175/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm run build:mobile` completed Capacitor sync and scaffold verification.
+- Marked P6-M1-F001 as passed. Next planned sprint is P6-M2 embeddings, vector store, hybrid retrieval, and RAG evaluation.
+
+## 2026-05-02T14:00:00.000Z
+
+- Started P6-M2 embeddings, vector store, hybrid retrieval, and RAG evaluation with deterministic local tests first.
+- Added coverage for local embedding determinism, Web/Mobile lightweight and Desktop durable vector index modes, hybrid lexical/vector retrieval, metadata filters, reranking, citation context, no-answer thresholds, and RAG eval metrics.
+- Implemented `KnowledgeEmbeddingProvider`, local hash embeddings, vector index creation/indexing, hybrid search, metadata filtering, rerank hook support, and RAG evaluation report generation.
+- Added `apps/web/src/rag-eval.js` for a Web/Desktop/Mobile-safe RAG eval view model and escaped report renderer.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/rag-retrieval.test.ts tests/web-rag-eval.test.mjs tests/knowledge-base.test.ts tests/knowledge-ingestion.test.ts` -> tests 16/pass 16/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (161 paths), tests 183/pass 183/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm run build:mobile` completed Capacitor sync and scaffold verification.
+- Marked P6-M2-F001 as passed. Next planned sprint is P7-M1 tool permission model and HTTP MCP foundation.
+
+## 2026-05-02T15:00:00.000Z
+
+- Started P7-M1 tool permission model and HTTP MCP foundation with security tests first.
+- Added coverage for HTTP MCP registry sanitization, schema validation, safe calls, blocked disabled/missing/unsafe tools, redacted audit records, and platform capability boundaries.
+- Implemented `packages/core/src/tools/http-mcp.ts` with HTTP-only server registration, JSON-schema subset validation, policy-gated tool calls, runtime-injected fetch, and redacted audit records.
+- Security boundary preserved: stdio MCP, terminal, code execution, network proxy, and broad filesystem are not exposed by this sprint.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/http-mcp.test.ts tests/security-policy.test.ts tests/agent-presets.test.ts tests/desktop-command-allowlist.test.mjs` -> tests 16/pass 16/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (163 paths), tests 189/pass 189/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm run build:mobile` completed Capacitor sync and scaffold verification.
+- Marked P7-M1-F001 as passed. Next planned sprint is P7-M2 Desktop stdio MCP and plugin manager.
+
+## 2026-05-02T15:30:00.000Z
+
+- Started P7-M2 Desktop stdio MCP and plugin manager with tests first.
+- Added coverage for Desktop-only stdio MCP registration, explicit confirmation, launcher/arg/env sanitization, plugin manifests, enable/disable/inspect flows, audit records, unsupported platform blocking, and critical terminal/code-execution plugin denial.
+- Implemented `packages/core/src/tools/plugin-manager.ts` as a management/control-plane layer only. It records plugins and Desktop stdio MCP servers, but does not add a Tauri shell, spawn, process, cmd, PowerShell, Python, or terminal execution command.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/desktop-plugin-manager.test.ts tests/http-mcp.test.ts tests/security-policy.test.ts tests/desktop-command-allowlist.test.mjs` -> tests 18/pass 18/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (165 paths), tests 195/pass 195/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm audit --omit=dev --audit-level=moderate` found 0 vulnerabilities.
+- Marked P7-M2-F001 as passed. Next planned sprint is P8-M1 Web search providers and grounded answer mode.
+
+## 2026-05-02T16:30:00.000Z
+
+- Started P8-M1 Web search providers and grounded answer mode with tests first.
+- Added provider normalization coverage for Brave, Tavily, Bing, SearXNG, and custom endpoints using runtime-only API keys.
+- Implemented `packages/api-client/src/search/web-search.ts`, `packages/core/src/search/grounded-answer.ts`, and `apps/web/src/web-search.js`.
+- Search results now normalize title, sanitized URL, snippet, date, source domain, score, and retrieval timestamp. Page extraction removes scripts/styles and can fall back to a Desktop proxy fetch implementation.
+- Grounded answer validation requires source citations such as `[1]` and preserves retrieval-date metadata in prompts.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-search.test.ts tests/web-search-view.test.mjs` -> tests 6/pass 6/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (172 paths), tests 201/pass 201/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm run build:mobile` completed Capacitor sync and scaffold verification.
+- Marked P8-M1-F001 as passed. Next planned sprint is P9-M1 Desktop-only sandboxed code execution.
+
+## 2026-05-02T17:30:00.000Z
+
+- Started P9-M1 Desktop-only sandboxed code execution with tests first.
+- Added coverage for Web/Mobile hidden capability state, Desktop-only request planning, confirmation and setting gates, redacted audit records, Web invoke wrapper, and Tauri allowlist safety.
+- Implemented `packages/core/src/tools/code-execution.ts`, `apps/web/src/native-desktop.js` bridge helpers, and `run_sandboxed_code` in `apps/desktop/src-tauri/src/main.rs`.
+- The Desktop runner accepts only `javascript` or `python`, writes the snippet into a temporary work directory, clears inherited environment variables, caps timeout/stdin/output, captures stdout/stderr, and removes the temporary directory. It does not expose a terminal, shell, cmd, PowerShell, or arbitrary command field.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/desktop-code-execution.test.ts tests/security-policy.test.ts tests/desktop-command-allowlist.test.mjs tests/native-desktop.test.mjs` -> tests 18/pass 18/fail 0.
+- Rust verification passed: `cargo fmt` and `cargo check` in `apps/desktop/src-tauri`.
+- Full verification passed: `npm run check` -> scaffold check passed (174 paths), tests 207/pass 207/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm audit --omit=dev --audit-level=moderate` found 0 vulnerabilities.
+- Marked P9-M1-F001 as passed. Next planned sprint is P10-M1 three-platform integration, diagnostics, and product polish.
+
+## 2026-05-02T18:30:00.000Z
+
+- Started P10-M1 final three-platform integration and diagnostics.
+- Added `packages/core/src/diagnostics/platform-capability-matrix.ts` and `tests/platform-capability-matrix.test.ts`.
+- Updated README and docs to reflect the final implemented capabilities, including shared Web/Desktop/Mobile workflows, Desktop-only stdio MCP/proxy/code execution, Mobile camera/voice, and blocked terminal/shell access.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/platform-capability-matrix.test.ts tests/desktop-code-execution.test.ts tests/web-search.test.ts tests/http-mcp.test.ts tests/rag-retrieval.test.ts tests/provider-native-adapters.test.ts` -> tests 32/pass 32/fail 0.
+- Final full verification passed: `npm run check` -> scaffold check passed (177 paths), tests 210/pass 210/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm run build:mobile` completed Capacitor sync and scaffold verification.
+- Android debug package verification passed with local SDK env: `npm --workspace apps/mobile run android:debug` -> exit 0.
+- Dependency audit passed: `npm audit --omit=dev --audit-level=moderate` -> found 0 vulnerabilities.
+- Marked P10-M1-F001 as passed. P5-P10 requested roadmap is complete.

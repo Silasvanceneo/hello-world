@@ -12,11 +12,13 @@ P1-M4/P1-M5 add the first real native input foundations while keeping Web as the
   - `save_desktop_provider_secret`
   - `read_desktop_provider_secret`
   - `delete_desktop_provider_secret`
+  - `run_sandboxed_code`
 - `apps/web/src/native-desktop.js` calls Tauri through `window.__TAURI__.core.invoke` when running inside the desktop shell.
 - `summarizeDesktopNativeCapabilities()` reports screen capture, clipboard image input, local Ollama detection, global shortcut, tray, and keychain availability separately.
 - The desktop shell creates a system tray with Show, Capture screen, and Quit actions.
 - `Ctrl+Shift+H` registers as the desktop capture shortcut when the OS accepts the hotkey. The shortcut and tray capture action emit `desktop://capture-screen-requested`; the Web runtime listens for that event and reuses the shared screenshot attachment flow.
 - Provider secrets can be stored, read, and deleted through Windows Credential Manager. Web local state still stores only provider metadata and `apiKeyRef`; the secret value is not serialized into localStorage or backup archives.
+- Sandboxed code execution is Desktop-only. The command accepts only supported language snippets, runs from a temporary work directory, clears inherited environment, applies timeout/output limits, and is hidden on Web/Mobile.
 
 ## Mobile
 

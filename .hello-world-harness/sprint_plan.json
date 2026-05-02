@@ -1181,6 +1181,349 @@
         "Record whether terminal execution is actually exposed",
         "Create git checkpoint when verification passes"
       ]
+    },
+    {
+      "id": "P4-M11",
+      "scope": "Common cloud API and relay provider preset expansion",
+      "dependencies": [
+        "P0-M10",
+        "P4-M7",
+        "P4-M10"
+      ],
+      "doneCriteria": [
+        "Provider settings expose grouped presets for common cloud APIs, relay gateways, and local runtimes",
+        "Preset selection fills provider metadata while preserving runtime-only API key handling",
+        "OpenAI-compatible browser runtime boundaries are documented",
+        "Tests, Web build, review, desktop build, dependency audit, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "node --test --experimental-strip-types --test-isolation=none tests/web-provider-presets.test.mjs tests/web-localization.test.mjs",
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm audit --omit=dev --audit-level=moderate"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record provider preset coverage and security boundary",
+        "Create git checkpoint when verification passes"
+      ]
+    },
+    {
+      "id": "P5-M1",
+      "scope": "Provider runtime v2 capability contract",
+      "dependencies": [
+        "P4-M11"
+      ],
+      "doneCriteria": [
+        "Provider adapters expose a stable runtime capability descriptor for chat, model listing, embeddings, image generation, audio, tool calls, native protocol, and browser CORS expectations",
+        "Registry helpers can summarize adapter capabilities without requiring live provider credentials",
+        "Existing OpenAI-compatible and Ollama adapters keep current behavior while advertising v2 capabilities",
+        "Tests, Web build, review, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/api-client/",
+        "packages/core/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "node --test --experimental-strip-types --test-isolation=none tests/provider-runtime-v2.test.ts tests/provider-adapters.test.ts",
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record the provider runtime v2 boundary and next adapter targets"
+      ]
+    },
+    {
+      "id": "P5-M2",
+      "scope": "Native provider adapters for major cloud APIs",
+      "dependencies": [
+        "P5-M1"
+      ],
+      "doneCriteria": [
+        "OpenAI Responses, Anthropic Messages, Gemini native, Azure OpenAI, and selected China-market native adapters are implemented behind the v2 contract",
+        "Each adapter has mocked streaming, model-list, error classification, and secret-handling tests",
+        "Web/Desktop/Mobile provider settings can distinguish native adapters from OpenAI-compatible presets",
+        "No provider key is persisted in local state or backups"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/api-client/",
+        "packages/core/",
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm run build:mobile"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Document native adapter caveats and unsupported API features"
+      ]
+    },
+    {
+      "id": "P6-M1",
+      "scope": "Mature RAG ingestion and indexing foundation",
+      "dependencies": [
+        "P5-M1"
+      ],
+      "doneCriteria": [
+        "Document ingestion queue tracks parse, chunk, embed, index, failed, and retry states",
+        "TXT, Markdown, PDF, DOCX, XLSX, HTML, URL, and sitemap sources normalize into citation-ready chunks",
+        "Content hashes deduplicate unchanged sources",
+        "Web, Desktop, and Mobile expose compatible ingestion status while Desktop adds directory import"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "packages/storage/",
+        "apps/web/",
+        "apps/desktop/",
+        "apps/mobile/",
+        "tests/",
+        "docs/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm run build:mobile"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record ingestion limits and parser fallbacks"
+      ]
+    },
+    {
+      "id": "P6-M2",
+      "scope": "Embeddings, vector store, hybrid retrieval, and RAG evaluation",
+      "dependencies": [
+        "P6-M1",
+        "P5-M2"
+      ],
+      "doneCriteria": [
+        "Embedding provider abstraction supports local and remote embedding models",
+        "Web/Mobile have a lightweight local index path and Desktop has a durable larger index path",
+        "Hybrid lexical/vector retrieval, metadata filters, reranking hooks, and citation rendering are implemented",
+        "RAG eval tests measure retrieval hit rate, citation accuracy, and no-answer behavior"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "packages/storage/",
+        "apps/web/",
+        "apps/desktop/",
+        "apps/mobile/",
+        "tests/",
+        "docs/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm run build:mobile"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record RAG eval scores and unresolved quality gaps"
+      ]
+    },
+    {
+      "id": "P7-M1",
+      "scope": "Tool permission model and HTTP MCP foundation",
+      "dependencies": [
+        "P5-M1",
+        "P4-M10"
+      ],
+      "doneCriteria": [
+        "Tool permissions classify read-only, network, file-write, sensitive, and critical capabilities",
+        "HTTP MCP servers can be configured, listed, disabled, and called with schema-validated inputs",
+        "Every tool call writes an audit record with redacted arguments and result status",
+        "Web, Desktop, and Mobile support HTTP MCP as a safe shared subset"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "packages/storage/",
+        "apps/web/",
+        "apps/desktop/",
+        "apps/mobile/",
+        "tests/",
+        "docs/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm run build:mobile"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record MCP permission defaults and audit format"
+      ]
+    },
+    {
+      "id": "P7-M2",
+      "scope": "Desktop stdio MCP and plugin manager",
+      "dependencies": [
+        "P7-M1"
+      ],
+      "doneCriteria": [
+        "Desktop-only stdio MCP registration exists behind explicit user confirmation",
+        "Plugin manifests declare permissions, provider requirements, and platform support",
+        "Plugins can be enabled, disabled, inspected, and audited",
+        "No stdio MCP or plugin path can bypass the critical terminal/code-execution policy"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "packages/storage/",
+        "apps/web/",
+        "apps/desktop/",
+        "tests/",
+        "docs/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm audit --omit=dev --audit-level=moderate"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record desktop-only MCP boundary and security review"
+      ]
+    },
+    {
+      "id": "P8-M1",
+      "scope": "Web search providers and grounded answer mode",
+      "dependencies": [
+        "P5-M1",
+        "P7-M1"
+      ],
+      "doneCriteria": [
+        "Search adapters support Brave, Tavily, Bing, SearXNG, and custom endpoints behind runtime-only credentials",
+        "Search results normalize title, URL, snippet, date, and source domain",
+        "Fetched pages are extracted into citation-ready snippets with CORS-safe Desktop proxy support",
+        "Grounded answer mode requires source citations and reports retrieval dates"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/api-client/",
+        "packages/core/",
+        "apps/web/",
+        "apps/desktop/",
+        "apps/mobile/",
+        "tests/",
+        "docs/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm run build:mobile"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record search provider limits and citation evidence"
+      ]
+    },
+    {
+      "id": "P9-M1",
+      "scope": "Desktop-only sandboxed code execution",
+      "dependencies": [
+        "P4-M10",
+        "P7-M1"
+      ],
+      "doneCriteria": [
+        "Code execution is available only in Desktop and is invisible or disabled on Web and Mobile",
+        "JavaScript and Python runners execute in isolated temporary work directories with timeout, output, and environment limits",
+        "Execution starts only after explicit user confirmation and writes redacted audit records",
+        "Tauri allowlist exposes controlled runner commands only, not arbitrary shell, terminal, cmd, PowerShell, or process spawn endpoints"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/shared/",
+        "packages/core/",
+        "apps/web/",
+        "apps/desktop/",
+        "tests/",
+        "docs/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "node --test --experimental-strip-types --test-isolation=none tests/security-policy.test.ts tests/desktop-command-allowlist.test.mjs",
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm audit --omit=dev --audit-level=moderate"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record sandbox guarantees, limitations, and security review"
+      ]
+    },
+    {
+      "id": "P10-M1",
+      "scope": "Three-platform integration, diagnostics, and product polish",
+      "dependencies": [
+        "P5-M2",
+        "P6-M2",
+        "P7-M2",
+        "P8-M1",
+        "P9-M1"
+      ],
+      "doneCriteria": [
+        "Web exposes safe cloud chat, RAG query, Web search, and HTTP MCP workflows",
+        "Desktop exposes full provider, RAG management, Desktop proxy, stdio MCP, and sandboxed code execution workflows",
+        "Mobile exposes chat, voice, camera, RAG query, Web search, and HTTP MCP safe subset workflows",
+        "End-to-end smoke tests and docs clearly show which capabilities are shared and which are Desktop-only"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/",
+        "packages/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm run build:mobile",
+        "npm --workspace apps/mobile run android:debug"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record final capability matrix and known limitations"
+      ]
     }
   ]
 }

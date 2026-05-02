@@ -59,6 +59,7 @@ import {
 } from './native-media.js';
 import { listenForSpeech, speakText } from './native-voice.js';
 import { describeModelList, describeProviderValidationError } from './provider-diagnostics.js';
+import { applyProviderPresetToFields, renderProviderPresetOptions } from './provider-presets.js';
 import { defaultModel, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
 
 const STORAGE_KEY = 'hello-world:web-state:v1';
@@ -118,6 +119,7 @@ const elements = {
   providerModel: document.querySelector('#provider-model'),
   providerName: document.querySelector('#provider-name'),
   providerApiKey: document.querySelector('#provider-api-key'),
+  providerPreset: document.querySelector('#provider-preset'),
   providerStatus: document.querySelector('#provider-status'),
   providerType: document.querySelector('#provider-type'),
   routingStatus: document.querySelector('#routing-status'),
@@ -185,6 +187,8 @@ function render() {
   elements.branchResults.innerHTML = renderBranchResults(session, { t });
   elements.comparisonResults.innerHTML = renderComparisonResults();
   const provider = state.providers[0];
+  elements.providerPreset.innerHTML = renderProviderPresetOptions({ t });
+  elements.providerPreset.value = '';
   elements.providerStatus.textContent = provider
     ? t('provider.saved', { name: provider.name, model: provider.defaultModelId ?? defaultModel(provider.type) })
     : t('provider.localEcho');
@@ -483,6 +487,13 @@ elements.saveProvider.addEventListener('click', async () => {
     elements.providerStatus.textContent = describeModelList(models, provider.defaultModelId, { t });
   } catch (error) {
     elements.providerStatus.textContent = t('status.savedBut', { message: describeProviderValidationError(error, provider, { t }) });
+  }
+});
+
+elements.providerPreset.addEventListener('change', () => {
+  const result = applyProviderPresetToFields(elements.providerPreset.value, elements, { t });
+  if (result.status) {
+    elements.providerStatus.textContent = result.status;
   }
 });
 

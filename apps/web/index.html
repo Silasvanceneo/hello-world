@@ -158,12 +158,21 @@
         <div id="settings-provider" class="panel-card settings-card-wide">
           <p class="section-label" data-i18n="settings.provider">Provider</p>
           <h2 data-i18n="provider.connection">Connection</h2>
+          <label data-i18n-label="provider.preset">Preset
+            <select id="provider-preset">
+              <option value="" data-i18n="provider.presetManual">Custom / manual</option>
+            </select>
+          </label>
           <label data-i18n-label="field.name">Name<input id="provider-name" placeholder="Local Ollama" data-i18n-placeholder="provider.namePlaceholder" /></label>
           <label data-i18n-label="field.type">Type
             <select id="provider-type">
               <option value="openai-compatible">OpenAI-compatible</option>
               <option value="ollama">Ollama</option>
               <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic Messages</option>
+              <option value="gemini">Gemini native</option>
+              <option value="azure-openai">Azure OpenAI</option>
+              <option value="dashscope">DashScope native</option>
             </select>
           </label>
           <label data-i18n-label="field.baseUrl">Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>

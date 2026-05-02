@@ -23,6 +23,18 @@ export function createOpenAICompatibleAdapter(type: ProviderConnection['type'] =
   return {
     id: type,
     type,
+    capabilities: {
+      protocol: 'openai-compatible',
+      transport: 'https',
+      browserDirect: 'cors-dependent',
+      models: { list: true, dynamicCapabilities: false },
+      chat: { streaming: true, systemMessages: true, toolCalls: 'unknown' },
+      embeddings: 'unknown',
+      imageGeneration: 'unsupported',
+      audioInput: 'unsupported',
+      audioOutput: 'unsupported',
+      toolCalls: 'unknown',
+    },
     async listModels(connection, context) {
       const fetchImpl = getFetch(context);
       const response = await fetchImpl(joinUrl(resolveBaseUrl(connection), '/models'), {

@@ -2,9 +2,16 @@
 
 `hello-world` is a local-first, self-hostable AI client for Web, Desktop, and Mobile.
 
-## Current sprint
+## Current status
 
-P0-M1: repository structure, shared TypeScript contracts, architecture/security docs, and verification scaffolding.
+The P5-P10 roadmap is implemented through the local harness:
+
+- native provider adapters for major cloud APIs
+- mature RAG ingestion, hybrid retrieval, citations, and evals
+- HTTP MCP plus Desktop-only stdio MCP/plugin management
+- Web search and grounded answers
+- Desktop-only sandboxed JavaScript/Python code execution
+- final three-platform capability matrix and verification gates
 
 ## Principles
 
@@ -18,6 +25,8 @@ P0-M1: repository structure, shared TypeScript contracts, architecture/security 
 
 ```powershell
 npm run check
+npm run build:desktop
+npm run build:mobile
 ```
 
-The first check is dependency-free and verifies the planned scaffold exists.
+`npm run check` verifies structure, runs the full test suite, builds the Web app, and runs the source review gate.

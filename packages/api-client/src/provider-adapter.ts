@@ -1,4 +1,4 @@
-import type { AIModel, ChatChunk, ConnectionStatus, ProviderConnection } from '@hello-world/shared';
+import type { AIModel, ChatChunk, ConnectionStatus, ProviderConnection, ProviderRuntimeCapabilities } from '@hello-world/shared';
 
 export type ProviderRuntimeContext = {
   apiKey?: string;
@@ -26,6 +26,7 @@ export type ImageResult = {
 export interface ProviderAdapter {
   id: string;
   type: ProviderConnection['type'];
+  capabilities: ProviderRuntimeCapabilities;
   listModels(connection: ProviderConnection, context?: ProviderRuntimeContext): Promise<AIModel[]>;
   chat(request: ChatRequest, context?: ProviderRuntimeContext): AsyncIterable<ChatChunk>;
   validateConnection(connection: ProviderConnection, context?: ProviderRuntimeContext): Promise<ConnectionStatus>;

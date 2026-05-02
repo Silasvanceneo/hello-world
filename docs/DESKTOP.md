@@ -8,4 +8,6 @@ The tray exposes Show, Capture screen, and Quit. The `Ctrl+Shift+H` shortcut req
 
 Desktop keychain support is intentionally limited to Tauri commands for provider secret save/read/delete. Web local state and backup archives continue to store only provider metadata and `apiKeyRef`; secret values are not serialized.
 
+P9 adds controlled sandboxed code execution for Desktop only. The Tauri command is `run_sandboxed_code`; it accepts only `javascript` or `python` snippets, writes them to a temporary sandbox directory, clears inherited environment variables, captures output, applies timeout/output limits, and removes the temporary directory after execution. It is not a terminal or arbitrary shell endpoint.
+
 High-risk local capabilities must remain off unless explicitly enabled by the user.

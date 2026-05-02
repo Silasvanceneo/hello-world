@@ -12,7 +12,7 @@ export function classifyToolRisk(capabilities: ToolCapability[]): ToolRiskLevel 
   if (capabilities.some((capability) => ['terminal', 'code_execution', 'network_proxy'].includes(capability))) {
     return 'critical';
   }
-  if (capabilities.some((capability) => ['file_write', 'filesystem_broad', 'stdio_mcp'].includes(capability))) {
+  if (capabilities.some((capability) => ['file_write', 'filesystem_broad', 'stdio_mcp', 'sensitive'].includes(capability))) {
     return 'high';
   }
   if (capabilities.some((capability) => ['http_api', 'knowledge_read'].includes(capability))) {

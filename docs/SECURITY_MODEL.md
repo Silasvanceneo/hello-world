@@ -20,7 +20,10 @@ Dangerous capabilities are disabled by default:
 - Critical terminal/code/network-proxy tools are blocked by default.
 - Critical tools remain blocked even if the current advanced toggles are manually enabled; enabling them requires a future explicit policy change.
 - Agent preset `enabledTools` values are descriptive preferences only. They are mapped through `evaluateAgentPresetToolPolicy` before any execution decision.
-- The current Desktop Tauri allowlist exposes only capability reporting, local Ollama port detection, provider secret storage, provider secret read, and provider secret deletion. It does not expose a terminal, shell, process spawn, or arbitrary command endpoint.
+- Plugin manifests are descriptive until enabled. Installation keeps plugins disabled by default, and enablement re-checks the shared tool policy plus confirmation requirements.
+- Desktop stdio MCP registration is a control-plane record only: it is Desktop-only, requires explicit confirmation, accepts only safe launcher ids, and stores env var references instead of secret values.
+- The current Desktop Tauri allowlist exposes capability reporting, local Ollama port detection, provider secret storage/read/delete, and one controlled sandbox runner command. It does not expose a terminal, shell, PowerShell, cmd, or arbitrary command endpoint.
+- Desktop code execution is a special P9 controlled-runner path. It is hidden on Web/Mobile, requires the code execution setting plus explicit confirmation, accepts only `javascript` or `python`, writes temporary snippet files in an isolated temp directory, clears inherited environment variables, enforces timeout/output limits, and records redacted audit metadata.
 - Secret redaction is available for text and structured objects.
 
 ## Tool risk levels

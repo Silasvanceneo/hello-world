@@ -2096,6 +2096,242 @@
         "Runtime source scans found no std::process, Command::new, child_process, execFile, spawnSync, process.spawn, powershell, or cmd.exe process execution path"
       ],
       "lastUpdated": "2026-05-02T10:15:00.000Z"
+    },
+    {
+      "id": "P4-M11-F001",
+      "title": "Common cloud and relay provider presets",
+      "priority": "should",
+      "acceptance": [
+        "Provider settings expose a preset selector grouped by cloud APIs, relay gateways, and local runtimes",
+        "Common cloud providers and relay endpoints can fill provider name, type, base URL, and default model",
+        "Selecting a preset does not persist or overwrite runtime API keys",
+        "Providers requiring native non-OpenAI protocols are not falsely exposed as direct-compatible"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/provider-presets.js defines cloud, gateway, and local provider presets for OpenAI-compatible runtime use",
+        "apps/web/index.html adds the Provider preset selector to Settings",
+        "tests/web-provider-presets.test.mjs covers catalog coverage, escaped option rendering, form patches, and API key preservation",
+        "docs/WEB_PROVIDER_RUNTIME.md documents the preset catalog and OpenAI-compatible runtime boundary"
+      ],
+      "lastUpdated": "2026-05-02T11:00:00.000Z"
+    },
+    {
+      "id": "P4-M11-F002",
+      "title": "Provider preset verification",
+      "priority": "should",
+      "acceptance": [
+        "Full project check passes with provider preset coverage",
+        "Desktop release executable rebuilds with the updated Web settings UI",
+        "Secret review and dependency audit pass",
+        "Diff whitespace check reports no blocking errors"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (143 paths), tests 153/pass 153/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm audit --omit=dev --audit-level=moderate -> found 0 vulnerabilities"
+      ],
+      "lastUpdated": "2026-05-02T11:00:00.000Z"
+    },
+    {
+      "id": "P5-M1-F001",
+      "title": "Provider runtime v2 capability contract",
+      "priority": "must",
+      "acceptance": [
+        "Provider adapters expose a stable runtime capability descriptor for chat, model listing, embeddings, image generation, audio, tool calls, native protocol, and browser CORS expectations",
+        "Registry helpers can summarize adapter capabilities without requiring live provider credentials",
+        "Existing OpenAI-compatible and Ollama adapters keep current behavior while advertising v2 capabilities",
+        "Provider capability tests cover OpenAI-compatible, OpenAI, and Ollama defaults"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "P5-P10 plan registered in .hello-world-harness/sprint_plan.json",
+        "packages/shared/src/types/provider.ts defines ProviderRuntimeCapabilities and ProviderCapabilitySummary",
+        "packages/api-client/src/registry.ts exposes getProviderCapabilities and listProviderCapabilities",
+        "node --test --experimental-strip-types --test-isolation=none tests/provider-runtime-v2.test.ts tests/provider-adapters.test.ts -> tests 8/pass 8/fail 0",
+        "npm run check -> scaffold check passed (144 paths), tests 157/pass 157/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only"
+      ],
+      "lastUpdated": "2026-05-02T11:25:00.000Z"
+    },
+    {
+      "id": "P5-M2-F001",
+      "title": "Native provider adapters for major cloud APIs",
+      "priority": "must",
+      "acceptance": [
+        "OpenAI Responses, Anthropic Messages, Gemini native, Azure OpenAI, and selected China-market native adapters are implemented behind the v2 contract",
+        "Each adapter has mocked streaming, model-list, error classification, and secret-handling tests",
+        "Web/Desktop/Mobile provider settings can distinguish native adapters from OpenAI-compatible presets",
+        "No provider key is persisted in local state or backups"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Targeted TDD verification passed: node --test --experimental-strip-types --test-isolation=none tests/provider-native-adapters.test.ts tests/web-provider-runtime.test.mjs tests/web-provider-presets.test.mjs tests/provider-runtime-v2.test.ts -> tests 23/pass 23/fail 0",
+        "npm run check -> scaffold check passed (155 paths), tests 167/pass 167/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed"
+      ],
+      "lastUpdated": "2026-05-02T12:20:00.000Z"
+    },
+    {
+      "id": "P6-M1-F001",
+      "title": "Mature RAG ingestion and indexing foundation",
+      "priority": "must",
+      "acceptance": [
+        "Document ingestion queue tracks parse, chunk, embed, index, failed, and retry states",
+        "TXT, Markdown, PDF, DOCX, XLSX, HTML, URL, and sitemap sources normalize into citation-ready chunks",
+        "Content hashes deduplicate unchanged sources",
+        "Web, Desktop, and Mobile expose compatible ingestion status while Desktop adds directory import"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Targeted TDD verification passed: node --test --experimental-strip-types --test-isolation=none tests/knowledge-ingestion.test.ts tests/knowledge-base.test.ts tests/sync-engine.test.ts tests/web-knowledge-ingestion.test.mjs -> tests 14/pass 14/fail 0",
+        "npm run check -> scaffold check passed (158 paths), tests 175/pass 175/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed"
+      ],
+      "lastUpdated": "2026-05-02T13:20:00.000Z"
+    },
+    {
+      "id": "P6-M2-F001",
+      "title": "Embeddings, vector store, hybrid retrieval, and RAG evaluation",
+      "priority": "must",
+      "acceptance": [
+        "Embedding provider abstraction supports local and remote embedding models",
+        "Web/Mobile have a lightweight local index path and Desktop has a durable larger index path",
+        "Hybrid lexical/vector retrieval, metadata filters, reranking hooks, and citation rendering are implemented",
+        "RAG eval tests measure retrieval hit rate, citation accuracy, and no-answer behavior"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Targeted TDD verification passed: node --test --experimental-strip-types --test-isolation=none tests/rag-retrieval.test.ts tests/web-rag-eval.test.mjs tests/knowledge-base.test.ts tests/knowledge-ingestion.test.ts -> tests 16/pass 16/fail 0",
+        "npm run check -> scaffold check passed (161 paths), tests 183/pass 183/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed"
+      ],
+      "lastUpdated": "2026-05-02T14:20:00.000Z"
+    },
+    {
+      "id": "P7-M1-F001",
+      "title": "Tool permission model and HTTP MCP foundation",
+      "priority": "must",
+      "acceptance": [
+        "Tool permissions classify read-only, network, file-write, sensitive, and critical capabilities",
+        "HTTP MCP servers can be configured, listed, disabled, and called with schema-validated inputs",
+        "Every tool call writes an audit record with redacted arguments and result status",
+        "Web, Desktop, and Mobile support HTTP MCP as a safe shared subset"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Targeted TDD verification passed: node --test --experimental-strip-types --test-isolation=none tests/http-mcp.test.ts tests/security-policy.test.ts tests/agent-presets.test.ts tests/desktop-command-allowlist.test.mjs -> tests 16/pass 16/fail 0",
+        "npm run check -> scaffold check passed (163 paths), tests 189/pass 189/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed"
+      ],
+      "lastUpdated": "2026-05-02T15:25:00.000Z"
+    },
+    {
+      "id": "P7-M2-F001",
+      "title": "Desktop stdio MCP and plugin manager",
+      "priority": "must",
+      "acceptance": [
+        "Desktop-only stdio MCP registration exists behind explicit user confirmation",
+        "Plugin manifests declare permissions, provider requirements, and platform support",
+        "Plugins can be enabled, disabled, inspected, and audited",
+        "No stdio MCP or plugin path can bypass the critical terminal/code-execution policy"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Targeted TDD verification passed: node --test --experimental-strip-types --test-isolation=none tests/desktop-plugin-manager.test.ts tests/http-mcp.test.ts tests/security-policy.test.ts tests/desktop-command-allowlist.test.mjs -> tests 18/pass 18/fail 0",
+        "npm run check -> scaffold check passed (165 paths), tests 195/pass 195/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm audit --omit=dev --audit-level=moderate -> found 0 vulnerabilities"
+      ],
+      "lastUpdated": "2026-05-02T16:00:00.000Z"
+    },
+    {
+      "id": "P8-M1-F001",
+      "title": "Web search providers and grounded answer mode",
+      "priority": "must",
+      "acceptance": [
+        "Search adapters support Brave, Tavily, Bing, SearXNG, and custom endpoints behind runtime-only credentials",
+        "Search results normalize title, URL, snippet, date, and source domain",
+        "Fetched pages are extracted into citation-ready snippets with CORS-safe Desktop proxy support",
+        "Grounded answer mode requires source citations and reports retrieval dates"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Started P8-M1 with TDD: web search provider and grounded answer tests added before implementation",
+        "Targeted TDD verification passed: node --test --experimental-strip-types --test-isolation=none tests/web-search.test.ts tests/web-search-view.test.mjs -> tests 6/pass 6/fail 0",
+        "npm run check -> scaffold check passed (172 paths), tests 201/pass 201/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed"
+      ],
+      "lastUpdated": "2026-05-02T17:00:00.000Z"
+    },
+    {
+      "id": "P9-M1-F001",
+      "title": "Desktop-only sandboxed code execution",
+      "priority": "must",
+      "acceptance": [
+        "Code execution is available only in Desktop and is invisible or disabled on Web and Mobile",
+        "JavaScript and Python runners execute in isolated temporary work directories with timeout, output, and environment limits",
+        "Execution starts only after explicit user confirmation and writes redacted audit records",
+        "Tauri allowlist exposes controlled runner commands only, not arbitrary shell, terminal, cmd, PowerShell, or process spawn endpoints"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Started P9-M1 with TDD: desktop-only sandboxed code execution tests added before implementation",
+        "Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/desktop-code-execution.test.ts tests/security-policy.test.ts tests/desktop-command-allowlist.test.mjs tests/native-desktop.test.mjs -> tests 18/pass 18/fail 0",
+        "cargo fmt and cargo check passed in apps/desktop/src-tauri",
+        "npm run check -> scaffold check passed (174 paths), tests 207/pass 207/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm audit --omit=dev --audit-level=moderate -> found 0 vulnerabilities"
+      ],
+      "lastUpdated": "2026-05-02T18:00:00.000Z"
+    },
+    {
+      "id": "P10-M1-F001",
+      "title": "Three-platform integration, diagnostics, and product polish",
+      "priority": "must",
+      "acceptance": [
+        "Web exposes safe cloud chat, RAG query, Web search, and HTTP MCP workflows",
+        "Desktop exposes full provider, RAG management, Desktop proxy, stdio MCP, and sandboxed code execution workflows",
+        "Mobile exposes chat, voice, camera, RAG query, Web search, and HTTP MCP safe subset workflows",
+        "End-to-end smoke tests and docs clearly show which capabilities are shared and which are Desktop-only"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "Started P10-M1 with final platform capability matrix tests",
+        "Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/platform-capability-matrix.test.ts tests/desktop-code-execution.test.ts tests/web-search.test.ts tests/http-mcp.test.ts tests/rag-retrieval.test.ts tests/provider-native-adapters.test.ts -> tests 32/pass 32/fail 0",
+        "npm run check -> scaffold check passed (177 paths), tests 210/pass 210/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed",
+        "ANDROID_HOME/ANDROID_SDK_ROOT set to local Android SDK; npm --workspace apps/mobile run android:debug -> exit 0",
+        "npm audit --omit=dev --audit-level=moderate -> found 0 vulnerabilities"
+      ],
+      "lastUpdated": "2026-05-02T19:00:00.000Z"
     }
   ]
 }
