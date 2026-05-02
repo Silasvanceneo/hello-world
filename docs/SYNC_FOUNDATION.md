@@ -13,6 +13,8 @@ real cloud account flow yet.
 - Web settings can persist a sync endpoint and selected scopes locally.
 - Web settings can preview pending local uploads and visible conflicts without
   sending a network request.
+- Web windows coordinate the local storage snapshot so newer browser-tab writes
+  are adopted instead of silently overwritten by stale windows.
 
 ## Local-first rules
 
@@ -28,6 +30,12 @@ The sync planner separates work into:
 Conflicts are never silently overwritten. A caller must explicitly choose
 `keep-local` or `use-remote` through `resolveSyncConflict`.
 
+Within a single browser profile, `apps/web/src/multi-window-sync.js` listens for
+`storage` events on `hello-world:web-state:v1`. Incoming snapshots are accepted
+only when their timestamp revision is newer than the current in-memory state.
+Save operations also check the stored revision immediately before writing, so an
+older window does not overwrite a newer chat snapshot.
+
 ## Security and privacy boundary
 
 - API keys and sync access tokens are not persisted in Web state.
@@ -42,4 +50,7 @@ Conflicts are never silently overwritten. A caller must explicitly choose
   conflict resolution.
 - `tests/web-sync-dashboard.test.mjs` covers Web sync settings sanitization,
   dashboard counts, and stable scope parsing.
+- `tests/web-multi-window-sync.test.mjs` covers cross-window storage adoption,
+  stale event rejection, invalid payload handling, unsubscribe behavior, and
+  stale write protection.
 - `npm run check` must pass before this sprint is considered complete.

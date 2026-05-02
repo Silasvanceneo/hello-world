@@ -271,3 +271,12 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: npm run build:mobile and npm --workspace apps/mobile run android:debug with ANDROID_HOME/ANDROID_SDK_ROOT generated apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk.
 - Android launch smoke remains blocked by local environment: adb devices lists no attached device, no AVD is installed, no emulator.exe is installed, and sdkmanager could not resolve emulator/system-image packages from the SDK repository.
 - Evaluated P1-M4-F003 as explicitly deferred rather than pending: desktop capabilities report tray/global shortcut/keychain as unavailable, native-desktop.js now summarizes those deferred integrations, and docs/NATIVE_INPUTS.md plus docs/DESKTOP.md document the boundary.
+
+## 2026-05-01T17:12:51.000Z
+
+- Started P3-M3 Web multi-window session coordination.
+- Added apps/web/src/multi-window-sync.js for storage-event adoption, stale event rejection, unsubscribe support, and stale write protection.
+- Added top-level Web state updatedAt handling and routed runtime saveState through a last-moment localStorage freshness check.
+- Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/web-state.test.mjs tests/web-multi-window-sync.test.mjs -> tests 18/pass 18/fail 0.
+- Full verification passed: npm run check -> scaffold check passed (132 paths), tests 116/pass 116/fail 0, build:web passed, review passed.
+- Verification passed: git diff --check.

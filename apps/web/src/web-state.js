@@ -1,6 +1,7 @@
 export function createInitialWebState(now = new Date().toISOString()) {
   const session = createSession('session-1', now);
   return {
+    updatedAt: now,
     activeSessionId: session.id,
     activeAgentPresetId: undefined,
     activePromptTemplateId: undefined,
@@ -13,6 +14,10 @@ export function createInitialWebState(now = new Date().toISOString()) {
     syncSettings: normalizeSyncSettings(),
     attachments: [],
   };
+}
+
+export function markWebStateUpdated(state, timestamp = new Date().toISOString()) {
+  return { ...state, updatedAt: timestamp };
 }
 
 export function createSession(id = crypto.randomUUID(), timestamp = new Date().toISOString()) {
@@ -402,6 +407,7 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
       return createInitialWebState(fallbackNow);
     }
     return {
+      updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : latestStateTimestamp(parsed.sessions, fallbackNow),
       activeSessionId: parsed.activeSessionId ?? parsed.sessions[0].id,
       activeAgentPresetId: parsed.activeAgentPresetId,
       activePromptTemplateId: parsed.activePromptTemplateId,
@@ -439,6 +445,14 @@ function defaultProviderName(type) {
 
 function countTokens(text) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+function latestStateTimestamp(sessions, fallbackNow) {
+  const timestamps = sessions.flatMap((session) => [session.createdAt, session.updatedAt, session.deletedAt]);
+  return timestamps
+    .filter((timestamp) => typeof timestamp === 'string' && !Number.isNaN(Date.parse(timestamp)))
+    .sort()
+    .at(-1) ?? fallbackNow;
 }
 
 function normalizeAgentTools(value) {

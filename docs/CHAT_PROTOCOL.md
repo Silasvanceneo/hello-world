@@ -38,3 +38,15 @@ The Web message list uses a windowed view for long conversations. By default it
 renders the most recent messages and shows a local expand control for earlier
 messages. The full `ChatSession.messages` array remains unchanged in state and
 serialization; only the DOM rendering is limited.
+
+## P3-M3 multi-window state coordination
+
+The Web runtime coordinates local chat state across browser windows through the
+`hello-world:web-state:v1` storage key. A window accepts incoming `storage`
+events only when the persisted state has a newer timestamp revision than the
+current in-memory state.
+
+Before writing, the runtime checks local storage again. If another window has
+already saved a newer state, the current window adopts that state instead of
+overwriting it. This is a browser-local guard only; hosted sync and interactive
+merge UI remain outside this sprint.

@@ -798,6 +798,37 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P3-M3",
+      "scope": "Web multi-window session coordination",
+      "dependencies": [
+        "P0-M9",
+        "P2-M5",
+        "P3-M2"
+      ],
+      "doneCriteria": [
+        "Web windows accept newer local storage state from another window",
+        "Stale, unrelated, and invalid storage events are ignored",
+        "Save operations avoid overwriting a newer stored chat snapshot",
+        "Tests, Web build, review, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

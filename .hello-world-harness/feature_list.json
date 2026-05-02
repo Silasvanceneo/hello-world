@@ -1459,6 +1459,62 @@
         "Edge headless UI smoke -> .tmp-tests/message-list-window-ui.png captured a seeded 120-message chat through the windowed message list path"
       ],
       "lastUpdated": "2026-05-01T16:34:00.000Z"
+    },
+    {
+      "id": "P3-M3-F001",
+      "title": "Cross-window local state freshness comparison",
+      "priority": "should",
+      "acceptance": [
+        "Web state carries a top-level updatedAt revision",
+        "Incoming persisted state is accepted only when it is newer than current memory state",
+        "Stale, unrelated, and invalid storage events are ignored"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js adds updatedAt and markWebStateUpdated",
+        "apps/web/src/multi-window-sync.js implements getStateRevision and shouldAcceptIncomingState",
+        "tests/web-multi-window-sync.test.mjs covers newer adoption plus stale/unrelated/invalid event rejection",
+        "npm run check -> scaffold check passed (132 paths), tests 116/pass 116/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-01T17:16:58.000Z"
+    },
+    {
+      "id": "P3-M3-F002",
+      "title": "Runtime multi-window write protection",
+      "priority": "should",
+      "acceptance": [
+        "The Web runtime listens for storage events on hello-world:web-state:v1",
+        "A window rerenders after accepting a newer state from another window",
+        "Save operations adopt a newer stored snapshot instead of overwriting it"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/runtime.js binds bindMultiWindowSync and routes saveState through writeStateAcrossWindows",
+        "tests/web-multi-window-sync.test.mjs covers rerender/status behavior and stale write protection",
+        "npm run check -> scaffold check passed (132 paths), tests 116/pass 116/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-01T17:16:58.000Z"
+    },
+    {
+      "id": "P3-M3-F003",
+      "title": "Multi-window sync documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "The local-only multi-window coordination boundary is documented",
+        "Full check passes",
+        "Diff whitespace check passes"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "docs/CHAT_PROTOCOL.md documents the P3-M3 multi-window state coordination flow",
+        "docs/SYNC_FOUNDATION.md documents local storage event adoption and stale write protection",
+        "npm run check -> scaffold check passed (132 paths), tests 116/pass 116/fail 0, build:web passed, review passed",
+        "git diff --check passed"
+      ],
+      "lastUpdated": "2026-05-01T17:16:58.000Z"
     }
   ]
 }

@@ -13,6 +13,7 @@ import {
   getActiveAgentPreset,
   getActivePromptTemplate,
   getActiveSession,
+  markWebStateUpdated,
   parseState,
   renderPromptTemplateWithVariables,
   saveSyncSettings,
@@ -40,6 +41,7 @@ import { bindSessionOrganizer, createInitialSessionFilters, renderSessionOrganiz
 import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { bindMessageListWindow, renderMessageList } from './message-list.js';
+import { bindMultiWindowSync, writeStateAcrossWindows } from './multi-window-sync.js';
 import { detectLocalOllama } from './native-desktop.js';
 import {
   captureMobilePhoto,
@@ -142,7 +144,15 @@ const elements = {
 };
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, serializeState(state));
+  const result = writeStateAcrossWindows({
+    storageKey: STORAGE_KEY,
+    storage: localStorage,
+    state,
+    parseState,
+    serializeState,
+    markStateUpdated: markWebStateUpdated,
+  });
+  state = result.state;
 }
 
 function render() {
@@ -281,6 +291,15 @@ bindMessageListWindow({
   getSession: () => getActiveSession(state),
   expandSession: (sessionId) => expandedMessageSessions.add(sessionId),
   render,
+});
+
+bindMultiWindowSync({
+  storageKey: STORAGE_KEY,
+  getState: () => state,
+  setState: (nextState) => { state = nextState; },
+  parseState,
+  render,
+  onStatus: (message) => { elements.providerStatus.textContent = message; },
 });
 
 elements.comparisonResults.addEventListener('click', (event) => {
