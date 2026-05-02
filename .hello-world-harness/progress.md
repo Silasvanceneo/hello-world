@@ -334,3 +334,12 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - `.hello-world-harness/sprint_plan.json` currently ends at P3-M6, and no explicit P3-M7/P4 or remaining implementation scope was found in the project plan files.
 - Final verification passed: `npm run check` -> scaffold check passed (134 paths), tests 128/pass 128/fail 0, build:web passed, review passed.
 - Stop condition reached for the current plan: all tracked required and promoted follow-up features are passed, with no unresolved critical defects in the harness state.
+
+## 2026-05-02T06:27:30.142Z
+
+- Fixed a desktop UI launch regression where the Tauri WebView could keep serving the old P0 Web MVP page from stale PWA service worker/cache data.
+- Added `apps/web/src/pwa-runtime.js` so desktop/Tauri shells disable stale PWA caches while normal Web origins still register the service worker.
+- Updated `apps/web/static/sw.js` to v2, clean old caches on activation, and prefer network responses before falling back to cache.
+- Updated the desktop build script to rerun when Web build/source/static assets change, keeping embedded resources current.
+- Verification passed: `npm run check` -> scaffold check passed (136 paths), tests 130/pass 130/fail 0, build:web passed, review passed; `npm run build:desktop` passed.
+- Desktop UI smoke passed after clearing the old local WebView cache: `apps/desktop/src-tauri/target/release/hello-world-desktop.exe` rendered the current three-column application UI instead of the old text-only P0 page.

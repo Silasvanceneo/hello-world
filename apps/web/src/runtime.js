@@ -47,6 +47,7 @@ import { compareProvidersInBrowser, formatComparisonResult } from './model-compa
 import { bindMessageListWindow, renderMessageList } from './message-list.js';
 import { bindMultiWindowSync, writeStateAcrossWindows } from './multi-window-sync.js';
 import { bindDesktopCaptureRequests, detectLocalOllama } from './native-desktop.js';
+import { configureServiceWorker } from './pwa-runtime.js';
 import {
   captureMobilePhoto,
   captureScreenImage,
@@ -593,9 +594,7 @@ bindDesktopCaptureRequests({
   onCaptureRequest: () => attachNativeImage('Desktop shortcut screenshot', captureScreenImage),
 }).catch(() => undefined);
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => undefined);
-}
+configureServiceWorker().catch(() => undefined);
 
 function escapeHtml(value) {
   return String(value)
