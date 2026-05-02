@@ -280,3 +280,12 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/web-state.test.mjs tests/web-multi-window-sync.test.mjs -> tests 18/pass 18/fail 0.
 - Full verification passed: npm run check -> scaffold check passed (132 paths), tests 116/pass 116/fail 0, build:web passed, review passed.
 - Verification passed: git diff --check.
+
+## 2026-05-02T04:06:44.000Z
+
+- Started P3-M4 branch preview and save-as-main flow.
+- Added state helpers for active branch preview and immutable branch promotion.
+- Updated the Web branch dashboard to render Preview and Save as main controls and route active branch previews into the message list.
+- Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/web-state.test.mjs tests/web-branch-dashboard.test.mjs -> tests 17/pass 17/fail 0.
+- Full verification passed: npm run check -> scaffold check passed (132 paths), tests 119/pass 119/fail 0, build:web passed, review passed.
+- Verification passed: git diff --check.

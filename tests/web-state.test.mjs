@@ -19,12 +19,15 @@ import {
   getActivePromptTemplate,
   getActiveSession,
   getSessionBranchView,
+  createSessionMessageView,
   parseState,
+  promoteActiveBranchToMain,
   renderPromptTemplateWithVariables,
   restoreSessionFromTrash,
   saveUsageBudget,
   serializeState,
   setActiveAgentPreset,
+  setActiveSessionBranch,
   setActivePromptTemplate,
   setModelRoutingStrategy,
   moveActiveSessionToTrash,
@@ -214,4 +217,45 @@ test('web state creates a branch from the latest assistant message', () => {
   assert.equal(branch.fromMessageId, 'assistant-1');
   assert.equal(branch.messages[0]?.id, 'branch-last:message');
   assert.deepEqual(branch.messages[0]?.content, [{ type: 'text', text: 'First answer' }]);
+});
+
+test('web state previews a branch timeline without mutating the main messages', () => {
+  let state = createInitialWebState('2026-05-02T05:00:00.000Z');
+  state = addMessageToActiveSession(state, createTextMessage('user', 'Draft', '2026-05-02T05:01:00.000Z', 'user-1'));
+  state = addMessageToActiveSession(state, createTextMessage('assistant', 'Main answer', '2026-05-02T05:02:00.000Z', 'assistant-1'));
+  state = createMessageBranch(state, {
+    fromMessageId: 'assistant-1',
+    title: 'Short option',
+    messages: [createTextMessage('assistant', 'Short answer', '2026-05-02T05:03:00.000Z', 'assistant-branch')],
+  }, '2026-05-02T05:04:00.000Z', 'branch-1');
+  state = setActiveSessionBranch(state, 'branch-1', '2026-05-02T05:05:00.000Z');
+
+  const session = getActiveSession(state);
+  const view = createSessionMessageView(session);
+
+  assert.equal(session.messages[1]?.id, 'assistant-1');
+  assert.deepEqual(view.messages.map((message) => message.id), ['user-1', 'assistant-branch']);
+  assert.equal(view.title, 'Draft / Short option');
+  assert.equal(session.activeBranchId, 'branch-1');
+  assert.equal(session.updatedAt, '2026-05-02T05:05:00.000Z');
+});
+
+test('web state promotes the active branch to the main timeline immutably', () => {
+  let state = createInitialWebState('2026-05-02T05:00:00.000Z');
+  state = addMessageToActiveSession(state, createTextMessage('user', 'Draft', '2026-05-02T05:01:00.000Z', 'user-1'));
+  state = addMessageToActiveSession(state, createTextMessage('assistant', 'Main answer', '2026-05-02T05:02:00.000Z', 'assistant-1'));
+  state = createMessageBranch(state, {
+    fromMessageId: 'assistant-1',
+    title: 'Short option',
+    messages: [createTextMessage('assistant', 'Short answer', '2026-05-02T05:03:00.000Z', 'assistant-branch')],
+  }, '2026-05-02T05:04:00.000Z', 'branch-1');
+  const previewing = setActiveSessionBranch(state, 'branch-1', '2026-05-02T05:05:00.000Z');
+  const promoted = promoteActiveBranchToMain(previewing, '2026-05-02T05:06:00.000Z');
+
+  assert.deepEqual(getActiveSession(previewing).messages.map((message) => message.id), ['user-1', 'assistant-1']);
+  assert.deepEqual(getActiveSession(promoted).messages.map((message) => message.id), ['user-1', 'assistant-branch']);
+  assert.equal(getActiveSession(promoted).activeBranchId, undefined);
+  assert.equal(getActiveSession(promoted).branches.length, 1);
+  assert.equal(getActiveSession(promoted).syncState, 'dirty');
+  assert.equal(getActiveSession(promoted).updatedAt, '2026-05-02T05:06:00.000Z');
 });

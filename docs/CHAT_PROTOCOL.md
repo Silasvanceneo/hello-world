@@ -50,3 +50,14 @@ Before writing, the runtime checks local storage again. If another window has
 already saved a newer state, the current window adopts that state instead of
 overwriting it. This is a browser-local guard only; hosted sync and interactive
 merge UI remain outside this sprint.
+
+## P3-M4 branch preview and promotion
+
+Branches can be previewed as the active message view without mutating the main
+timeline. The preview replaces the source assistant message and following main
+messages with the branch-local messages for rendering only.
+
+When a branch is saved as main, the same derived timeline becomes
+`ChatSession.messages`, the active branch marker is cleared, and the session is
+marked dirty for local-first sync and backup visibility. Branch records are kept
+as local history so the user can still inspect the alternative.

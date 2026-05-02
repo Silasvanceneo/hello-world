@@ -10,6 +10,7 @@ import {
   createProviderFromForm,
   createSession,
   createTextMessage,
+  createSessionMessageView,
   getActiveAgentPreset,
   getActivePromptTemplate,
   getActiveSession,
@@ -157,9 +158,10 @@ function saveState() {
 
 function render() {
   const session = getActiveSession(state) ?? createInitialWebState().sessions[0];
-  elements.sessionTitle.textContent = session.title;
+  const messageView = createSessionMessageView(session);
+  elements.sessionTitle.textContent = messageView.title;
   renderSessionOrganizer({ state, session, filters: sessionFilters, elements });
-  elements.messages.innerHTML = renderMessageList(session, { expanded: expandedMessageSessions.has(session.id) });
+  elements.messages.innerHTML = renderMessageList({ ...session, messages: messageView.messages }, { expanded: expandedMessageSessions.has(session.id) });
   const usage = summarizeUsage(session);
   elements.usageSummary.textContent = `${usage.totalTokens} tokens`;
   elements.attachments.innerHTML = (session.attachments ?? []).map((attachment) => `<span class="attachment-chip">${escapeHtml(attachment.name)}</span>`).join('');

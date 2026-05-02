@@ -185,6 +185,60 @@ export function getSessionBranchView(session) {
   };
 }
 
+export function createSessionMessageView(session) {
+  const branch = (session.branches ?? []).find((item) => item.id === session.activeBranchId);
+  if (!branch) {
+    return {
+      title: session.title,
+      messages: session.messages,
+      activeBranch: undefined,
+    };
+  }
+  return {
+    title: `${session.title} / ${branch.title}`,
+    messages: messagesWithBranch(session.messages, branch),
+    activeBranch: branch,
+  };
+}
+
+export function setActiveSessionBranch(state, branchId, timestamp = new Date().toISOString()) {
+  const active = getActiveSession(state);
+  if (!(active.branches ?? []).some((branch) => branch.id === branchId)) {
+    throw new Error(`Branch not found: ${branchId}`);
+  }
+  return {
+    ...state,
+    sessions: state.sessions.map((session) => session.id === active.id
+      ? {
+        ...session,
+        activeBranchId: branchId,
+        updatedAt: timestamp,
+        syncState: 'dirty',
+      }
+      : session),
+  };
+}
+
+export function promoteActiveBranchToMain(state, timestamp = new Date().toISOString()) {
+  const active = getActiveSession(state);
+  const branch = (active.branches ?? []).find((item) => item.id === active.activeBranchId);
+  if (!branch) {
+    throw new Error('No active branch is available to save as main.');
+  }
+  return {
+    ...state,
+    sessions: state.sessions.map((session) => session.id === active.id
+      ? {
+        ...session,
+        messages: messagesWithBranch(session.messages, branch),
+        activeBranchId: undefined,
+        updatedAt: timestamp,
+        syncState: 'dirty',
+      }
+      : session),
+  };
+}
+
 export function createBranchFromLastAssistant(state, timestamp = new Date().toISOString(), id = crypto.randomUUID()) {
   const active = getActiveSession(state);
   const source = [...active.messages].reverse().find((message) => message.role === 'assistant');
@@ -201,6 +255,14 @@ export function createBranchFromLastAssistant(state, timestamp = new Date().toIS
       updatedAt: timestamp,
     }],
   }, timestamp, id);
+}
+
+function messagesWithBranch(messages, branch) {
+  const sourceIndex = messages.findIndex((message) => message.id === branch.fromMessageId);
+  if (sourceIndex === -1) {
+    return messages;
+  }
+  return [...messages.slice(0, sourceIndex), ...branch.messages];
 }
 
 export function upsertProvider(state, provider) {

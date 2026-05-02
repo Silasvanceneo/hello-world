@@ -1515,6 +1515,64 @@
         "git diff --check passed"
       ],
       "lastUpdated": "2026-05-01T17:16:58.000Z"
+    },
+    {
+      "id": "P3-M4-F001",
+      "title": "Branch preview state model",
+      "priority": "should",
+      "acceptance": [
+        "A session can mark one branch as active",
+        "The active branch can produce a preview message timeline without mutating main messages",
+        "Unknown branch ids are rejected"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js implements setActiveSessionBranch and createSessionMessageView",
+        "tests/web-state.test.mjs covers previewing a branch timeline without mutating main messages",
+        "npm run check -> scaffold check passed (132 paths), tests 119/pass 119/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-02T04:08:43.000Z"
+    },
+    {
+      "id": "P3-M4-F002",
+      "title": "Branch save-as-main flow",
+      "priority": "should",
+      "acceptance": [
+        "The active branch can replace the main timeline immutably",
+        "Promoting a branch clears activeBranchId",
+        "Promotion marks the session dirty for local-first sync and backup visibility"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js implements promoteActiveBranchToMain",
+        "tests/web-state.test.mjs covers immutable branch promotion and dirty-state marking",
+        "npm run check -> scaffold check passed (132 paths), tests 119/pass 119/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-02T04:08:43.000Z"
+    },
+    {
+      "id": "P3-M4-F003",
+      "title": "Web branch controls documentation and verification",
+      "priority": "should",
+      "acceptance": [
+        "The Web branch dashboard exposes Preview and Save as main controls",
+        "Rendered branch ids and labels are escaped",
+        "Branch preview and promotion behavior is documented",
+        "Full check passes"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/branch-dashboard.js renders Preview and Save as main controls and binds them to state updates",
+        "apps/web/src/runtime.js renders messages through createSessionMessageView",
+        "docs/CHAT_PROTOCOL.md documents branch preview and promotion",
+        "tests/web-branch-dashboard.test.mjs covers rendered controls plus preview/promote click binding",
+        "npm run check -> scaffold check passed (132 paths), tests 119/pass 119/fail 0, build:web passed, review passed",
+        "git diff --check passed"
+      ],
+      "lastUpdated": "2026-05-02T04:08:43.000Z"
     }
   ]
 }

@@ -829,6 +829,36 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P3-M4",
+      "scope": "Branch preview and save-as-main flow",
+      "dependencies": [
+        "P3-M1",
+        "P3-M2",
+        "P3-M3"
+      ],
+      "doneCriteria": [
+        "A branch can be previewed as the active message view without mutating the main timeline",
+        "A branch can be promoted into the main session timeline immutably",
+        "The Web branch dashboard exposes Preview and Save as main controls",
+        "Tests, Web build, review, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }
