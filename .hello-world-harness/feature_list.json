@@ -1631,6 +1631,45 @@
         "git diff --check passed"
       ],
       "lastUpdated": "2026-05-02T04:17:16.000Z"
+    },
+    {
+      "id": "P3-M6-F001",
+      "title": "Composer draft runtime extraction",
+      "priority": "should",
+      "acceptance": [
+        "Retry/edit composer draft orchestration lives outside runtime.js",
+        "The extracted module updates state, prompt text, focus, persistence, render, and status consistently",
+        "Producer errors are surfaced without mutating the composer"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/composer-drafts.js extracts bindComposerDraftActions and prepareComposerDraft",
+        "tests/web-composer-drafts.test.mjs covers success, error, and binding behavior",
+        "npm run check -> scaffold check passed (134 paths), tests 126/pass 126/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-02T04:24:02.000Z"
+    },
+    {
+      "id": "P3-M6-F002",
+      "title": "Runtime size guard and build wiring",
+      "priority": "should",
+      "acceptance": [
+        "runtime.js remains below the 800-line review limit",
+        "The static Web build copies composer-drafts.js",
+        "Scaffold verification tracks the new module and test"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/runtime.js delegates message draft actions to bindComposerDraftActions",
+        "scripts/build-web.mjs copies apps/web/src/composer-drafts.js",
+        "scripts/verify-structure.mjs and package.json include tests/web-composer-drafts.test.mjs",
+        "apps/web/src/runtime.js is 779 lines after extraction",
+        "npm run check -> scaffold check passed (134 paths), tests 126/pass 126/fail 0, build:web passed, review passed",
+        "git diff --check passed"
+      ],
+      "lastUpdated": "2026-05-02T04:24:02.000Z"
     }
   ]
 }

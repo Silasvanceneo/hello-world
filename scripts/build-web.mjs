@@ -14,6 +14,7 @@ await cp(join(webRoot, 'src', 'web-state.js'), join(buildDir, 'web-state.js'));
 await cp(join(webRoot, 'src', 'provider-runtime.js'), join(buildDir, 'provider-runtime.js'));
 await cp(join(webRoot, 'src', 'backup-dashboard.js'), join(buildDir, 'backup-dashboard.js'));
 await cp(join(webRoot, 'src', 'branch-dashboard.js'), join(buildDir, 'branch-dashboard.js'));
+await cp(join(webRoot, 'src', 'composer-drafts.js'), join(buildDir, 'composer-drafts.js'));
 await cp(join(webRoot, 'src', 'cost-dashboard.js'), join(buildDir, 'cost-dashboard.js'));
 await cp(join(webRoot, 'src', 'sync-dashboard.js'), join(buildDir, 'sync-dashboard.js'));
 await cp(join(webRoot, 'src', 'session-organizer.js'), join(buildDir, 'session-organizer.js'));

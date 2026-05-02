@@ -38,6 +38,7 @@ import {
   summarizeBackupArchive,
 } from './backup-dashboard.js';
 import { bindBranchDashboard, renderBranchResults } from './branch-dashboard.js';
+import { bindComposerDraftActions } from './composer-drafts.js';
 import { createCostDashboardViewModel, createUsageRecordsFromWebState } from './cost-dashboard.js';
 import { createLocalPreviewPlan, createSyncDashboardViewModel } from './sync-dashboard.js';
 import { bindSessionOrganizer, createInitialSessionFilters, renderSessionOrganizer } from './session-organizer.js';
@@ -294,8 +295,15 @@ bindMessageListWindow({
   elements,
   getSession: () => getActiveSession(state),
   expandSession: (sessionId) => expandedMessageSessions.add(sessionId),
-  editMessage: (messageId) => prepareComposerDraft(() => prepareUserMessageEditDraft(state, messageId), 'Message moved back to the composer for editing.'),
-  retryLastAssistant: () => prepareComposerDraft(() => prepareActiveSessionRetryDraft(state), 'Last turn moved back to the composer for retry.'),
+  ...bindComposerDraftActions({
+    elements,
+    getState: () => state,
+    setState: (nextState) => { state = nextState; },
+    saveState,
+    render,
+    prepareEditDraft: prepareUserMessageEditDraft,
+    prepareRetryDraft: prepareActiveSessionRetryDraft,
+  }),
   render,
 });
 
@@ -626,21 +634,6 @@ function appendPromptText(text) {
   const current = elements.prompt.value.trim();
   elements.prompt.value = current ? `${current}\n${text}` : text;
   elements.prompt.focus();
-}
-
-function prepareComposerDraft(producer, statusMessage) {
-  try {
-    const result = producer();
-    state = result.state;
-    elements.prompt.value = result.draftText;
-    saveState();
-    render();
-    elements.prompt.focus();
-    elements.providerStatus.textContent = statusMessage;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Could not prepare message draft.';
-    elements.providerStatus.textContent = message;
-  }
 }
 
 function findLastAssistantText(session) {

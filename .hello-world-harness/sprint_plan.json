@@ -890,6 +890,35 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P3-M6",
+      "scope": "Runtime composer draft extraction",
+      "dependencies": [
+        "P3-M5"
+      ],
+      "doneCriteria": [
+        "Composer retry/edit draft behavior is extracted from runtime.js into a focused Web module",
+        "The new module is covered by unit tests",
+        "The static Web build copies the new module",
+        "runtime.js remains below the 800-line review limit",
+        "Tests, Web build, review, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

@@ -299,3 +299,13 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Full verification passed: npm run check -> scaffold check passed (132 paths), tests 123/pass 123/fail 0, build:web passed, review passed.
 - Verification passed: git diff --check.
 - Note: apps/web/src/runtime.js is now 786 lines, so future runtime changes should extract behavior into focused modules before adding much more code.
+
+## 2026-05-02T04:22:26.000Z
+
+- Started P3-M6 runtime composer draft extraction to reduce runtime.js pressure before more Web feature work.
+- Added apps/web/src/composer-drafts.js and tests/web-composer-drafts.test.mjs for retry/edit draft orchestration.
+- Wired runtime.js to bindComposerDraftActions and added the new module/test to build and scaffold checks.
+- Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/web-composer-drafts.test.mjs tests/web-message-list.test.mjs tests/web-state.test.mjs -> tests 26/pass 26/fail 0.
+- Full verification passed: npm run check -> scaffold check passed (134 paths), tests 126/pass 126/fail 0, build:web passed, review passed.
+- Verification passed: git diff --check.
+- runtime.js is now 779 lines.
