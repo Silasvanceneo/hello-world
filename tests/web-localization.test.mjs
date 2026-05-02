@@ -3,8 +3,11 @@ import test from 'node:test';
 import { applyTranslations, createTranslator, normalizeLocale } from '../apps/web/src/localization.js';
 import { createCostDashboardViewModel } from '../apps/web/src/cost-dashboard.js';
 import { describeRoutingChoice } from '../apps/web/src/model-routing.js';
+import { writeStateAcrossWindows } from '../apps/web/src/multi-window-sync.js';
 import { createSyncDashboardViewModel } from '../apps/web/src/sync-dashboard.js';
-import { createInitialWebState, parseState, serializeState, setLocale } from '../apps/web/src/web-state.js';
+import { createInitialWebState, markWebStateUpdated, parseState, serializeState, setLocale } from '../apps/web/src/web-state.js';
+
+const STORAGE_KEY = 'hello-world:web-state:v1';
 
 test('localization translates known keys and falls back to English for unknown locales', () => {
   assert.equal(normalizeLocale('zh'), 'zh');
@@ -41,6 +44,69 @@ test('web state persists and normalizes the selected locale', () => {
   assert.equal(restored.locale, 'zh');
   assert.equal(invalid.locale, 'en');
   assert.equal(setLocale(restored, 'en').locale, 'en');
+});
+
+test('locale switching back to English is saved over the previous Chinese state', () => {
+  const storage = createStorage();
+  const initial = markWebStateUpdated(
+    createInitialWebState('2026-05-02T10:00:00.000Z'),
+    '2026-05-02T10:00:01.000Z',
+  );
+  storage.setItem(STORAGE_KEY, serializeState(initial));
+
+  const switchedToChinese = writeStateAcrossWindows({
+    storageKey: STORAGE_KEY,
+    storage,
+    state: setLocale(initial, 'zh', '2026-05-02T10:00:02.000Z'),
+    parseState,
+    serializeState,
+    markStateUpdated: markWebStateUpdated,
+    now: () => '2026-05-02T10:00:03.000Z',
+  }).state;
+  const switchedToEnglish = writeStateAcrossWindows({
+    storageKey: STORAGE_KEY,
+    storage,
+    state: setLocale(switchedToChinese, 'en', '2026-05-02T10:00:04.000Z'),
+    parseState,
+    serializeState,
+    markStateUpdated: markWebStateUpdated,
+    now: () => '2026-05-02T10:00:05.000Z',
+  }).state;
+
+  assert.equal(switchedToEnglish.locale, 'en');
+  assert.equal(parseState(storage.getItem(STORAGE_KEY)).locale, 'en');
+});
+
+test('locale switching remains fresh when toggles happen in the same millisecond', () => {
+  const storage = createStorage();
+  const initial = markWebStateUpdated(
+    createInitialWebState('2026-05-02T10:00:00.000Z'),
+    '2026-05-02T10:00:01.000Z',
+  );
+  storage.setItem(STORAGE_KEY, serializeState(initial));
+
+  const switchedToChinese = writeStateAcrossWindows({
+    storageKey: STORAGE_KEY,
+    storage,
+    state: setLocale(initial, 'zh', '2026-05-02T10:00:02.000Z'),
+    parseState,
+    serializeState,
+    markStateUpdated: markWebStateUpdated,
+    now: () => '2026-05-02T10:00:02.000Z',
+  }).state;
+  const switchedToEnglish = writeStateAcrossWindows({
+    storageKey: STORAGE_KEY,
+    storage,
+    state: setLocale(switchedToChinese, 'en', '2026-05-02T10:00:02.000Z'),
+    parseState,
+    serializeState,
+    markStateUpdated: markWebStateUpdated,
+    now: () => '2026-05-02T10:00:02.000Z',
+  }).state;
+
+  assert.equal(switchedToEnglish.locale, 'en');
+  assert.equal(Date.parse(switchedToEnglish.updatedAt) > Date.parse(switchedToChinese.updatedAt), true);
+  assert.equal(parseState(storage.getItem(STORAGE_KEY)).locale, 'en');
 });
 
 test('localization translates dynamic dashboard summaries', () => {
@@ -101,4 +167,12 @@ function fakeElement({ dataset = {}, childText } = {}) {
     },
   };
   return element;
+}
+
+function createStorage(initial = {}) {
+  const entries = new Map(Object.entries(initial));
+  return {
+    getItem: (key) => entries.get(key) ?? null,
+    setItem: (key, value) => entries.set(key, String(value)),
+  };
 }

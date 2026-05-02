@@ -2033,6 +2033,28 @@
         "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe"
       ],
       "lastUpdated": "2026-05-02T09:41:06.107Z"
+    },
+    {
+      "id": "P4-M9-F001",
+      "title": "Language selector can switch back to English",
+      "priority": "should",
+      "acceptance": [
+        "Switching from English to Chinese persists the Chinese locale",
+        "Switching from Chinese back to English persists the English locale instead of reverting to Chinese",
+        "Rapid same-millisecond language toggles remain newer than the previously saved state",
+        "The fix does not weaken multi-window stale write protection"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js updates locale changes with a monotonic app-level updatedAt timestamp",
+        "tests/web-localization.test.mjs covers Chinese -> English persistence over an existing Chinese state",
+        "tests/web-localization.test.mjs covers same-millisecond rapid language toggles",
+        "node --test --experimental-strip-types --test-isolation=none tests/web-localization.test.mjs tests/web-state.test.mjs tests/web-multi-window-sync.test.mjs -> tests 29/pass 29/fail 0",
+        "npm run check -> tests 143/pass 143/fail 0, build:web passed, review passed",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe"
+      ],
+      "lastUpdated": "2026-05-02T09:58:28.077Z"
     }
   ]
 }

@@ -18,11 +18,14 @@ export function createInitialWebState(now = new Date().toISOString()) {
 }
 
 export function markWebStateUpdated(state, timestamp = new Date().toISOString()) {
-  return { ...state, updatedAt: timestamp };
+  return { ...state, updatedAt: nextStateTimestamp(state.updatedAt, timestamp) };
 }
 
-export function setLocale(state, locale) {
-  return { ...state, locale: normalizeLocale(locale) };
+export function setLocale(state, locale, timestamp = new Date().toISOString()) {
+  const normalized = normalizeLocale(locale);
+  return state.locale === normalized
+    ? state
+    : { ...state, locale: normalized, updatedAt: nextStateTimestamp(state.updatedAt, timestamp) };
 }
 
 export function createSession(id = crypto.randomUUID(), timestamp = new Date().toISOString()) {
@@ -574,6 +577,15 @@ function latestStateTimestamp(sessions, fallbackNow) {
     .filter((timestamp) => typeof timestamp === 'string' && !Number.isNaN(Date.parse(timestamp)))
     .sort()
     .at(-1) ?? fallbackNow;
+}
+
+function nextStateTimestamp(currentTimestamp, requestedTimestamp) {
+  const current = Date.parse(currentTimestamp);
+  const requested = Date.parse(requestedTimestamp);
+  if (!Number.isFinite(current) || !Number.isFinite(requested) || requested > current) {
+    return requestedTimestamp;
+  }
+  return new Date(current + 1).toISOString();
 }
 
 function normalizeAgentTools(value) {

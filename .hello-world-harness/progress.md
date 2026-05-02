@@ -447,3 +447,11 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Updated `apps/desktop/src-tauri/src/main.rs` so the tray uses the app's default window icon, which is generated from `apps/desktop/src-tauri/icons/icon.ico`.
 - Verification passed: `cargo check` in `apps/desktop/src-tauri`.
 - Verification passed: `cargo fmt`, `git diff --check`, and `npm run build:desktop` rebuilt `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`.
+
+## 2026-05-02T09:58:28.077Z
+
+- Completed P4-M9 language toggle persistence fix.
+- Root cause: language changes updated `locale` without advancing `updatedAt`, so the multi-window write guard could treat a switch back to English as stale and keep the previously saved Chinese state.
+- Updated `apps/web/src/web-state.js` so locale changes and state save stamps use a monotonic app-level timestamp.
+- Added regression coverage for Chinese -> English switching and same-millisecond rapid toggles.
+- Verification passed: targeted localization/state/multi-window tests; `npm run check` -> tests 143/pass 143/fail 0, Web build and review passed; `git diff --check`; `npm run build:desktop`.
