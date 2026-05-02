@@ -2010,6 +2010,7 @@
         "npm run check -> scaffold check passed (140 paths), tests 141/pass 141/fail 0, build:web passed, review passed",
         "git diff --check passed with line-ending warnings only",
         "npm run build:web -> Built Web app to apps/web/build",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
         "Static build smoke -> apps/web/build/localization.js exists; apps/web/build/index.html contains language-select; build localization dictionary contains both English and Chinese settings.title entries"
       ],
       "lastUpdated": "2026-05-02T09:15:36.000Z"
