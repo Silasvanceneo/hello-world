@@ -309,3 +309,11 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Full verification passed: npm run check -> scaffold check passed (134 paths), tests 126/pass 126/fail 0, build:web passed, review passed.
 - Verification passed: git diff --check.
 - runtime.js is now 779 lines.
+
+## 2026-05-02T05:20:52.000Z
+
+- Re-ran the P0-M6-F004 Android launch smoke after installing and validating the local emulator stack.
+- Emulator verification passed: `hello_world_api36` launched headless with AEHD, ADB listed `emulator-5554`, and `adb shell getprop sys.boot_completed` returned `1`.
+- Mobile build verification passed: `npm --workspace apps/mobile run android:debug` exited 0 with `ANDROID_HOME` and `ANDROID_SDK_ROOT` set to the local Android SDK; `apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk` was generated.
+- Android launch smoke passed: `adb install -r app-debug.apk` returned `Success`; `adb shell am start -W -n com.helloworld.ai/.MainActivity` returned `Status: ok`, `LaunchState: COLD`, `TotalTime: 1856`; `topResumedActivity` was `com.helloworld.ai/.MainActivity`; `pidof com.helloworld.ai` returned `4919`.
+- Marked P0-M6-F004 as passed. Remaining explicit non-pass work is the deferred P1-M4 desktop tray/global shortcut/keychain integration, which still requires a separate Tauri plugin and permission UI implementation.

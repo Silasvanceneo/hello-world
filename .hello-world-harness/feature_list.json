@@ -332,8 +332,8 @@
         "Windows desktop launches",
         "Android debug APK launches"
       ],
-      "status": "evaluated",
-      "passes": false,
+      "status": "passed",
+      "passes": true,
       "evidence": [
         "npm run check -> scaffold check passed (92 paths), tests 56/pass 56/fail 0, review passed",
         "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
@@ -342,9 +342,11 @@
         "2026-05-01T16:47Z npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
         "2026-05-01T16:47Z Windows desktop launch smoke -> hello-world-desktop.exe started and stayed alive for 5 seconds, then was stopped",
         "2026-05-01T16:47Z npm --workspace apps/mobile run android:debug with ANDROID_HOME/ANDROID_SDK_ROOT -> BUILD SUCCESSFUL and app-debug.apk generated",
-        "Android launch smoke remains blocked: adb devices listed no attached device, no AVD is installed, no emulator.exe is installed, and sdkmanager failed to resolve emulator/system-image packages from the remote repository"
+        "2026-05-02T05:17Z Android emulator launch -> hello_world_api36 registered as emulator-5554 and adb shell getprop sys.boot_completed returned 1",
+        "2026-05-02T05:19Z npm --workspace apps/mobile run android:debug with ANDROID_HOME/ANDROID_SDK_ROOT -> exit 0 and app-debug.apk generated at apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk",
+        "2026-05-02T05:20Z adb install -r app-debug.apk -> Success; adb shell am start -W -n com.helloworld.ai/.MainActivity -> Status: ok, LaunchState: COLD, TotalTime: 1856ms; topResumedActivity com.helloworld.ai/.MainActivity; pidof com.helloworld.ai -> 4919"
       ],
-      "lastUpdated": "2026-05-01T16:47:00.000Z"
+      "lastUpdated": "2026-05-02T05:20:52.000Z"
     },
     {
       "id": "P0-M7-F001",
