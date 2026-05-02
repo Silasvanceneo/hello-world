@@ -18,7 +18,8 @@ Each preset stores:
 - Presets are saved in local Web state and in the shared storage snapshot contract.
 - The active preset's system prompt is prepended to provider messages.
 - The active preset's default model overrides the provider default for normal send.
-- Enabled tools are descriptive defaults only; dangerous tools still remain governed by the security policy.
+- Enabled tools are descriptive defaults only; they do not grant execution permission.
+- Runtime code must evaluate preset tools through `evaluateAgentPresetToolPolicy` before treating any tool as callable.
 - API keys remain runtime-only and are not stored in the preset.
 
 ## Supported tool identifiers
@@ -32,4 +33,4 @@ Each preset stores:
 - `terminal`
 - `code-execution`
 
-The Web form defaults to low-risk local tools. Higher-risk tools require future explicit security confirmation before execution.
+The Web form defaults to low-risk local tools and filters out terminal, code-execution, and stdio MCP entries. Higher-risk tools require future explicit security confirmation before execution.

@@ -102,6 +102,7 @@ const requiredPaths = [
   'tests/web-sync-dashboard.test.mjs',
   'tests/web-backup-dashboard.test.mjs',
   'tests/native-desktop.test.mjs',
+  'tests/desktop-command-allowlist.test.mjs',
   'tests/native-media.test.mjs',
   'tests/native-voice.test.mjs',
   'tests/knowledge-base.test.ts',

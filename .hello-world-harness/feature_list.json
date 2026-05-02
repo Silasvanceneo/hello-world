@@ -2055,6 +2055,47 @@
         "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe"
       ],
       "lastUpdated": "2026-05-02T09:58:28.077Z"
+    },
+    {
+      "id": "P4-M10-F001",
+      "title": "Terminal and tool execution security hardening",
+      "priority": "must",
+      "acceptance": [
+        "Critical terminal, code execution, and network proxy capabilities remain blocked even if current advanced toggles are enabled",
+        "Agent preset enabledTools are treated as descriptive preferences rather than executable grants",
+        "The Web agent form filters out terminal, code-execution, and stdio MCP entries",
+        "The Desktop Tauri command allowlist exposes no shell, terminal, process spawn, or arbitrary command endpoint"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "packages/core/src/agent/agent-preset.ts maps preset tools through evaluateAgentPresetToolPolicy before execution decisions",
+        "tests/security-policy.test.ts covers critical tools staying blocked under permissive current settings",
+        "tests/agent-presets.test.ts covers terminal/code-execution/stdio-mcp preset tools being denied by policy",
+        "tests/web-state.test.mjs covers the Web agent form excluding dangerous execution tools",
+        "tests/desktop-command-allowlist.test.mjs verifies the Tauri command allowlist contains only native capability, Ollama probe, and keychain commands"
+      ],
+      "lastUpdated": "2026-05-02T10:15:00.000Z"
+    },
+    {
+      "id": "P4-M10-F002",
+      "title": "Final security and build verification",
+      "priority": "must",
+      "acceptance": [
+        "Full project check passes with the added security regression tests",
+        "Desktop release executable rebuilds successfully",
+        "Secret review and dependency audit pass",
+        "No source runtime path exposes terminal or shell process execution"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (141 paths), tests 148/pass 148/fail 0, build:web passed, review passed",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm audit --omit=dev --audit-level=moderate -> found 0 vulnerabilities",
+        "Runtime source scans found no std::process, Command::new, child_process, execFile, spawnSync, process.spawn, powershell, or cmd.exe process execution path"
+      ],
+      "lastUpdated": "2026-05-02T10:15:00.000Z"
     }
   ]
 }

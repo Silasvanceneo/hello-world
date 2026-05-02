@@ -4,6 +4,7 @@ import {
   buildAgentRuntimeMessages,
   createAgentPreset,
   deleteAgentPreset,
+  evaluateAgentPresetToolPolicy,
   upsertAgentPreset,
 } from '../packages/core/src/agent/agent-preset.ts';
 import type { ChatMessage } from '@hello-world/shared';
@@ -60,4 +61,21 @@ test('agent runtime messages prepend the system prompt without mutating chat his
     { role: 'user', content: 'Explain entropy.' },
   ]);
   assert.equal(message.content[0].type, 'text');
+});
+
+test('agent preset tools are descriptive and still require execution policy checks', () => {
+  const preset = createAgentPreset({
+    name: 'Operator',
+    systemPrompt: 'Help with local work.',
+    enabledTools: ['file-attachments', 'http-mcp', 'terminal', 'code-execution', 'stdio-mcp'],
+  }, { id: 'agent-1', now: () => now });
+
+  const policies = evaluateAgentPresetToolPolicy(preset);
+
+  assert.deepEqual(preset.enabledTools, ['file-attachments', 'http-mcp', 'terminal', 'code-execution', 'stdio-mcp']);
+  assert.equal(policies.find((item) => item.toolId === 'file-attachments')?.policy.allowed, true);
+  assert.equal(policies.find((item) => item.toolId === 'http-mcp')?.policy.requiresConfirmation, true);
+  assert.equal(policies.find((item) => item.toolId === 'stdio-mcp')?.policy.allowed, false);
+  assert.equal(policies.find((item) => item.toolId === 'terminal')?.policy.allowed, false);
+  assert.equal(policies.find((item) => item.toolId === 'code-execution')?.policy.allowed, false);
 });

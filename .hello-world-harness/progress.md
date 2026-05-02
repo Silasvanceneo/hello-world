@@ -455,3 +455,14 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Updated `apps/web/src/web-state.js` so locale changes and state save stamps use a monotonic app-level timestamp.
 - Added regression coverage for Chinese -> English switching and same-millisecond rapid toggles.
 - Verification passed: targeted localization/state/multi-window tests; `npm run check` -> tests 143/pass 143/fail 0, Web build and review passed; `git diff --check`; `npm run build:desktop`.
+
+## 2026-05-02T10:15:00.000Z
+
+- Completed P4-M10 final security hardening and terminal execution audit.
+- Current answer to "can it really call the terminal": no. The Desktop Tauri allowlist exposes capability reporting, local Ollama port probing, and provider keychain commands only; there is no terminal/shell/process execution command.
+- Added `evaluateAgentPresetToolPolicy` so agent preset tool identifiers are explicit descriptive inputs to the shared security policy, not executable grants.
+- Added regression coverage for critical tools staying blocked under current permissive settings, preset terminal/code-execution/stdio-mcp tools being denied, Web agent form filtering dangerous tools, and the Desktop Tauri command allowlist containing no shell/process endpoint.
+- Verification passed: `npm run check` -> scaffold check passed (141 paths), tests 148/pass 148/fail 0, build:web passed, review passed.
+- Verification passed: `npm run build:desktop` rebuilt `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`.
+- Verification passed: `npm audit --omit=dev --audit-level=moderate` -> found 0 vulnerabilities.
+- Static runtime execution scans found no `std::process`, `Command::new`, `child_process`, `execFile`, `spawnSync`, `process.spawn`, `powershell`, or `cmd.exe` process execution path in source runtime areas.

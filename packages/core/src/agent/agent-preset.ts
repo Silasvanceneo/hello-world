@@ -1,4 +1,5 @@
-import type { AgentPreset, AgentPresetDraft, AgentToolId, ChatMessage } from '@hello-world/shared';
+import type { AgentPreset, AgentPresetDraft, AgentToolId, ChatMessage, SecuritySettings, ToolCapability, ToolInvocationPolicy } from '@hello-world/shared';
+import { defaultSecuritySettings, evaluateToolInvocation } from '../security/security-policy.ts';
 
 export type AgentToolRisk = 'low' | 'medium' | 'high' | 'critical';
 
@@ -11,6 +12,12 @@ export type AgentToolDefinition = {
 export type AgentPresetRuntimeMessage = {
   role: ChatMessage['role'];
   content: string;
+};
+
+export type AgentToolPolicy = {
+  toolId: AgentToolId;
+  capabilities: ToolCapability[];
+  policy: ToolInvocationPolicy;
 };
 
 export type CreateAgentPresetOptions = {
@@ -77,6 +84,38 @@ export function buildAgentRuntimeMessages(
     return conversation;
   }
   return [{ role: 'system', content: preset.systemPrompt.trim() }, ...conversation];
+}
+
+export function evaluateAgentPresetToolPolicy(
+  preset: Pick<AgentPreset, 'enabledTools'>,
+  settings: SecuritySettings = defaultSecuritySettings,
+): AgentToolPolicy[] {
+  return preset.enabledTools.map((toolId) => {
+    const capabilities = getAgentToolCapabilities(toolId);
+    return {
+      toolId,
+      capabilities,
+      policy: evaluateToolInvocation(capabilities, settings),
+    };
+  });
+}
+
+export function getAgentToolCapabilities(toolId: AgentToolId): ToolCapability[] {
+  switch (toolId) {
+    case 'http-mcp':
+      return ['http_api'];
+    case 'stdio-mcp':
+      return ['stdio_mcp'];
+    case 'terminal':
+      return ['terminal'];
+    case 'code-execution':
+      return ['code_execution'];
+    case 'file-attachments':
+    case 'vision-input':
+    case 'voice-io':
+    case 'model-comparison':
+      return ['read_only'];
+  }
 }
 
 export function describeAgentPreset(preset: AgentPreset): string {

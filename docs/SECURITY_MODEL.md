@@ -18,6 +18,9 @@ Dangerous capabilities are disabled by default:
 - Medium-risk tools require confirmation.
 - High-risk tools require confirmation when their capability is enabled.
 - Critical terminal/code/network-proxy tools are blocked by default.
+- Critical tools remain blocked even if the current advanced toggles are manually enabled; enabling them requires a future explicit policy change.
+- Agent preset `enabledTools` values are descriptive preferences only. They are mapped through `evaluateAgentPresetToolPolicy` before any execution decision.
+- The current Desktop Tauri allowlist exposes only capability reporting, local Ollama port detection, provider secret storage, provider secret read, and provider secret deletion. It does not expose a terminal, shell, process spawn, or arbitrary command endpoint.
 - Secret redaction is available for text and structured objects.
 
 ## Tool risk levels

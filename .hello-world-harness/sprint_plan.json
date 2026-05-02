@@ -1147,6 +1147,40 @@
         "Record verification evidence",
         "Create git checkpoint when verification passes"
       ]
+    },
+    {
+      "id": "P4-M10",
+      "scope": "Final security hardening and terminal execution audit",
+      "dependencies": [
+        "P4-M9"
+      ],
+      "doneCriteria": [
+        "Critical terminal, code execution, and network proxy tools remain blocked by policy under current settings",
+        "Agent preset tool identifiers are mapped through the shared security policy before any execution decision",
+        "The Web agent form cannot persist terminal, code-execution, or stdio MCP entries",
+        "The Desktop Tauri command allowlist contains no shell, terminal, process spawn, or arbitrary command endpoint",
+        "Full check, desktop build, dependency audit, secret review, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "packages/core/src/agent/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "node --test --experimental-strip-types --test-isolation=none tests/security-policy.test.ts tests/agent-presets.test.ts tests/web-state.test.mjs tests/desktop-command-allowlist.test.mjs",
+        "npm run check",
+        "npm run build:desktop",
+        "npm audit --omit=dev --audit-level=moderate",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record whether terminal execution is actually exposed",
+        "Create git checkpoint when verification passes"
+      ]
     }
   ]
 }

@@ -90,6 +90,16 @@ test('web state stores active agent presets and prepends system prompts for prov
   assert.equal(providerMessages[1].content, 'Summarize this');
 });
 
+test('web state agent form excludes dangerous execution tools', () => {
+  const preset = createAgentPresetFromForm({
+    name: 'Safe agent',
+    systemPrompt: 'Stay local.',
+    enabledTools: 'file-attachments, terminal, code-execution, stdio-mcp, http-mcp',
+  }, '2026-05-02T10:05:00.000Z', 'agent-safe');
+
+  assert.deepEqual(preset.enabledTools, ['file-attachments', 'http-mcp']);
+});
+
 test('web state stores prompt templates and renders variables for the composer', () => {
   let state = createInitialWebState('2026-04-30T00:00:00.000Z');
   const template = createPromptTemplateFromForm({

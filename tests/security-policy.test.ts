@@ -22,6 +22,25 @@ test('tool risk classification and policy enforce confirmation or blocking', () 
   assert.equal(evaluateToolInvocation(['stdio_mcp']).allowed, false);
 });
 
+test('critical capabilities stay blocked even when advanced toggles are enabled', () => {
+  const permissiveSettings = {
+    terminalEnabled: true,
+    codeExecutionEnabled: true,
+    stdioMcpEnabled: true,
+    broadFilesystemEnabled: true,
+    requireConfirmationForHighRisk: false,
+  };
+
+  assert.deepEqual(evaluateToolInvocation(['terminal'], permissiveSettings), {
+    allowed: false,
+    requiresConfirmation: false,
+    risk: 'critical',
+    reason: 'Critical tools are blocked unless a future explicit advanced policy enables them.',
+  });
+  assert.equal(evaluateToolInvocation(['read_only', 'code_execution'], permissiveSettings).allowed, false);
+  assert.equal(evaluateToolInvocation(['http_api', 'network_proxy'], permissiveSettings).allowed, false);
+});
+
 test('redaction removes secrets from text and objects', () => {
   const syntheticKeyFixture = `sk-${'1234567890'}`;
   assert.equal(redactSensitiveText(`${'api_key'}=abc123 authorization: bearer token-123 ${syntheticKeyFixture}`), 'api_key=???? authorization: bearer ???? sk-????');
