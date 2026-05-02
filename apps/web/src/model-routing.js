@@ -40,7 +40,7 @@ export function describeRoutingChoice(choice, { t = defaultT } = {}) {
 
 function scoreProvider(provider, strategy, task, index) {
   const modelId = provider.defaultModelId ?? defaultModel(provider.type);
-  if (!supportsTask(modelId, task)) return undefined;
+  if (!supportsTask(provider, modelId, task)) return undefined;
   const reasons = [];
   let score = 100 - index;
   if (strategy === 'cheap') score += cheapScore(provider, modelId, reasons);
@@ -98,10 +98,14 @@ function privacyScore(provider, reasons) {
   return 0;
 }
 
-function supportsTask(modelId, task) {
+function supportsTask(provider, modelId, task) {
   const name = modelId.toLowerCase();
   if (task === 'vision') return ['gpt-4o', 'vision', 'llava', 'qwen-vl'].some((item) => name.includes(item));
   if (task === 'reasoning') return ['reasoning', 'deepseek-r1', 'o3', 'o4'].some((item) => name.includes(item));
+  if (task === 'image-generation') {
+    return ['openai', 'openai-compatible', 'azure-openai'].includes(provider.type)
+      || ['image', 'dall-e'].some((item) => name.includes(item));
+  }
   return true;
 }
 

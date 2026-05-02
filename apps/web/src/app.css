@@ -753,6 +753,26 @@ label {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+.message-images {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.message-images img {
+  display: block;
+  width: min(100%, 420px);
+  max-height: 520px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  object-fit: contain;
+}
+.message-usage {
+  margin-top: 9px !important;
+  color: var(--ink-muted);
+  font-family: var(--mono);
+  font-size: 11px;
+}
 .message .secondary-button {
   min-height: 28px;
   margin-top: 10px;
@@ -847,7 +867,7 @@ label {
 }
 .composer-actions {
   display: grid;
-  grid-template-columns: minmax(108px, 1.3fr) repeat(3, minmax(88px, 1fr));
+  grid-template-columns: minmax(108px, 1.3fr) repeat(4, minmax(88px, 1fr));
   align-items: stretch;
   width: 100%;
 }

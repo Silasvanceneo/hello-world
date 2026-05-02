@@ -11,6 +11,8 @@ import {
   createSession,
   createTextMessage,
   createSessionMessageView,
+  estimateImageTokenUsage,
+  estimateTokenUsageFromMessages,
   getActiveAgentPreset,
   getActivePromptTemplate,
   getActiveSession,
@@ -72,7 +74,7 @@ import {
 import { listenForSpeech, speakText } from './native-voice.js';
 import { describeModelList, describeProviderValidationError } from './provider-diagnostics.js';
 import { applyProviderPresetToFields, renderProviderPresetOptions } from './provider-presets.js';
-import { defaultModel, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
+import { defaultImageModel, defaultModel, generateImageInBrowser, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
 
 const STORAGE_KEY = 'hello-world:web-state:v1';
 const providerSecrets = new Map();
@@ -116,6 +118,7 @@ const elements = {
   capturePhoto: document.querySelector('#capture-photo'),
   captureScreen: document.querySelector('#capture-screen'),
   fileInput: document.querySelector('#file-input'),
+  generateImage: document.querySelector('#generate-image'),
   languageSelect: document.querySelector('#language-select'),
   messages: document.querySelector('#messages'),
   newSession: document.querySelector('#new-session'),
@@ -132,6 +135,7 @@ const elements = {
   promptTemplateVariables: document.querySelector('#prompt-template-variables'),
   providerBaseUrl: document.querySelector('#provider-base-url'),
   detectLocalOllama: document.querySelector('#detect-local-ollama'),
+  providerImageModel: document.querySelector('#provider-image-model'),
   providerModel: document.querySelector('#provider-model'),
   providerModelOptions: document.querySelector('#provider-model-options'),
   providerName: document.querySelector('#provider-name'),
@@ -241,6 +245,11 @@ function render() {
   const provider = state.providers[0];
   elements.providerPreset.innerHTML = renderProviderPresetOptions({ t });
   elements.providerPreset.value = '';
+  elements.providerName.value = provider?.name ?? '';
+  elements.providerType.value = provider?.type ?? 'openai-compatible';
+  elements.providerBaseUrl.value = provider?.baseUrl ?? '';
+  elements.providerModel.value = provider?.defaultModelId ?? '';
+  elements.providerImageModel.value = provider?.imageModelId ?? defaultImageModel(provider?.type) ?? '';
   elements.providerStatus.textContent = provider
     ? t('provider.saved', { name: provider.name, model: provider.defaultModelId ?? defaultModel(provider.type) })
     : t('provider.localEcho');
@@ -298,19 +307,29 @@ elements.composer.addEventListener('submit', async (event) => {
   activeAbortController = new AbortController();
   elements.stopGeneration.disabled = false;
   let streamedText = '';
+  let streamedUsage;
+  const providerMessages = createProviderMessagesForActiveAgent(state, getActiveSession(state));
+  const modelId = getActiveAgentPreset(state)?.defaultModelId ?? routeChoice.modelId ?? provider.defaultModelId ?? defaultModel(provider.type);
   try {
     streamedText = await streamChatInBrowser({
       provider,
-      modelId: getActiveAgentPreset(state)?.defaultModelId ?? routeChoice.modelId ?? provider.defaultModelId ?? defaultModel(provider.type),
+      modelId,
       apiKey: providerSecrets.get(provider.id),
       signal: activeAbortController.signal,
       fetch: desktopProviderFetch,
-      messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
+      messages: providerMessages,
       onDelta: (_delta, fullText) => {
         elements.providerStatus.textContent = t('status.streaming', { count: fullText.length });
       },
+      onUsage: (usage) => {
+        streamedUsage = usage;
+      },
     });
-    state = addMessageToActiveSession(state, createTextMessage('assistant', streamedText || t('status.emptyResponse')));
+    state = addMessageToActiveSession(state, {
+      ...createTextMessage('assistant', streamedText || t('status.emptyResponse')),
+      modelId,
+      usage: streamedUsage ?? estimateTokenUsageFromMessages(providerMessages, streamedText),
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : t('status.unknownProviderError');
     state = addMessageToActiveSession(state, createTextMessage('assistant', t('status.providerError', { message })));
@@ -324,6 +343,65 @@ elements.composer.addEventListener('submit', async (event) => {
 
 elements.stopGeneration.addEventListener('click', () => {
   activeAbortController?.abort();
+});
+
+elements.generateImage.addEventListener('click', async () => {
+  const text = elements.prompt.value.trim();
+  if (!text || activeAbortController) {
+    elements.providerStatus.textContent = t('status.typePromptImage');
+    return;
+  }
+  const routeChoice = chooseProviderForRouting(state.providers, {
+    strategy: state.routingStrategy ?? 'balanced',
+    task: 'image-generation',
+  });
+  const provider = routeChoice?.provider;
+  if (!provider) {
+    elements.providerStatus.textContent = t('status.saveProviderImage');
+    return;
+  }
+
+  const imageModelId = provider.imageModelId ?? defaultImageModel(provider.type);
+  if (!imageModelId) {
+    elements.providerStatus.textContent = t('status.imageProviderUnsupported', { type: provider.type });
+    return;
+  }
+
+  state = addMessageToActiveSession(state, createTextMessage('user', text));
+  elements.prompt.value = '';
+  saveState();
+  render();
+
+  activeAbortController = new AbortController();
+  elements.stopGeneration.disabled = false;
+  elements.generateImage.disabled = true;
+  elements.providerStatus.textContent = t('status.imageGenerating', { model: imageModelId });
+  try {
+    const result = await generateImageInBrowser({
+      provider,
+      modelId: imageModelId,
+      prompt: text,
+      apiKey: providerSecrets.get(provider.id),
+      signal: activeAbortController.signal,
+      fetch: desktopProviderFetch,
+    });
+    state = addGeneratedImageResultToActiveSession(state, {
+      prompt: text,
+      providerId: provider.id,
+      modelId: imageModelId,
+      result,
+    });
+    elements.providerStatus.textContent = t('status.imageGenerated', { count: result.images.length });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : t('status.unknownProviderError');
+    state = addMessageToActiveSession(state, createTextMessage('assistant', t('status.imageGenerationFailed', { message })));
+  } finally {
+    activeAbortController = undefined;
+    elements.stopGeneration.disabled = true;
+    elements.generateImage.disabled = false;
+    saveState();
+    render();
+  }
 });
 
 elements.languageSelect.addEventListener('change', () => {
@@ -827,13 +905,17 @@ async function attachNativeImage(name, producer) {
 }
 
 function createProviderDraftFromInputs(id) {
-  return createProviderFromForm({
+  const provider = createProviderFromForm({
     name: elements.providerName.value,
     type: elements.providerType.value,
     baseUrl: elements.providerBaseUrl.value,
     modelId: elements.providerModel.value,
     apiKey: elements.providerApiKey.value,
   }, new Date().toISOString(), id);
+  return {
+    ...provider,
+    imageModelId: elements.providerImageModel.value.trim() || undefined,
+  };
 }
 
 function rememberProviderSecret(provider) {
@@ -862,6 +944,54 @@ function appendPromptText(text) {
   const current = elements.prompt.value.trim();
   elements.prompt.value = current ? `${current}\n${text}` : text;
   elements.prompt.focus();
+}
+
+function addGeneratedImageResultToActiveSession(currentState, { prompt, providerId, modelId, result }) {
+  const timestamp = new Date().toISOString();
+  const imageContents = [];
+  let nextState = currentState;
+  for (const [index, image] of result.images.entries()) {
+    const attachment = createGeneratedImageAttachment(image, {
+      index,
+      timestamp,
+      id: crypto.randomUUID(),
+    });
+    nextState = addAttachmentToActiveSession(nextState, attachment);
+    imageContents.push({ type: 'image', fileId: attachment.id, mimeType: attachment.mimeType });
+  }
+  return addMessageToActiveSession(nextState, {
+    id: crypto.randomUUID(),
+    role: 'assistant',
+    content: [
+      { type: 'text', text: generatedImageMessageText(prompt, result) },
+      ...imageContents,
+    ],
+    providerId,
+    modelId,
+    usage: result.usage ?? estimateImageTokenUsage(prompt, result.images.length),
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+}
+
+function createGeneratedImageAttachment(image, { index, timestamp, id }) {
+  return {
+    id,
+    kind: 'image',
+    name: `generated-image-${index + 1}.png`,
+    mimeType: image.mimeType ?? 'image/png',
+    sizeBytes: image.dataUrl ? Math.round((image.dataUrl.length * 3) / 4) : 0,
+    dataUrl: image.dataUrl,
+    url: image.url,
+    createdAt: timestamp,
+  };
+}
+
+function generatedImageMessageText(prompt, result) {
+  const revisedPrompt = result.images.find((image) => image.revisedPrompt)?.revisedPrompt;
+  return revisedPrompt
+    ? `${t('image.generatedFor', { prompt })}\n${t('image.revisedPrompt', { prompt: revisedPrompt })}`
+    : t('image.generatedFor', { prompt });
 }
 
 function findLastAssistantText(session) {

@@ -116,6 +116,7 @@
               <textarea id="prompt" rows="3" placeholder="Message hello-world..." aria-label="Message" data-i18n-placeholder="composer.placeholder" data-i18n-aria-label="composer.message"></textarea>
               <div class="composer-actions">
                 <button class="primary-button" type="submit"><span data-i18n="composer.send">Send</span> <span aria-hidden="true">&rarr;</span></button>
+                <button id="generate-image" class="secondary-button" type="button" data-i18n="composer.generateImage">Generate image</button>
                 <button id="branch-last" class="secondary-button" type="button" data-i18n="composer.branchLast">Branch last</button>
                 <button id="compare-models" class="secondary-button" type="button" data-i18n="composer.compare">Compare</button>
                 <button id="stop-generation" class="secondary-button" type="button" disabled data-i18n="composer.stop">Stop</button>
@@ -178,6 +179,7 @@
           </label>
           <label data-i18n-label="field.baseUrl">Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>
           <label data-i18n-label="field.model">Model<input id="provider-model" list="provider-model-options" placeholder="gpt-4.1-mini or llama3.2" data-i18n-placeholder="provider.modelPlaceholder" /></label>
+          <label data-i18n-label="field.imageModel">Image model<input id="provider-image-model" placeholder="gpt-image-1.5" data-i18n-placeholder="provider.imageModelPlaceholder" /></label>
           <datalist id="provider-model-options"></datalist>
           <label data-i18n-label="field.apiKey">API key<input id="provider-api-key" type="password" placeholder="Runtime only; not persisted" data-i18n-placeholder="provider.keyPlaceholder" /></label>
           <div class="panel-actions">

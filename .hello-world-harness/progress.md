@@ -603,3 +603,10 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Added `tests/web-advanced-settings.test.mjs` and registered it in the full test command and scaffold check.
 - Verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-advanced-settings.test.mjs tests/web-state.test.mjs tests/web-localization.test.mjs` -> tests 28/pass 28/fail 0.
 - Full verification passed: `npm run check` -> scaffold check passed (179 paths), tests 215/pass 215/fail 0, build:web passed, review passed.
+
+## 2026-05-02T21:15:00.000Z
+
+- Started the follow-up gap fix for token statistics and image generation.
+- Provider chat messages now persist `usage` either from provider stream usage chunks or a local token estimate, so the topbar, message bubble, and Cost panel can update after normal cloud responses.
+- Added an OpenAI/OpenAI-compatible image generation path through `/images/generations`, a Provider Image model field, a composer Generate image action, generated-image message rendering, and local attachment storage for generated outputs.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-model-routing.test.mjs tests/web-provider-runtime.test.mjs tests/web-message-list.test.mjs tests/web-state.test.mjs` -> tests 39/pass 39/fail 0.

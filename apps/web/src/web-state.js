@@ -459,6 +459,29 @@ export function createAssistantEchoMessage(text, timestamp = new Date().toISOStr
   };
 }
 
+export function estimateTokenUsageFromMessages(messages, completionText = '') {
+  const promptTokens = (messages ?? []).reduce(
+    (total, message) => total + countTokens(message.content ?? ''),
+    0,
+  );
+  const completionTokens = countTokens(completionText);
+  return {
+    promptTokens,
+    completionTokens,
+    totalTokens: promptTokens + completionTokens,
+  };
+}
+
+export function estimateImageTokenUsage(prompt, imageCount = 1) {
+  const promptTokens = countTokens(prompt);
+  const completionTokens = Math.max(1, Number(imageCount) || 1);
+  return {
+    promptTokens,
+    completionTokens,
+    totalTokens: promptTokens + completionTokens,
+  };
+}
+
 export function prepareActiveSessionRetryDraft(state, timestamp = new Date().toISOString()) {
   const active = getActiveSession(state);
   const lastAssistantIndex = findLastMessageIndex(active.messages, (message) => message.role === 'assistant');
@@ -520,6 +543,7 @@ export function createProviderFromForm({ name, type, baseUrl, modelId, apiKey },
     name: trimmedName,
     baseUrl: baseUrl.trim() || undefined,
     defaultModelId: modelId?.trim() || undefined,
+    imageModelId: undefined,
     apiKeyRef: apiKey ? `local:${id}` : undefined,
     enabled: true,
     createdAt: timestamp,
@@ -591,8 +615,18 @@ function defaultProviderName(type) {
   return 'OpenAI-compatible';
 }
 
-function countTokens(text) {
-  return text.trim() ? text.trim().split(/\s+/).length : 0;
+export function countTokens(text) {
+  const normalized = String(text ?? '').trim();
+  if (!normalized) {
+    return 0;
+  }
+  const latinWords = normalized.match(/[A-Za-z0-9_]+(?:[-'][A-Za-z0-9_]+)*/g) ?? [];
+  const cjkChars = normalized.match(/[\u3400-\u9fff\uf900-\ufaff]/g) ?? [];
+  const otherRuns = normalized
+    .replace(/[A-Za-z0-9_]+(?:[-'][A-Za-z0-9_]+)*/g, ' ')
+    .replace(/[\u3400-\u9fff\uf900-\ufaff]/g, ' ')
+    .match(/\S+/g) ?? [];
+  return latinWords.length + cjkChars.length + otherRuns.length;
 }
 
 function latestStateTimestamp(sessions, fallbackNow) {

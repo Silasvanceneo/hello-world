@@ -28,14 +28,14 @@ Adapters now expose `ProviderRuntimeCapabilities` so the registry can describe p
 
 Current v2 baseline:
 
-- OpenAI-compatible adapters advertise HTTPS, CORS-dependent browser access, model listing, and streaming chat.
+- OpenAI-compatible adapters advertise HTTPS, CORS-dependent browser access, model listing, streaming chat, and OpenAI-compatible image generation.
 - OpenAI uses the native Responses API shape: `/responses` streaming with `response.output_text.delta` events.
 - Anthropic uses the native Messages API shape: `/messages`, `x-api-key`, `anthropic-version`, and `content_block_delta` text deltas.
 - Gemini uses native `streamGenerateContent?alt=sse` with `x-goog-api-key` and candidate part text extraction.
-- Azure OpenAI uses deployment-scoped `/openai/deployments/{deployment}/chat/completions?api-version=...` with `api-key`.
+- Azure OpenAI uses deployment-scoped `/openai/deployments/{deployment}/chat/completions?api-version=...` with `api-key` and advertises deployment-scoped image generation.
 - DashScope native uses `/services/aigc/text-generation/generation`, `x-dashscope-sse: enable`, and Bearer runtime auth.
 - Ollama advertises local HTTP, browser-direct support, model listing, and streaming chat.
-- Embeddings, image generation, audio, and tool-call support remain capability descriptors until dedicated non-chat paths are implemented and tested.
+- Image generation now has a Web runtime path for OpenAI, Azure OpenAI, and OpenAI-compatible `/images/generations` endpoints. Embeddings, audio, and provider tool-call execution remain capability descriptors until dedicated non-chat paths are implemented and tested.
 
 All provider API keys remain runtime-only. `ProviderConnection` persists only `apiKeyRef`, and backup export strips that reference.
 

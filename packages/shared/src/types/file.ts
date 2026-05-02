@@ -14,6 +14,7 @@ export type ChatFileAttachment = {
   text?: string;
   pageTexts?: FilePageText[];
   dataUrl?: string;
+  url?: string;
   createdAt: string;
 };
 

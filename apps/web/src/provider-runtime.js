@@ -33,6 +33,16 @@ export function defaultModel(type) {
   return 'gpt-4.1-mini';
 }
 
+export function defaultImageModel(type) {
+  if (type === 'openai') {
+    return 'gpt-image-1.5';
+  }
+  if (type === 'openai-compatible' || type === 'azure-openai') {
+    return 'gpt-image-1';
+  }
+  return undefined;
+}
+
 export function nativeProviderKind(type) {
   if (type === 'openai') return 'openai-responses';
   if (type === 'anthropic') return 'anthropic-messages';
@@ -63,7 +73,7 @@ export async function validateProviderInBrowser(provider, runtime = {}) {
   return modelIdsFromValidationBody(kind, body);
 }
 
-export async function streamChatInBrowser({ provider, modelId, messages, apiKey, signal, onDelta, fetch: fetchOverride }) {
+export async function streamChatInBrowser({ provider, modelId, messages, apiKey, signal, onDelta, onUsage, fetch: fetchOverride }) {
   const fetchImpl = fetchOverride ?? fetch;
   const kind = nativeProviderKind(provider.type);
   const response = await fetchImpl(chatEndpoint(provider, kind, modelId || defaultModel(provider.type)), {
@@ -77,19 +87,53 @@ export async function streamChatInBrowser({ provider, modelId, messages, apiKey,
   }
 
   let fullText = '';
+  let usage;
   for await (const chunk of parseProviderBrowserStream(kind, response.body)) {
     if (chunk.type === 'text-delta') {
       fullText += chunk.text;
       onDelta?.(chunk.text, fullText);
     }
+    if (chunk.type === 'usage') {
+      usage = mergeUsage(usage, chunk.usage);
+      onUsage?.(usage);
+    }
   }
   return fullText;
+}
+
+export async function generateImageInBrowser({
+  provider,
+  modelId,
+  prompt,
+  apiKey,
+  size = '1024x1024',
+  signal,
+  fetch: fetchOverride,
+}) {
+  const fetchImpl = fetchOverride ?? fetch;
+  const kind = nativeProviderKind(provider.type);
+  if (!supportsImageGeneration(kind)) {
+    throw new Error(`Image generation is not supported by ${provider.type}. Use OpenAI, Azure OpenAI, or an OpenAI-compatible image endpoint.`);
+  }
+  const response = await fetchImpl(imageGenerationEndpoint(provider, kind, modelId || defaultImageModel(provider.type)), {
+    method: 'POST',
+    headers: chatHeaders(kind, apiKey),
+    signal,
+    body: JSON.stringify(imageGenerationBody(kind, modelId || defaultImageModel(provider.type), prompt, size)),
+  });
+  if (!response.ok) {
+    throw new Error(`Image request failed: ${response.status} ${response.statusText}`);
+  }
+  const body = await response.json();
+  return parseImageGenerationBody(body);
 }
 
 export async function* parseAnthropicBrowserStream(stream) {
   for await (const event of parseBrowserSse(stream)) {
     if (event.data === '[DONE]') continue;
     const parsed = JSON.parse(event.data);
+    const usage = anthropicUsageFromEvent(parsed);
+    if (usage) yield { type: 'usage', usage };
     if ((parsed.type ?? event.event) === 'content_block_delta' && parsed.delta?.type === 'text_delta' && parsed.delta.text) {
       yield { type: 'text-delta', text: parsed.delta.text };
     }
@@ -100,6 +144,8 @@ export async function* parseGeminiBrowserStream(stream) {
   for await (const event of parseBrowserSse(stream)) {
     if (event.data === '[DONE]') continue;
     const parsed = JSON.parse(event.data);
+    const usage = geminiUsageFromEvent(parsed);
+    if (usage) yield { type: 'usage', usage };
     for (const candidate of parsed.candidates ?? []) {
       for (const part of candidate.content?.parts ?? []) {
         if (part.text) yield { type: 'text-delta', text: part.text };
@@ -112,6 +158,8 @@ export async function* parseDashScopeBrowserStream(stream) {
   for await (const event of parseBrowserSse(stream)) {
     if (event.data === '[DONE]') continue;
     const parsed = JSON.parse(event.data);
+    const usage = dashScopeUsageFromEvent(parsed);
+    if (usage) yield { type: 'usage', usage };
     const text = parsed.output?.text ?? parsed.output?.choices?.[0]?.message?.content;
     if (text) yield { type: 'text-delta', text };
   }
@@ -121,6 +169,8 @@ export async function* parseOpenAIResponsesBrowserStream(stream) {
   for await (const event of parseBrowserSse(stream)) {
     if (event.data === '[DONE]') continue;
     const parsed = JSON.parse(event.data);
+    const usage = openAIResponsesUsageFromEvent(parsed);
+    if (usage) yield { type: 'usage', usage };
     if ((parsed.type ?? event.event) === 'response.output_text.delta' && parsed.delta) {
       yield { type: 'text-delta', text: parsed.delta };
     }
@@ -194,6 +244,10 @@ function* parseOpenAIEvent(event) {
       continue;
     }
     const parsed = JSON.parse(line);
+    const usage = openAIChatUsageFromEvent(parsed);
+    if (usage) {
+      yield { type: 'usage', usage };
+    }
     const text = parsed.choices?.[0]?.delta?.content;
     if (text) {
       yield { type: 'text-delta', text };
@@ -208,7 +262,13 @@ function parseOllamaLine(line) {
   }
   const parsed = JSON.parse(trimmed);
   const text = parsed.message?.content;
-  return text ? { type: 'text-delta', text } : undefined;
+  if (text) return { type: 'text-delta', text };
+  const promptTokens = numericUsageValue(parsed.prompt_eval_count);
+  const completionTokens = numericUsageValue(parsed.eval_count);
+  if (promptTokens || completionTokens) {
+    return { type: 'usage', usage: usageFromParts(promptTokens, completionTokens, parsed.total_count) };
+  }
+  return undefined;
 }
 
 function authHeaders(apiKey) {
@@ -250,6 +310,11 @@ function chatEndpoint(provider, kind, modelId) {
   return providerEndpoint(provider, '/chat/completions');
 }
 
+function imageGenerationEndpoint(provider, kind, modelId) {
+  if (kind === 'azure-openai') return azureEndpoint(provider, `/openai/deployments/${encodeURIComponent(modelId)}/images/generations`);
+  return providerEndpoint(provider, '/images/generations');
+}
+
 function chatBody(kind, modelId, messages) {
   if (kind === 'openai-responses') return { model: modelId, input: messages, stream: true };
   if (kind === 'anthropic-messages') {
@@ -277,6 +342,18 @@ function chatBody(kind, modelId, messages) {
   return { model: modelId, messages, stream: true };
 }
 
+function imageGenerationBody(kind, modelId, prompt, size) {
+  if (kind === 'azure-openai') {
+    return { prompt, size, n: 1 };
+  }
+  return {
+    model: modelId,
+    prompt,
+    size,
+    n: 1,
+  };
+}
+
 function modelIdsFromValidationBody(kind, body) {
   if (kind === 'ollama') return (body.models ?? []).map((model) => model.name);
   if (kind === 'gemini-native') return (body.models ?? []).map((model) => normalizeGeminiModelId(model.name));
@@ -290,6 +367,44 @@ function parseProviderBrowserStream(kind, stream) {
   if (kind === 'gemini-native') return parseGeminiBrowserStream(stream);
   if (kind === 'dashscope-native') return parseDashScopeBrowserStream(stream);
   return parseOpenAIBrowserStream(stream);
+}
+
+function supportsImageGeneration(kind) {
+  return ['openai-compatible', 'openai-responses', 'azure-openai'].includes(kind);
+}
+
+function parseImageGenerationBody(body) {
+  const images = (body.data ?? body.images ?? [])
+    .map((item) => {
+      const b64 = item.b64_json ?? item.b64Json ?? item.image?.b64_json;
+      const url = item.url ?? item.image_url;
+      const mimeType = item.mime_type ?? item.mimeType ?? 'image/png';
+      if (b64) {
+        return {
+          type: 'data-url',
+          dataUrl: `data:${mimeType};base64,${b64}`,
+          mimeType,
+          revisedPrompt: item.revised_prompt ?? item.revisedPrompt,
+        };
+      }
+      if (url) {
+        return {
+          type: 'url',
+          url,
+          mimeType,
+          revisedPrompt: item.revised_prompt ?? item.revisedPrompt,
+        };
+      }
+      return undefined;
+    })
+    .filter(Boolean);
+  if (images.length === 0) {
+    throw new Error('Image provider returned no usable image data.');
+  }
+  return {
+    images,
+    usage: normalizeUsage(body.usage),
+  };
 }
 
 async function* parseBrowserSse(stream) {
@@ -340,4 +455,65 @@ function azureEndpoint(provider, path) {
   url.search = '';
   url.hash = '';
   return `${url.toString().replace(/\/$/, '')}${path}?api-version=${encodeURIComponent(apiVersion)}`;
+}
+
+function openAIChatUsageFromEvent(parsed) {
+  return normalizeUsage(parsed.usage);
+}
+
+function openAIResponsesUsageFromEvent(parsed) {
+  return normalizeUsage(parsed.usage ?? parsed.response?.usage);
+}
+
+function anthropicUsageFromEvent(parsed) {
+  const input = numericUsageValue(parsed.message?.usage?.input_tokens);
+  const output = numericUsageValue(parsed.usage?.output_tokens ?? parsed.delta?.usage?.output_tokens);
+  return input || output ? usageFromParts(input, output) : undefined;
+}
+
+function geminiUsageFromEvent(parsed) {
+  const usage = parsed.usageMetadata;
+  return usage
+    ? usageFromParts(usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount)
+    : undefined;
+}
+
+function dashScopeUsageFromEvent(parsed) {
+  const usage = parsed.usage;
+  return usage
+    ? usageFromParts(usage.input_tokens, usage.output_tokens, usage.total_tokens)
+    : undefined;
+}
+
+function normalizeUsage(usage) {
+  if (!usage) return undefined;
+  return usageFromParts(
+    usage.prompt_tokens ?? usage.input_tokens ?? usage.promptTokens ?? usage.inputTokens,
+    usage.completion_tokens ?? usage.output_tokens ?? usage.completionTokens ?? usage.outputTokens,
+    usage.total_tokens ?? usage.totalTokens,
+  );
+}
+
+function usageFromParts(prompt, completion, total) {
+  const promptTokens = numericUsageValue(prompt);
+  const completionTokens = numericUsageValue(completion);
+  const totalTokens = numericUsageValue(total) || promptTokens + completionTokens;
+  return { promptTokens, completionTokens, totalTokens };
+}
+
+function numericUsageValue(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : 0;
+}
+
+function mergeUsage(current, next) {
+  if (!current) return next;
+  if (!next) return current;
+  const promptTokens = next.promptTokens || current.promptTokens;
+  const completionTokens = next.completionTokens || current.completionTokens;
+  return {
+    promptTokens,
+    completionTokens,
+    totalTokens: next.totalTokens || promptTokens + completionTokens,
+  };
 }

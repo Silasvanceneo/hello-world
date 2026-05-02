@@ -29,7 +29,7 @@ test('provider runtime v2 advertises OpenAI-compatible capabilities without cred
   assert.equal(adapter.capabilities.models.list, true);
   assert.equal(adapter.capabilities.chat.streaming, true);
   assert.equal(adapter.capabilities.embeddings, 'unknown');
-  assert.equal(adapter.capabilities.imageGeneration, 'unsupported');
+  assert.equal(adapter.capabilities.imageGeneration, 'supported');
   assert.equal(adapter.capabilities.audioInput, 'unsupported');
   assert.equal(adapter.capabilities.audioOutput, 'unsupported');
   assert.equal(adapter.capabilities.toolCalls, 'unknown');

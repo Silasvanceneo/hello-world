@@ -51,6 +51,7 @@ test('desktop provider fetch is not an arbitrary network proxy', async () => {
   assert.match(source, /Desktop provider fetch supports only GET and POST/);
   assert.match(source, /Provider URL must not include credentials/);
   assert.match(source, /Desktop provider fetch allows HTTPS endpoints/);
+  assert.match(source, /25 MB limit/);
   assert.match(source, /fn is_allowed_provider_header/);
   assert.match(source, /redirect\(reqwest::redirect::Policy::none\(\)\)/);
 });

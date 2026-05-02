@@ -243,8 +243,8 @@ async fn desktop_provider_fetch(
         .text()
         .await
         .map_err(|error| format!("Could not read desktop provider response: {error}"))?;
-    if body.len() > 2_000_000 {
-        return Err("Desktop provider response exceeded the 2 MB limit.".to_string());
+    if body.len() > 25_000_000 {
+        return Err("Desktop provider response exceeded the 25 MB limit.".to_string());
     }
 
     Ok(DesktopProviderFetchResponse {

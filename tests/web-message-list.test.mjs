@@ -79,6 +79,40 @@ test('web message list renders edit and retry controls for eligible messages', (
   assert.equal(html.includes('Draft <unsafe>'), false);
 });
 
+test('web message list renders generated image content and token usage', () => {
+  const assistant = {
+    ...createTextMessage('assistant', 'Generated image for: icon', '2026-05-02T03:02:00.000Z', 'assistant-image'),
+    content: [
+      { type: 'text', text: 'Generated image for: icon' },
+      { type: 'image', fileId: 'image-1', mimeType: 'image/png' },
+    ],
+    usage: {
+      promptTokens: 3,
+      completionTokens: 1,
+      totalTokens: 4,
+    },
+  };
+  const session = {
+    ...createSession('session-image', '2026-05-02T03:00:00.000Z'),
+    attachments: [{
+      id: 'image-1',
+      kind: 'image',
+      name: 'generated.png',
+      mimeType: 'image/png',
+      sizeBytes: 10,
+      dataUrl: 'data:image/png;base64,aGVsbG8=',
+      createdAt: '2026-05-02T03:02:00.000Z',
+    }],
+    messages: [assistant],
+  };
+
+  const html = renderMessageList(session);
+
+  assert.match(html, /message-images/);
+  assert.match(html, /src="data:image\/png;base64,aGVsbG8="/);
+  assert.match(html, /4 tokens \(3 prompt \/ 1 completion\)/);
+});
+
 test('web message list renders an expand control for hidden earlier messages', () => {
   const session = {
     ...createSession('session-"quoted"', '2026-05-02T03:00:00.000Z'),

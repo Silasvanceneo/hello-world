@@ -21,3 +21,14 @@ test('browser routing explains the selected provider and model', () => {
   assert.match(describeRoutingChoice(choice), /Provider/);
   assert.match(describeRoutingChoice(choice), /gpt-4.1-mini/);
 });
+
+test('browser routing limits image generation to compatible provider families', () => {
+  const providers = [
+    { id: 'anthropic', name: 'Claude', type: 'anthropic', defaultModelId: 'claude-sonnet-4-5', enabled: true },
+    { id: 'openai', name: 'OpenAI', type: 'openai', defaultModelId: 'gpt-4.1-mini', enabled: true },
+  ];
+
+  const choice = chooseProviderForRouting(providers, { strategy: 'balanced', task: 'image-generation' });
+
+  assert.equal(choice?.provider.id, 'openai');
+});

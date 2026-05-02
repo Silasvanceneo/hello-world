@@ -26,6 +26,8 @@ export function createProviderConnection(
     type: draft.type,
     name: draft.name.trim(),
     baseUrl: normalizeOptionalString(draft.baseUrl),
+    defaultModelId: normalizeOptionalString(draft.defaultModelId),
+    imageModelId: normalizeOptionalString(draft.imageModelId),
     apiKeyRef: normalizeOptionalString(draft.apiKeyRef),
     enabled: draft.enabled ?? true,
     createdAt: timestamp,
@@ -58,6 +60,8 @@ export function updateProviderConnection(
       ...patch,
       name: patch.name?.trim() ?? connection.name,
       baseUrl: patch.baseUrl === undefined ? connection.baseUrl : normalizeOptionalString(patch.baseUrl),
+      defaultModelId: patch.defaultModelId === undefined ? connection.defaultModelId : normalizeOptionalString(patch.defaultModelId),
+      imageModelId: patch.imageModelId === undefined ? connection.imageModelId : normalizeOptionalString(patch.imageModelId),
       apiKeyRef: patch.apiKeyRef === undefined ? connection.apiKeyRef : normalizeOptionalString(patch.apiKeyRef),
       updatedAt,
     };

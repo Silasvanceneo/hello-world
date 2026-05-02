@@ -6,6 +6,8 @@ const defaultT = (key, values = {}) => {
     'message.edit': 'Edit',
     'message.retry': 'Retry',
     'message.now': 'now',
+    'message.usage': '{total} tokens ({prompt} prompt / {completion} completion)',
+    'message.imageAlt': 'Generated image',
     'message.showEarlier': 'Show {count} earlier messages',
     'empty.caption': 'hello-world assistant',
     'empty.eyebrow': 'Local-first, multi-model, private by default',
@@ -45,7 +47,7 @@ export function renderMessageList(session, options = {}) {
     view.isWindowed
       ? `<button class="secondary-button" data-expand-messages="${escapeHtml(session.id)}" type="button">${escapeHtml(t('message.showEarlier', { count: view.hiddenBefore }))}</button>`
       : '',
-    ...view.visibleMessages.map((message) => renderMessage(message, { canRetry: message.id === lastAssistantId, t })),
+    ...view.visibleMessages.map((message) => renderMessage(message, { canRetry: message.id === lastAssistantId, session, t })),
   ].filter(Boolean).join('');
 }
 
@@ -102,10 +104,43 @@ function renderMessage(message, options = {}) {
         <strong>${escapeHtml(label)}</strong>
         <time datetime="${escapeHtml(message.createdAt)}">${escapeHtml(timestamp)}</time>
       </div>
-      <p>${escapeHtml(text)}</p>
+      ${text ? `<p>${escapeHtml(text)}</p>` : ''}
+      ${renderMessageImages(message, options)}
+      ${renderUsage(message, t)}
       ${renderMessageActions(message, options)}
     </div>
   </article>`;
+}
+
+function renderMessageImages(message, options) {
+  const session = options.session ?? {};
+  const attachments = session.attachments ?? [];
+  const images = message.content
+    .filter((item) => item.type === 'image')
+    .map((item) => {
+      const attachment = attachments.find((candidate) => candidate.id === item.fileId);
+      const src = attachment?.dataUrl ?? attachment?.url;
+      return src ? { src, mimeType: item.mimeType, name: attachment?.name } : undefined;
+    })
+    .filter(Boolean);
+  if (images.length === 0) {
+    return '';
+  }
+  const t = options.t ?? defaultT;
+  return `<div class="message-images">
+    ${images.map((image) => `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.name ?? t('message.imageAlt'))}" loading="lazy" />`).join('')}
+  </div>`;
+}
+
+function renderUsage(message, t) {
+  if (!message.usage) {
+    return '';
+  }
+  return `<p class="message-usage">${escapeHtml(t('message.usage', {
+    total: message.usage.totalTokens,
+    prompt: message.usage.promptTokens,
+    completion: message.usage.completionTokens,
+  }))}</p>`;
 }
 
 function renderMessageActions(message, options) {

@@ -30,7 +30,7 @@ export function createOpenAICompatibleAdapter(type: ProviderConnection['type'] =
       models: { list: true, dynamicCapabilities: false },
       chat: { streaming: true, systemMessages: true, toolCalls: 'unknown' },
       embeddings: 'unknown',
-      imageGeneration: 'unsupported',
+      imageGeneration: 'supported',
       audioInput: 'unsupported',
       audioOutput: 'unsupported',
       toolCalls: 'unknown',

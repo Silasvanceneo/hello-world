@@ -4,6 +4,8 @@ import {
   defaultBaseUrl,
   defaultModel,
   nativeProviderKind,
+  defaultImageModel,
+  generateImageInBrowser,
   parseOllamaBrowserStream,
   parseOpenAIBrowserStream,
   providerEndpoint,
@@ -24,6 +26,9 @@ test('provider runtime resolves defaults and endpoints', () => {
   assert.equal(defaultModel('ollama'), 'llama3.2');
   assert.equal(defaultModel('anthropic'), 'claude-sonnet-4-5');
   assert.equal(defaultModel('gemini'), 'gemini-2.5-flash');
+  assert.equal(defaultImageModel('openai'), 'gpt-image-1.5');
+  assert.equal(defaultImageModel('openai-compatible'), 'gpt-image-1');
+  assert.equal(defaultImageModel('anthropic'), undefined);
   assert.equal(nativeProviderKind('openai-compatible'), 'openai-compatible');
   assert.equal(nativeProviderKind('anthropic'), 'anthropic-messages');
   assert.equal(providerEndpoint({ type: 'ollama', baseUrl: 'http://localhost:11434/' }, '/api/chat'), 'http://localhost:11434/api/chat');
@@ -87,7 +92,7 @@ test('provider validation maps Anthropic, Gemini, Azure OpenAI, and DashScope na
 
 test('browser stream parsers emit provider deltas', async () => {
   const openaiChunks = [];
-  for await (const chunk of parseOpenAIBrowserStream(response('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\ndata: [DONE]\n\n').body)) {
+  for await (const chunk of parseOpenAIBrowserStream(response('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\ndata: {"usage":{"prompt_tokens":2,"completion_tokens":3,"total_tokens":5}}\n\ndata: [DONE]\n\n').body)) {
     openaiChunks.push(chunk);
   }
   const ollamaChunks = [];
@@ -96,10 +101,12 @@ test('browser stream parsers emit provider deltas', async () => {
   }
 
   assert.equal(openaiChunks[0]?.text, 'Hi');
+  assert.equal(openaiChunks.find((chunk) => chunk.type === 'usage')?.usage.totalTokens, 5);
   assert.equal(ollamaChunks[0]?.text, 'Yo');
 });
 
 test('streamChatInBrowser posts to provider and returns full streamed text', async () => {
+  let usage;
   const text = await streamChatInBrowser({
     provider: { type: 'openai-compatible', baseUrl: 'https://api.example.test/v1' },
     modelId: 'gpt-test',
@@ -108,11 +115,52 @@ test('streamChatInBrowser posts to provider and returns full streamed text', asy
     fetch: async (url, init) => {
       assert.equal(url, 'https://api.example.test/v1/chat/completions');
       assert.equal(JSON.parse(init.body).model, 'gpt-test');
-      return response('data: {"choices":[{"delta":{"content":"Hello"}}]}\n\ndata: {"choices":[{"delta":{"content":"!"}}]}\n\n');
+      return response('data: {"choices":[{"delta":{"content":"Hello"}}]}\n\ndata: {"choices":[{"delta":{"content":"!"}}]}\n\ndata: {"usage":{"prompt_tokens":1,"completion_tokens":2,"total_tokens":3}}\n\n');
+    },
+    onUsage: (nextUsage) => {
+      usage = nextUsage;
     },
   });
 
   assert.equal(text, 'Hello!');
+  assert.equal(usage.totalTokens, 3);
+});
+
+test('generateImageInBrowser posts OpenAI-compatible image requests and parses b64 output', async () => {
+  const result = await generateImageInBrowser({
+    provider: { type: 'openai-compatible', baseUrl: 'https://api.example.test/v1' },
+    modelId: 'gpt-image-test',
+    prompt: 'A clean product icon',
+    apiKey: 'runtime-key',
+    fetch: async (url, init) => {
+      const headers = new Headers(init.headers);
+      const body = JSON.parse(init.body);
+      assert.equal(url, 'https://api.example.test/v1/images/generations');
+      assert.equal(headers.get('authorization'), 'Bearer runtime-key');
+      assert.equal(body.model, 'gpt-image-test');
+      assert.equal(body.prompt, 'A clean product icon');
+      return response(JSON.stringify({
+        data: [{ b64_json: 'aGVsbG8=', revised_prompt: 'A clean product icon on white.' }],
+        usage: { prompt_tokens: 4, completion_tokens: 1, total_tokens: 5 },
+      }));
+    },
+  });
+
+  assert.equal(result.images[0]?.dataUrl, 'data:image/png;base64,aGVsbG8=');
+  assert.equal(result.images[0]?.revisedPrompt, 'A clean product icon on white.');
+  assert.equal(result.usage.totalTokens, 5);
+});
+
+test('generateImageInBrowser rejects providers without an image generation path', async () => {
+  await assert.rejects(
+    () => generateImageInBrowser({
+      provider: { type: 'anthropic', baseUrl: 'https://api.anthropic.com/v1' },
+      modelId: 'claude-sonnet-4-5',
+      prompt: 'Draw this',
+      fetch: async () => response('{}'),
+    }),
+    /Image generation is not supported/,
+  );
 });
 
 test('streamChatInBrowser can use a desktop provider fetch bridge', async () => {

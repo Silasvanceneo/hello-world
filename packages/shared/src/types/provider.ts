@@ -14,6 +14,8 @@ export type ProviderConnection = {
   type: ProviderType;
   name: string;
   baseUrl?: string;
+  defaultModelId?: string;
+  imageModelId?: string;
   apiKeyRef?: string;
   enabled: boolean;
   createdAt: string;
@@ -24,6 +26,8 @@ export type ProviderConnectionDraft = {
   type: ProviderType;
   name: string;
   baseUrl?: string;
+  defaultModelId?: string;
+  imageModelId?: string;
   apiKeyRef?: string;
   enabled?: boolean;
 };

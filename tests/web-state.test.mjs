@@ -15,6 +15,8 @@ import {
   createTextMessage,
   createMessageBranch,
   deleteSessionPermanently,
+  estimateImageTokenUsage,
+  estimateTokenUsageFromMessages,
   getActiveAgentPreset,
   getActivePromptTemplate,
   getActiveSession,
@@ -50,7 +52,7 @@ test('web state creates sessions and appends chat messages immutably', () => {
   assert.equal(state.sessions.length, 1);
   assert.equal(getActiveSession(withAssistant).messages.length, 2);
   assert.equal(getActiveSession(withAssistant).title, 'Hello world');
-  assert.equal(summarizeUsage(getActiveSession(withAssistant)).totalTokens, 5);
+  assert.equal(summarizeUsage(getActiveSession(withAssistant)).totalTokens, 6);
 });
 
 test('web state stores providers and attachments then survives serialization', () => {
@@ -62,6 +64,20 @@ test('web state stores providers and attachments then survives serialization', (
   assert.equal(restored.providers[0]?.name, 'Local Ollama');
   assert.equal(restored.providers[0]?.apiKeyRef, undefined);
   assert.equal(getActiveSession(restored).attachments.length, 1);
+});
+
+test('web state estimates token usage for provider chat and image requests', () => {
+  const chatUsage = estimateTokenUsageFromMessages([
+    { role: 'system', content: 'Reply briefly' },
+    { role: 'user', content: '请总结 hello world' },
+  ], 'Done');
+  const imageUsage = estimateImageTokenUsage('生成一个 app 图标', 2);
+
+  assert.equal(chatUsage.promptTokens > 0, true);
+  assert.equal(chatUsage.completionTokens, 1);
+  assert.equal(chatUsage.totalTokens, chatUsage.promptTokens + 1);
+  assert.equal(imageUsage.promptTokens > 0, true);
+  assert.equal(imageUsage.completionTokens, 2);
 });
 
 test('web state stores active agent presets and prepends system prompts for providers', () => {

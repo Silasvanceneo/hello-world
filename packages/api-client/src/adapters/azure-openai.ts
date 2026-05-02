@@ -45,7 +45,7 @@ export function createAzureOpenAIAdapter(): ProviderAdapter {
       models: { list: true, dynamicCapabilities: false },
       chat: { streaming: true, systemMessages: true, toolCalls: 'unknown' },
       embeddings: 'supported',
-      imageGeneration: 'unknown',
+      imageGeneration: 'supported',
       audioInput: 'unknown',
       audioOutput: 'unknown',
       toolCalls: 'unknown',
