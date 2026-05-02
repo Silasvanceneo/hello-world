@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  bindDesktopCaptureRequests,
   canUseTauriInvoke,
   detectLocalOllama,
+  deleteDesktopProviderSecret,
+  readDesktopProviderSecret,
   summarizeDesktopNativeCapabilities,
   readDesktopNativeCapabilities,
+  saveDesktopProviderSecret,
 } from '../apps/web/src/native-desktop.js';
 
 test('native desktop helpers detect Tauri invoke availability', () => {
@@ -37,19 +41,60 @@ test('detectLocalOllama invokes the desktop Ollama probe command', async () => {
   assert.equal(status.reachable, false);
 });
 
-test('desktop capability summary makes deferred OS integrations explicit', () => {
+test('desktop capability summary reports native OS integrations when available', () => {
   const summary = summarizeDesktopNativeCapabilities({
     screen_capture: true,
     clipboard_image: true,
-    global_shortcut: false,
-    tray: false,
-    keychain: false,
+    global_shortcut: true,
+    tray: true,
+    keychain: true,
     local_ollama_detection: true,
   });
 
-  assert.equal(summary.ready.length, 3);
-  assert.equal(summary.deferred.length, 3);
-  assert.match(summary.message, /3 available/);
-  assert.match(summary.message, /3 deferred/);
-  assert(summary.deferred.some((item) => item.id === 'keychain' && /runtime-only/.test(item.reason)));
+  assert.equal(summary.ready.length, 6);
+  assert.equal(summary.deferred.length, 0);
+  assert.match(summary.message, /6 available/);
+  assert(summary.ready.some((item) => item.id === 'keychain' && /OS keychain/.test(item.reason)));
+});
+
+test('desktop keychain helpers invoke native commands without exposing secrets in command names', async () => {
+  const calls = [];
+  const invoke = async (command, payload) => {
+    calls.push({ command, payload });
+    if (command === 'read_desktop_provider_secret') {
+      return { found: true, value: 'runtime-secret' };
+    }
+    return { ok: true };
+  };
+
+  await saveDesktopProviderSecret({ providerId: 'p1', secret: 'runtime-secret', invoke });
+  const read = await readDesktopProviderSecret({ providerId: 'p1', invoke });
+  await deleteDesktopProviderSecret({ providerId: 'p1', invoke });
+
+  assert.deepEqual(calls.map((call) => call.command), [
+    'save_desktop_provider_secret',
+    'read_desktop_provider_secret',
+    'delete_desktop_provider_secret',
+  ]);
+  assert.equal(calls[0].payload.providerId, 'p1');
+  assert.equal(calls[0].payload.secret, 'runtime-secret');
+  assert.equal(read.value, 'runtime-secret');
+});
+
+test('desktop capture request binding listens through Tauri events', async () => {
+  const seen = [];
+  const unlistenCalls = [];
+  const unbind = await bindDesktopCaptureRequests({
+    listen: async (eventName, callback) => {
+      assert.equal(eventName, 'desktop://capture-screen-requested');
+      callback({ payload: { source: 'tray' } });
+      return () => unlistenCalls.push('unlisten');
+    },
+    onCaptureRequest: (payload) => seen.push(payload),
+  });
+
+  unbind();
+
+  assert.deepEqual(seen, [{ source: 'tray' }]);
+  assert.deepEqual(unlistenCalls, ['unlisten']);
 });

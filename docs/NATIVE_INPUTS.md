@@ -6,17 +6,17 @@ P1-M4/P1-M5 add the first real native input foundations while keeping Web as the
 
 - Screenshot input is exposed through `apps/web/src/native-media.js` using the WebView/browser `getDisplayMedia()` API.
 - Clipboard image input is exposed through the Clipboard API and converted into `ChatFileAttachment` image data URLs.
-- `apps/desktop/src-tauri/src/main.rs` registers two Tauri commands:
+- `apps/desktop/src-tauri/src/main.rs` registers native desktop commands:
   - `desktop_native_capabilities`
   - `detect_local_ollama`
+  - `save_desktop_provider_secret`
+  - `read_desktop_provider_secret`
+  - `delete_desktop_provider_secret`
 - `apps/web/src/native-desktop.js` calls Tauri through `window.__TAURI__.core.invoke` when running inside the desktop shell.
-- `summarizeDesktopNativeCapabilities()` reports available desktop integrations separately from deferred OS integrations so the UI and docs do not imply tray, global shortcut, or keychain support before those plugins are added.
-
-Not complete yet:
-
-- Global shortcut registration. This still needs a Tauri global shortcut plugin plus permission/enablement UI.
-- System tray integration. This still needs tray lifecycle handling in the desktop shell.
-- Desktop keychain-backed API key storage. Provider API keys remain runtime-only until OS keychain storage is implemented.
+- `summarizeDesktopNativeCapabilities()` reports screen capture, clipboard image input, local Ollama detection, global shortcut, tray, and keychain availability separately.
+- The desktop shell creates a system tray with Show, Capture screen, and Quit actions.
+- `Ctrl+Shift+H` registers as the desktop capture shortcut when the OS accepts the hotkey. The shortcut and tray capture action emit `desktop://capture-screen-requested`; the Web runtime listens for that event and reuses the shared screenshot attachment flow.
+- Provider secrets can be stored, read, and deleted through Windows Credential Manager. Web local state still stores only provider metadata and `apiKeyRef`; the secret value is not serialized into localStorage or backup archives.
 
 ## Mobile
 
@@ -29,9 +29,7 @@ Not complete yet:
   - `Speak last` uses the browser/WebView Speech Synthesis API to read the latest assistant reply.
   - Unsupported runtimes return user-readable status messages instead of silently failing.
 
-Not complete yet:
-
-- A full Android emulator/device launch smoke test. The APK builds, but this workstation currently has no online ADB device or AVD, and the Android emulator/system-image package could not be resolved from the SDK repository during this checkpoint.
+- Android launch smoke passed on `hello_world_api36`: the APK installed, `com.helloworld.ai/.MainActivity` launched, and ADB reported the app process.
 
 ## Toolchain status
 

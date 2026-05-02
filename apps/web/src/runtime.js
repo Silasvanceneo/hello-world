@@ -46,7 +46,7 @@ import { chooseProviderForRouting, describeRoutingChoice } from './model-routing
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { bindMessageListWindow, renderMessageList } from './message-list.js';
 import { bindMultiWindowSync, writeStateAcrossWindows } from './multi-window-sync.js';
-import { detectLocalOllama } from './native-desktop.js';
+import { bindDesktopCaptureRequests, detectLocalOllama } from './native-desktop.js';
 import {
   captureMobilePhoto,
   captureScreenImage,
@@ -588,6 +588,10 @@ elements.detectLocalOllama.addEventListener('click', async () => {
     elements.providerStatus.textContent = message;
   }
 });
+
+bindDesktopCaptureRequests({
+  onCaptureRequest: () => attachNativeImage('Desktop shortcut screenshot', captureScreenImage),
+}).catch(() => undefined);
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => undefined);

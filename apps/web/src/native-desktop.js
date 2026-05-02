@@ -22,6 +22,54 @@ export async function detectLocalOllama({
   return invoke('detect_local_ollama');
 }
 
+export async function saveDesktopProviderSecret({
+  providerId,
+  secret,
+  environment = globalThis,
+  invoke = environment.__TAURI__?.core?.invoke,
+} = {}) {
+  if (!invoke) {
+    throw new Error('Desktop keychain storage is only available inside the Tauri app.');
+  }
+  return invoke('save_desktop_provider_secret', { providerId, secret });
+}
+
+export async function readDesktopProviderSecret({
+  providerId,
+  environment = globalThis,
+  invoke = environment.__TAURI__?.core?.invoke,
+} = {}) {
+  if (!invoke) {
+    throw new Error('Desktop keychain storage is only available inside the Tauri app.');
+  }
+  return invoke('read_desktop_provider_secret', { providerId });
+}
+
+export async function deleteDesktopProviderSecret({
+  providerId,
+  environment = globalThis,
+  invoke = environment.__TAURI__?.core?.invoke,
+} = {}) {
+  if (!invoke) {
+    throw new Error('Desktop keychain storage is only available inside the Tauri app.');
+  }
+  return invoke('delete_desktop_provider_secret', { providerId });
+}
+
+export async function bindDesktopCaptureRequests({
+  environment = globalThis,
+  listen = environment.__TAURI__?.event?.listen,
+  onCaptureRequest,
+} = {}) {
+  if (!listen || typeof onCaptureRequest !== 'function') {
+    return () => undefined;
+  }
+  const unlisten = await listen('desktop://capture-screen-requested', (event) => {
+    onCaptureRequest(event?.payload ?? {});
+  });
+  return typeof unlisten === 'function' ? unlisten : () => undefined;
+}
+
 export function summarizeDesktopNativeCapabilities(capabilities = {}) {
   const items = [
     {
@@ -46,19 +94,25 @@ export function summarizeDesktopNativeCapabilities(capabilities = {}) {
       id: 'global_shortcut',
       label: 'Global shortcut',
       available: capabilities.global_shortcut === true,
-      reason: 'Deferred until a Tauri global shortcut plugin and permission UI are added.',
+      reason: capabilities.global_shortcut === true
+        ? 'Ctrl+Shift+H requests the shared screenshot capture flow.'
+        : 'Unavailable when the OS rejects the Ctrl+Shift+H registration.',
     },
     {
       id: 'tray',
       label: 'System tray',
       available: capabilities.tray === true,
-      reason: 'Deferred until tray lifecycle behavior is implemented in the desktop shell.',
+      reason: capabilities.tray === true
+        ? 'Provides show, capture, and quit actions from the desktop tray.'
+        : 'Unavailable when the desktop tray cannot be initialized.',
     },
     {
       id: 'keychain',
       label: 'Desktop keychain',
       available: capabilities.keychain === true,
-      reason: 'Deferred; provider API keys remain runtime-only until OS keychain storage is added.',
+      reason: capabilities.keychain === true
+        ? 'Stores provider secrets in the OS keychain through Tauri commands.'
+        : 'Provider API keys remain runtime-only when the OS keychain is unavailable.',
     },
   ];
   const ready = items.filter((item) => item.available);

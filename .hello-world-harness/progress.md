@@ -317,3 +317,13 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Mobile build verification passed: `npm --workspace apps/mobile run android:debug` exited 0 with `ANDROID_HOME` and `ANDROID_SDK_ROOT` set to the local Android SDK; `apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk` was generated.
 - Android launch smoke passed: `adb install -r app-debug.apk` returned `Success`; `adb shell am start -W -n com.helloworld.ai/.MainActivity` returned `Status: ok`, `LaunchState: COLD`, `TotalTime: 1856`; `topResumedActivity` was `com.helloworld.ai/.MainActivity`; `pidof com.helloworld.ai` returned `4919`.
 - Marked P0-M6-F004 as passed. Remaining explicit non-pass work is the deferred P1-M4 desktop tray/global shortcut/keychain integration, which still requires a separate Tauri plugin and permission UI implementation.
+
+## 2026-05-02T05:35:25.000Z
+
+- Implemented the remaining P1-M4-F003 desktop OS integrations.
+- Desktop tray: `apps/desktop/src-tauri/src/main.rs` creates a Tauri tray with Show, Capture screen, and Quit actions.
+- Global shortcut: the desktop shell registers `Ctrl+Shift+H` with Win32 `RegisterHotKey`, listens for `WM_HOTKEY`, and emits `desktop://capture-screen-requested`; the Web runtime binds that event to the shared screenshot attachment flow.
+- Desktop keychain: provider secret save/read/delete commands use Windows Credential Manager; Web local state and backups still persist only provider metadata and `apiKeyRef`.
+- Verification passed: `node --test --experimental-strip-types --test-isolation=none tests/native-desktop.test.mjs` -> 6/pass 6/fail 0; `cargo check` passed; `npm run build:desktop` built `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`; `npm run check` -> scaffold check passed (134 paths), tests 128/pass 128/fail 0, build:web passed, review passed.
+- Desktop launch smoke passed: release exe started and stayed alive for 5 seconds before being stopped.
+- Marked P1-M4-F003 as passed.

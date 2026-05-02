@@ -746,15 +746,20 @@
         "System tray is available",
         "Desktop API keys can be stored in OS keychain"
       ],
-      "status": "evaluated",
-      "passes": false,
+      "status": "passed",
+      "passes": true,
       "evidence": [
-        "apps/desktop/src-tauri/src/main.rs reports global_shortcut=false, tray=false, and keychain=false through desktop_native_capabilities",
-        "apps/web/src/native-desktop.js exposes summarizeDesktopNativeCapabilities so UI/docs can present deferred OS integrations explicitly",
-        "tests/native-desktop.test.mjs covers the deferred summary for tray, global shortcut, and keychain",
-        "docs/NATIVE_INPUTS.md and docs/DESKTOP.md document that these integrations remain deferred until Tauri plugins and permission UI are added"
+        "apps/desktop/src-tauri/src/main.rs creates a Tauri system tray with Show, Capture screen, and Quit actions",
+        "apps/desktop/src-tauri/src/main.rs registers Ctrl+Shift+H through Win32 RegisterHotKey and emits desktop://capture-screen-requested when WM_HOTKEY is received",
+        "apps/desktop/src-tauri/src/main.rs exposes Windows Credential Manager-backed save/read/delete provider secret commands",
+        "apps/web/src/native-desktop.js exposes desktop keychain invoke helpers, native capability summaries, and desktop capture event binding",
+        "apps/web/src/runtime.js listens for desktop capture requests and reuses the shared screenshot attachment flow",
+        "tests/native-desktop.test.mjs covers native OS capability summaries, keychain helper command routing, and capture request event binding",
+        "2026-05-02T05:35Z npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "2026-05-02T05:35Z npm run check -> scaffold check passed (134 paths), tests 128/pass 128/fail 0, build:web passed, review passed",
+        "2026-05-02T05:35Z Windows desktop launch smoke -> hello-world-desktop.exe started and stayed alive for 5 seconds, then was stopped"
       ],
-      "lastUpdated": "2026-05-01T16:47:00.000Z"
+      "lastUpdated": "2026-05-02T05:35:25.000Z"
     },
     {
       "id": "P1-M5-F001",
