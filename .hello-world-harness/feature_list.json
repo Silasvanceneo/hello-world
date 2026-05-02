@@ -2332,6 +2332,27 @@
         "npm audit --omit=dev --audit-level=moderate -> found 0 vulnerabilities"
       ],
       "lastUpdated": "2026-05-02T19:00:00.000Z"
+    },
+    {
+      "id": "P10-M2-F001",
+      "title": "Visible advanced capability configuration",
+      "priority": "must",
+      "acceptance": [
+        "Settings exposes visible RAG, Web search, HTTP MCP, Desktop plugin, Desktop code execution, and capability matrix configuration sections",
+        "Advanced settings persist in local app state and survive serialization",
+        "Web and Mobile keep Desktop-only plugin and code execution controls disabled or hidden by platform gating",
+        "Runtime API keys and search credentials are not persisted in advanced settings"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html now adds Advanced settings navigation and panels for RAG, Web search, MCP/plugins, Desktop code execution, and capabilities",
+        "apps/web/src/advanced-settings.js normalizes and renders advanced configuration without secrets",
+        "apps/web/src/runtime.js saves advanced settings into local state and disables Desktop-only controls outside Desktop",
+        "tests/web-advanced-settings.test.mjs covers normalization, persistence, platform gating, escaping, and secret stripping",
+        "npm run check -> scaffold check passed (179 paths), tests 215/pass 215/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-02T20:30:00.000Z"
     }
   ]
 }

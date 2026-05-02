@@ -909,7 +909,24 @@ label {
   border-bottom: 1px solid rgba(119, 128, 120, 0.22);
   color: inherit;
 }
+.security-list li > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.security-list strong,
+.security-list small {
+  overflow-wrap: anywhere;
+}
+.security-list strong {
+  font-size: 12px;
+}
+.security-list small {
+  color: var(--ink-muted);
+  font-size: 11px;
+}
 .security-list span {
+  flex: 0 0 auto;
   color: var(--accent);
   font-family: var(--mono);
   font-size: 11px;

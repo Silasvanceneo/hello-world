@@ -146,6 +146,7 @@
             <a href="#settings-sync"><span>06</span><span data-i18n="settings.sync">Sync</span></a>
             <a href="#settings-backup"><span>07</span><span data-i18n="settings.backup">Backup</span></a>
             <a href="#settings-security"><span>08</span><span data-i18n="settings.security">Security</span></a>
+            <a href="#settings-rag"><span>09</span><span data-i18n="settings.advanced">Advanced</span></a>
           </nav>
 
           <div class="settings-main">
@@ -332,6 +333,109 @@
             <li><span data-i18n="security.stdioMcp">stdio MCP</span> <span data-i18n="security.off">off</span></li>
             <li><span data-i18n="security.broadFilesystem">Broad filesystem</span> <span data-i18n="security.off">off</span></li>
           </ul>
+        </div>
+            </section>
+
+            <section class="settings-section" aria-labelledby="settings-advanced-heading">
+              <div class="settings-section-header">
+                <p class="section-label" data-i18n="settings.advanced">Advanced</p>
+                <h3 id="settings-advanced-heading" data-i18n="settings.advancedHeading">RAG, search, MCP, plugins, and Desktop code</h3>
+              </div>
+
+        <div id="settings-rag" class="panel-card">
+          <p class="section-label" data-i18n="advanced.rag">RAG</p>
+          <h2 data-i18n="advanced.ragHeading">Knowledge retrieval</h2>
+          <label class="compact-check"><input id="rag-enabled" type="checkbox" /> <span data-i18n="advanced.enabled">Enabled</span></label>
+          <label data-i18n-label="advanced.sourceScope">Source scope
+            <select id="rag-source-scope">
+              <option value="session" data-i18n="advanced.scopeSession">Session</option>
+              <option value="library" data-i18n="advanced.scopeLibrary">Library</option>
+              <option value="session-library" data-i18n="advanced.scopeBoth">Session + library</option>
+            </select>
+          </label>
+          <label data-i18n-label="advanced.embeddingProvider">Embedding provider
+            <select id="rag-embedding-provider">
+              <option value="local" data-i18n="advanced.localEmbedding">Local deterministic</option>
+              <option value="remote" data-i18n="advanced.remoteEmbedding">Remote runtime provider</option>
+            </select>
+          </label>
+          <label data-i18n-label="advanced.indexMode">Index mode
+            <select id="rag-index-mode">
+              <option value="lightweight" data-i18n="advanced.lightweightIndex">Lightweight Web/Mobile</option>
+              <option value="desktop-durable" data-i18n="advanced.desktopDurableIndex">Desktop durable</option>
+            </select>
+          </label>
+          <label data-i18n-label="advanced.retrievalMode">Retrieval
+            <select id="rag-retrieval-mode">
+              <option value="lexical">Lexical</option>
+              <option value="vector">Vector</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+          </label>
+          <label data-i18n-label="advanced.maxChunks">Max chunks<input id="rag-max-chunks" type="number" min="1" max="20" step="1" /></label>
+          <label class="compact-check"><input id="rag-require-citations" type="checkbox" /> <span data-i18n="advanced.requireCitations">Require citations</span></label>
+          <label class="compact-check"><input id="rag-reranking" type="checkbox" /> <span data-i18n="advanced.reranking">Reranking</span></label>
+          <button id="save-rag-settings" class="primary-button" type="button" data-i18n="advanced.saveRag">Save RAG</button>
+          <p id="rag-status" class="status-text" data-i18n="advanced.ragReady">RAG settings are ready.</p>
+        </div>
+
+        <div id="settings-web-search" class="panel-card">
+          <p class="section-label" data-i18n="advanced.webSearch">Web search</p>
+          <h2 data-i18n="advanced.webSearchHeading">Grounded answers</h2>
+          <label class="compact-check"><input id="web-search-enabled" type="checkbox" /> <span data-i18n="advanced.enabled">Enabled</span></label>
+          <label data-i18n-label="advanced.searchProvider">Provider
+            <select id="web-search-provider-type">
+              <option value="brave">Brave</option>
+              <option value="tavily">Tavily</option>
+              <option value="bing">Bing</option>
+              <option value="searxng">SearXNG</option>
+              <option value="custom" data-i18n="advanced.custom">Custom</option>
+            </select>
+          </label>
+          <label data-i18n-label="field.name">Name<input id="web-search-provider-name" placeholder="SearXNG" /></label>
+          <label data-i18n-label="sync.endpoint">Endpoint<input id="web-search-endpoint" placeholder="https://search.example.invalid/search" /></label>
+          <label data-i18n-label="advanced.maxResults">Max results<input id="web-search-max-results" type="number" min="1" max="20" step="1" /></label>
+          <label class="compact-check"><input id="web-search-grounded" type="checkbox" /> <span data-i18n="advanced.groundedAnswers">Grounded answers</span></label>
+          <label class="compact-check"><input id="web-search-desktop-proxy" type="checkbox" /> <span data-i18n="advanced.desktopProxy">Desktop proxy fallback</span></label>
+          <button id="save-web-search-settings" class="primary-button" type="button" data-i18n="advanced.saveWebSearch">Save search</button>
+          <p id="web-search-status" class="status-text" data-i18n="advanced.webSearchReady">Search settings are ready.</p>
+        </div>
+
+        <div id="settings-mcp" class="panel-card">
+          <p class="section-label" data-i18n="advanced.mcp">MCP / plugins</p>
+          <h2 data-i18n="advanced.mcpHeading">Tool servers</h2>
+          <label class="compact-check"><input id="http-mcp-enabled" type="checkbox" /> <span data-i18n="advanced.httpMcp">HTTP MCP</span></label>
+          <label data-i18n-label="field.name">Name<input id="http-mcp-name" placeholder="HTTP MCP server" /></label>
+          <label data-i18n-label="sync.endpoint">Endpoint<input id="http-mcp-endpoint" placeholder="https://mcp.example.invalid/rpc" /></label>
+          <label data-i18n-label="advanced.tools">Tools<input id="http-mcp-tools" placeholder="search, fetch" /></label>
+          <label class="compact-check"><input id="plugin-manager-enabled" type="checkbox" /> <span data-i18n="advanced.pluginManager">Desktop plugin manager</span></label>
+          <label class="compact-check"><input id="stdio-mcp-enabled" type="checkbox" /> <span data-i18n="advanced.stdioMcp">Desktop stdio MCP</span></label>
+          <label class="compact-check"><input id="mcp-require-confirmation" type="checkbox" disabled /> <span data-i18n="advanced.requireConfirmation">Require confirmation</span></label>
+          <button id="save-mcp-settings" class="primary-button" type="button" data-i18n="advanced.saveMcp">Save MCP</button>
+          <p id="mcp-status" class="status-text" data-i18n="advanced.mcpReady">MCP settings are ready.</p>
+        </div>
+
+        <div id="settings-code-execution" class="panel-card">
+          <p class="section-label" data-i18n="advanced.desktopOnly">Desktop only</p>
+          <h2 data-i18n="advanced.codeHeading">Sandboxed code</h2>
+          <label class="compact-check"><input id="code-execution-enabled" type="checkbox" /> <span data-i18n="advanced.enabled">Enabled</span></label>
+          <label data-i18n-label="advanced.language">Language
+            <select id="code-execution-language">
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+            </select>
+          </label>
+          <label data-i18n-label="advanced.timeout">Timeout ms<input id="code-execution-timeout" type="number" min="500" max="10000" step="500" /></label>
+          <label class="compact-check"><input id="code-execution-confirmation" type="checkbox" disabled /> <span data-i18n="advanced.requireConfirmation">Require confirmation</span></label>
+          <button id="save-code-execution-settings" class="primary-button" type="button" data-i18n="advanced.saveCode">Save code settings</button>
+          <p id="code-execution-status" class="status-text" data-i18n="advanced.codeReady">Code execution is Desktop-only and requires confirmation.</p>
+        </div>
+
+        <div id="settings-capabilities" class="panel-card settings-card-wide">
+          <p class="section-label" data-i18n="advanced.capabilities">Capabilities</p>
+          <h2 data-i18n="advanced.capabilityHeading">Platform matrix</h2>
+          <p id="advanced-platform-status" class="status-text" data-i18n="advanced.capabilityReady">Capability matrix is ready.</p>
+          <div id="advanced-capability-list"></div>
         </div>
             </section>
           </div>

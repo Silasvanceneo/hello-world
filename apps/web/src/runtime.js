@@ -20,6 +20,7 @@ import {
   prepareUserMessageEditDraft,
   renderPromptTemplateWithVariables,
   saveSyncSettings,
+  saveAdvancedSettings,
   saveUsageBudget,
   serializeState,
   setActiveAgentPreset,
@@ -38,6 +39,11 @@ import {
   safeJson,
   summarizeBackupArchive,
 } from './backup-dashboard.js';
+import {
+  createAdvancedSettingsViewModel,
+  detectAdvancedPlatform,
+  renderAdvancedSettingsSummary,
+} from './advanced-settings.js';
 import { bindBranchDashboard, renderBranchResults } from './branch-dashboard.js';
 import { bindComposerDraftActions } from './composer-drafts.js';
 import { createCostDashboardViewModel, createUsageRecordsFromWebState } from './cost-dashboard.js';
@@ -48,7 +54,12 @@ import { compareProvidersInBrowser, formatComparisonResult } from './model-compa
 import { bindMessageListWindow, renderMessageList } from './message-list.js';
 import { applyTranslations, createTranslator } from './localization.js';
 import { bindMultiWindowSync, writeStateAcrossWindows } from './multi-window-sync.js';
-import { bindDesktopCaptureRequests, detectLocalOllama } from './native-desktop.js';
+import {
+  bindDesktopCaptureRequests,
+  detectLocalOllama,
+  readDesktopNativeCapabilities,
+  summarizeDesktopNativeCapabilities,
+} from './native-desktop.js';
 import { configureServiceWorker } from './pwa-runtime.js';
 import { bindSettingsView } from './settings-view.js';
 import {
@@ -70,6 +81,7 @@ let comparisonPrompt = '';
 let comparisonResults = [];
 let sessionFilters = createInitialSessionFilters();
 const expandedMessageSessions = new Set();
+let desktopCapabilitySummary;
 
 const elements = {
   agentIcon: document.querySelector('#agent-icon'),
@@ -80,6 +92,8 @@ const elements = {
   agentStatus: document.querySelector('#agent-status'),
   agentSystemPrompt: document.querySelector('#agent-system-prompt'),
   agentTools: document.querySelector('#agent-tools'),
+  advancedCapabilityList: document.querySelector('#advanced-capability-list'),
+  advancedPlatformStatus: document.querySelector('#advanced-platform-status'),
   applyPromptTemplate: document.querySelector('#apply-prompt-template'),
   attachments: document.querySelector('#attachments'),
   budgetCurrency: document.querySelector('#budget-currency'),
@@ -151,9 +165,43 @@ const elements = {
   trashSession: document.querySelector('#trash-session'),
   restoreSession: document.querySelector('#restore-session'),
   deleteSessionForever: document.querySelector('#delete-session-forever'),
+  codeExecutionConfirmation: document.querySelector('#code-execution-confirmation'),
+  codeExecutionEnabled: document.querySelector('#code-execution-enabled'),
+  codeExecutionLanguage: document.querySelector('#code-execution-language'),
+  codeExecutionStatus: document.querySelector('#code-execution-status'),
+  codeExecutionTimeout: document.querySelector('#code-execution-timeout'),
+  httpMcpEnabled: document.querySelector('#http-mcp-enabled'),
+  httpMcpEndpoint: document.querySelector('#http-mcp-endpoint'),
+  httpMcpName: document.querySelector('#http-mcp-name'),
+  httpMcpTools: document.querySelector('#http-mcp-tools'),
+  mcpRequireConfirmation: document.querySelector('#mcp-require-confirmation'),
+  mcpStatus: document.querySelector('#mcp-status'),
+  pluginManagerEnabled: document.querySelector('#plugin-manager-enabled'),
+  ragEmbeddingProvider: document.querySelector('#rag-embedding-provider'),
+  ragEnabled: document.querySelector('#rag-enabled'),
+  ragIndexMode: document.querySelector('#rag-index-mode'),
+  ragMaxChunks: document.querySelector('#rag-max-chunks'),
+  ragRequireCitations: document.querySelector('#rag-require-citations'),
+  ragReranking: document.querySelector('#rag-reranking'),
+  ragRetrievalMode: document.querySelector('#rag-retrieval-mode'),
+  ragSourceScope: document.querySelector('#rag-source-scope'),
+  ragStatus: document.querySelector('#rag-status'),
   speakLast: document.querySelector('#speak-last'),
+  saveCodeExecutionSettings: document.querySelector('#save-code-execution-settings'),
+  saveMcpSettings: document.querySelector('#save-mcp-settings'),
+  saveRagSettings: document.querySelector('#save-rag-settings'),
+  saveWebSearchSettings: document.querySelector('#save-web-search-settings'),
+  stdioMcpEnabled: document.querySelector('#stdio-mcp-enabled'),
   usageSummary: document.querySelector('#usage-summary'),
   voiceInput: document.querySelector('#voice-input'),
+  webSearchDesktopProxy: document.querySelector('#web-search-desktop-proxy'),
+  webSearchEnabled: document.querySelector('#web-search-enabled'),
+  webSearchEndpoint: document.querySelector('#web-search-endpoint'),
+  webSearchGrounded: document.querySelector('#web-search-grounded'),
+  webSearchMaxResults: document.querySelector('#web-search-max-results'),
+  webSearchProviderName: document.querySelector('#web-search-provider-name'),
+  webSearchProviderType: document.querySelector('#web-search-provider-type'),
+  webSearchStatus: document.querySelector('#web-search-status'),
 };
 
 let t = createTranslator(state.locale);
@@ -198,6 +246,7 @@ function render() {
   renderCostPanel();
   renderSyncPanel();
   renderBackupPanel();
+  renderAdvancedSettingsPanel();
 }
 
 function renderComparisonResults() {
@@ -588,6 +637,73 @@ elements.previewSyncPlan.addEventListener('click', () => {
   });
 });
 
+elements.saveRagSettings.addEventListener('click', () => {
+  state = saveAdvancedSettings(state, {
+    rag: {
+      enabled: elements.ragEnabled.checked,
+      sourceScope: elements.ragSourceScope.value,
+      embeddingProvider: elements.ragEmbeddingProvider.value,
+      indexMode: elements.ragIndexMode.value,
+      retrievalMode: elements.ragRetrievalMode.value,
+      maxChunks: elements.ragMaxChunks.value,
+      requireCitations: elements.ragRequireCitations.checked,
+      rerankingEnabled: elements.ragReranking.checked,
+    },
+  });
+  saveState();
+  render();
+  elements.ragStatus.textContent = t('advanced.savedRag');
+});
+
+elements.saveWebSearchSettings.addEventListener('click', () => {
+  const desktop = detectAdvancedPlatform() === 'desktop';
+  state = saveAdvancedSettings(state, {
+    webSearch: {
+      enabled: elements.webSearchEnabled.checked,
+      providerType: elements.webSearchProviderType.value,
+      providerName: elements.webSearchProviderName.value,
+      endpoint: elements.webSearchEndpoint.value,
+      maxResults: elements.webSearchMaxResults.value,
+      groundedAnswers: elements.webSearchGrounded.checked,
+      desktopProxy: desktop && elements.webSearchDesktopProxy.checked,
+    },
+  });
+  saveState();
+  render();
+  elements.webSearchStatus.textContent = t('advanced.savedWebSearch');
+});
+
+elements.saveMcpSettings.addEventListener('click', () => {
+  const desktop = detectAdvancedPlatform() === 'desktop';
+  state = saveAdvancedSettings(state, {
+    mcp: {
+      httpEnabled: elements.httpMcpEnabled.checked,
+      httpServerName: elements.httpMcpName.value,
+      httpEndpoint: elements.httpMcpEndpoint.value,
+      httpTools: elements.httpMcpTools.value,
+      pluginManagerEnabled: desktop && elements.pluginManagerEnabled.checked,
+      stdioMcpEnabled: desktop && elements.stdioMcpEnabled.checked,
+    },
+  });
+  saveState();
+  render();
+  elements.mcpStatus.textContent = desktop ? t('advanced.savedMcpDesktop') : t('advanced.savedMcpSafe');
+});
+
+elements.saveCodeExecutionSettings.addEventListener('click', () => {
+  const desktop = detectAdvancedPlatform() === 'desktop';
+  state = saveAdvancedSettings(state, {
+    codeExecution: {
+      enabled: desktop && elements.codeExecutionEnabled.checked,
+      language: elements.codeExecutionLanguage.value,
+      timeoutMs: elements.codeExecutionTimeout.value,
+    },
+  });
+  saveState();
+  render();
+  elements.codeExecutionStatus.textContent = desktop ? t('advanced.savedCodeDesktop') : t('advanced.savedCodeUnavailable');
+});
+
 elements.backupExport.addEventListener('click', () => {
   const archive = createWebBackupArchive(state);
   elements.backupPayload.value = safeJson(archive);
@@ -644,6 +760,13 @@ elements.detectLocalOllama.addEventListener('click', async () => {
 bindDesktopCaptureRequests({
   onCaptureRequest: () => attachNativeImage(t('status.desktopShortcutScreenshotName'), captureScreenImage),
 }).catch(() => undefined);
+
+readDesktopNativeCapabilities()
+  .then((capabilities) => {
+    desktopCapabilitySummary = summarizeDesktopNativeCapabilities(capabilities);
+    renderAdvancedSettingsPanel();
+  })
+  .catch(() => undefined);
 
 configureServiceWorker().catch(() => undefined);
 
@@ -801,6 +924,66 @@ function renderSyncPanel(plan = createLocalPreviewPlan(state)) {
 function renderBackupPanel() {
   const archive = createWebBackupArchive(state);
   elements.backupStatus.textContent = t('backup.readyDetail', { summary: summarizeBackupArchive(archive, { t }) });
+}
+
+function renderAdvancedSettingsPanel() {
+  const platform = detectAdvancedPlatform();
+  const desktop = platform === 'desktop';
+  const view = createAdvancedSettingsViewModel(state.advancedSettings, { platform, desktopCapabilities: desktopCapabilitySummary });
+  const settings = view.settings;
+
+  elements.ragEnabled.checked = settings.rag.enabled;
+  elements.ragSourceScope.value = settings.rag.sourceScope;
+  elements.ragEmbeddingProvider.value = settings.rag.embeddingProvider;
+  elements.ragIndexMode.value = settings.rag.indexMode;
+  elements.ragRetrievalMode.value = settings.rag.retrievalMode;
+  elements.ragMaxChunks.value = settings.rag.maxChunks;
+  elements.ragRequireCitations.checked = settings.rag.requireCitations;
+  elements.ragReranking.checked = settings.rag.rerankingEnabled;
+  elements.ragStatus.textContent = t('advanced.ragSummary', {
+    scope: settings.rag.sourceScope,
+    retrieval: settings.rag.retrievalMode,
+    chunks: settings.rag.maxChunks,
+  });
+
+  elements.webSearchEnabled.checked = settings.webSearch.enabled;
+  elements.webSearchProviderType.value = settings.webSearch.providerType;
+  elements.webSearchProviderName.value = settings.webSearch.providerName;
+  elements.webSearchEndpoint.value = settings.webSearch.endpoint;
+  elements.webSearchMaxResults.value = settings.webSearch.maxResults;
+  elements.webSearchGrounded.checked = settings.webSearch.groundedAnswers;
+  elements.webSearchDesktopProxy.checked = desktop && settings.webSearch.desktopProxy;
+  elements.webSearchDesktopProxy.disabled = !desktop;
+  elements.webSearchStatus.textContent = t('advanced.webSearchSummary', {
+    provider: settings.webSearch.providerName,
+    results: settings.webSearch.maxResults,
+  });
+
+  elements.httpMcpEnabled.checked = settings.mcp.httpEnabled;
+  elements.httpMcpName.value = settings.mcp.httpServerName;
+  elements.httpMcpEndpoint.value = settings.mcp.httpEndpoint;
+  elements.httpMcpTools.value = settings.mcp.httpTools.join(', ');
+  elements.pluginManagerEnabled.checked = desktop && settings.mcp.pluginManagerEnabled;
+  elements.stdioMcpEnabled.checked = desktop && settings.mcp.stdioMcpEnabled;
+  elements.pluginManagerEnabled.disabled = !desktop;
+  elements.stdioMcpEnabled.disabled = !desktop;
+  elements.mcpRequireConfirmation.checked = true;
+  elements.mcpStatus.textContent = desktop ? t('advanced.mcpDesktopSummary') : t('advanced.mcpSharedSummary');
+
+  elements.codeExecutionEnabled.checked = desktop && settings.codeExecution.enabled;
+  elements.codeExecutionEnabled.disabled = !desktop;
+  elements.codeExecutionLanguage.value = settings.codeExecution.language;
+  elements.codeExecutionLanguage.disabled = !desktop;
+  elements.codeExecutionTimeout.value = settings.codeExecution.timeoutMs;
+  elements.codeExecutionTimeout.disabled = !desktop;
+  elements.codeExecutionConfirmation.checked = true;
+  elements.codeExecutionStatus.textContent = desktop ? t('advanced.codeDesktopSummary') : t('advanced.codeUnavailableSummary');
+
+  elements.advancedPlatformStatus.textContent = t('advanced.capabilitySummary', {
+    platform,
+    count: view.enabledCount,
+  });
+  elements.advancedCapabilityList.innerHTML = renderAdvancedSettingsSummary(view);
 }
 
 function parsePromptTemplateValues() {

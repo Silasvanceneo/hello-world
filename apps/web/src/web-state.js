@@ -1,3 +1,5 @@
+import { mergeAdvancedSettings, normalizeAdvancedSettings } from './advanced-settings.js';
+
 export function createInitialWebState(now = new Date().toISOString()) {
   const session = createSession('session-1', now);
   return {
@@ -13,6 +15,7 @@ export function createInitialWebState(now = new Date().toISOString()) {
     promptTemplates: [],
     usageBudget: { currency: 'USD' },
     syncSettings: normalizeSyncSettings(),
+    advancedSettings: normalizeAdvancedSettings(),
     attachments: [],
   };
 }
@@ -417,6 +420,14 @@ export function saveSyncSettings(state, draft) {
   };
 }
 
+export function saveAdvancedSettings(state, draft, timestamp = new Date().toISOString()) {
+  return {
+    ...state,
+    advancedSettings: mergeAdvancedSettings(state.advancedSettings, draft),
+    updatedAt: nextStateTimestamp(state.updatedAt, timestamp),
+  };
+}
+
 export function summarizeUsage(session) {
   return session.messages.reduce((summary, message) => {
     const usage = message.usage;
@@ -542,6 +553,7 @@ export function parseState(raw, fallbackNow = new Date().toISOString()) {
       promptTemplates: Array.isArray(parsed.promptTemplates) ? parsed.promptTemplates : [],
       usageBudget: normalizeUsageBudget(parsed.usageBudget),
       syncSettings: normalizeSyncSettings(parsed.syncSettings),
+      advancedSettings: normalizeAdvancedSettings(parsed.advancedSettings),
       attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],
     };
   } catch {

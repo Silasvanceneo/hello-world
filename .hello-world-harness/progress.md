@@ -592,3 +592,14 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Android debug package verification passed with local SDK env: `npm --workspace apps/mobile run android:debug` -> exit 0.
 - Dependency audit passed: `npm audit --omit=dev --audit-level=moderate` -> found 0 vulnerabilities.
 - Marked P10-M1-F001 as passed. P5-P10 requested roadmap is complete.
+
+## 2026-05-02T20:30:00.000Z
+
+- Addressed the configuration discoverability gap after the P5-P10 roadmap: advanced capabilities existed in core modules, tests, and docs but were not visible as first-class Settings controls.
+- Added an Advanced Settings section with visible RAG, Web search, HTTP MCP, Desktop plugin/stdio MCP, Desktop sandboxed code execution, and platform capability matrix panels.
+- Added `apps/web/src/advanced-settings.js` for normalized local advanced configuration, platform gating, escaped capability rendering, secret-stripping endpoints, and Desktop-only availability summaries.
+- Wired advanced settings into `apps/web/src/web-state.js` and `apps/web/src/runtime.js` so these controls persist locally and Desktop-only controls stay disabled outside Desktop.
+- Added bilingual labels for the new settings surface and adjusted Settings layout CSS so capability detail text wraps safely.
+- Added `tests/web-advanced-settings.test.mjs` and registered it in the full test command and scaffold check.
+- Verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-advanced-settings.test.mjs tests/web-state.test.mjs tests/web-localization.test.mjs` -> tests 28/pass 28/fail 0.
+- Full verification passed: `npm run check` -> scaffold check passed (179 paths), tests 215/pass 215/fail 0, build:web passed, review passed.

@@ -13,6 +13,7 @@ await cp(join(webRoot, 'src', 'runtime.js'), join(buildDir, 'runtime.js'));
 await cp(join(webRoot, 'src', 'web-state.js'), join(buildDir, 'web-state.js'));
 await cp(join(webRoot, 'src', 'provider-runtime.js'), join(buildDir, 'provider-runtime.js'));
 await cp(join(webRoot, 'src', 'provider-presets.js'), join(buildDir, 'provider-presets.js'));
+await cp(join(webRoot, 'src', 'advanced-settings.js'), join(buildDir, 'advanced-settings.js'));
 await cp(join(webRoot, 'src', 'pwa-runtime.js'), join(buildDir, 'pwa-runtime.js'));
 await cp(join(webRoot, 'src', 'settings-view.js'), join(buildDir, 'settings-view.js'));
 await cp(join(webRoot, 'src', 'backup-dashboard.js'), join(buildDir, 'backup-dashboard.js'));
