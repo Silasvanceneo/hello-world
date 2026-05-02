@@ -1,0 +1,43 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">hello-world architecture</title>
+  <desc id="desc">Layered architecture connecting app shells, core packages, provider adapters, storage, tools, and platform-specific native bridges.</desc>
+  <rect width="1280" height="720" fill="#F5F6F4"/>
+  <text x="64" y="78" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="44" font-weight="820">Architecture</text>
+  <text x="64" y="112" fill="#4F5751" font-family="Consolas, monospace" font-size="15">Small local-first shells over a shared tested core.</text>
+  <g font-family="Consolas, monospace" font-size="15" font-weight="800">
+    <rect x="86" y="160" width="310" height="92" rx="14" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="118" y="202" fill="#166052">apps/web</text>
+    <text x="118" y="226" fill="#4F5751">PWA and shared UI runtime</text>
+    <rect x="485" y="160" width="310" height="92" rx="14" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="517" y="202" fill="#166052">apps/desktop</text>
+    <text x="517" y="226" fill="#4F5751">Tauri, keychain, tray, sandbox</text>
+    <rect x="884" y="160" width="310" height="92" rx="14" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="916" y="202" fill="#166052">apps/mobile</text>
+    <text x="916" y="226" fill="#4F5751">Capacitor camera and voice</text>
+  </g>
+  <path d="M241 252V316" stroke="#166052" stroke-width="3"/>
+  <path d="M640 252V316" stroke="#166052" stroke-width="3"/>
+  <path d="M1039 252V316" stroke="#166052" stroke-width="3"/>
+  <rect x="128" y="316" width="1024" height="118" rx="18" fill="#17211C"/>
+  <text x="170" y="366" fill="#9FDBC8" font-family="Consolas, monospace" font-size="17" font-weight="800">packages/core</text>
+  <text x="170" y="398" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="820">Chat, RAG, search grounding, MCP policy, model routing, code-exec policy</text>
+  <g font-family="Consolas, monospace" font-size="15" font-weight="800">
+    <rect x="86" y="504" width="250" height="92" rx="14" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="118" y="546" fill="#166052">packages/api-client</text>
+    <text x="118" y="570" fill="#4F5751">Provider adapters and streams</text>
+    <rect x="381" y="504" width="250" height="92" rx="14" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="413" y="546" fill="#166052">packages/storage</text>
+    <text x="413" y="570" fill="#4F5751">Local-first persistence</text>
+    <rect x="676" y="504" width="250" height="92" rx="14" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="708" y="546" fill="#166052">packages/shared</text>
+    <text x="708" y="570" fill="#4F5751">Types and contracts</text>
+    <rect x="971" y="504" width="250" height="92" rx="14" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="1003" y="546" fill="#166052">native bridges</text>
+    <text x="1003" y="570" fill="#4F5751">Desktop-only guarded APIs</text>
+  </g>
+  <path d="M640 434V468" stroke="#166052" stroke-width="3"/>
+  <path d="M211 504V468H1096V504" stroke="#166052" stroke-width="3" fill="none"/>
+  <path d="M506 504V468" stroke="#166052" stroke-width="3"/>
+  <path d="M801 504V468" stroke="#166052" stroke-width="3"/>
+  <text x="64" y="660" fill="#9F4D2F" font-family="Consolas, monospace" font-size="15" font-weight="800">Security invariant: settings never grant arbitrary terminal or shell execution.</text>
+</svg>

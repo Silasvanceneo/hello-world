@@ -1,0 +1,76 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">hello-world product overview</title>
+  <desc id="desc">A local-first AI workspace with conversation, settings, provider, RAG, search, MCP, and desktop code configuration surfaces.</desc>
+  <rect width="1280" height="640" fill="#F5F6F4"/>
+  <path d="M0 0H1280V640H0V0Z" fill="#F5F6F4"/>
+  <g opacity="0.62">
+    <path d="M0 80H1280" stroke="#D8DED7"/>
+    <path d="M0 160H1280" stroke="#D8DED7"/>
+    <path d="M0 240H1280" stroke="#D8DED7"/>
+    <path d="M0 320H1280" stroke="#D8DED7"/>
+    <path d="M0 400H1280" stroke="#D8DED7"/>
+    <path d="M0 480H1280" stroke="#D8DED7"/>
+    <path d="M0 560H1280" stroke="#D8DED7"/>
+    <path d="M160 0V640" stroke="#D8DED7"/>
+    <path d="M320 0V640" stroke="#D8DED7"/>
+    <path d="M480 0V640" stroke="#D8DED7"/>
+    <path d="M640 0V640" stroke="#D8DED7"/>
+    <path d="M800 0V640" stroke="#D8DED7"/>
+    <path d="M960 0V640" stroke="#D8DED7"/>
+    <path d="M1120 0V640" stroke="#D8DED7"/>
+  </g>
+  <rect x="64" y="56" width="1152" height="528" rx="18" fill="white" stroke="#B9C4BD"/>
+  <rect x="86" y="78" width="250" height="484" rx="12" fill="#FBFBF8" stroke="#D8DED7"/>
+  <rect x="358" y="78" width="836" height="484" rx="12" fill="#FFFFFF" stroke="#D8DED7"/>
+  <rect x="108" y="106" width="54" height="54" rx="12" fill="#DCEBE7"/>
+  <circle cx="135" cy="133" r="18" fill="#166052"/>
+  <text x="178" y="127" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="26" font-weight="800">hello-world</text>
+  <text x="178" y="150" fill="#778078" font-family="Consolas, monospace" font-size="13" font-weight="700">LOCAL-FIRST AI CLIENT</text>
+  <rect x="108" y="194" width="188" height="40" rx="8" fill="#166052"/>
+  <text x="132" y="219" fill="white" font-family="Consolas, monospace" font-size="14" font-weight="700">New chat</text>
+  <g>
+    <rect x="108" y="270" width="192" height="62" rx="8" fill="#DCEBE7" stroke="#B9C4BD"/>
+    <text x="126" y="296" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="800">Research workspace</text>
+    <text x="126" y="317" fill="#4F5751" font-family="Consolas, monospace" font-size="12">8 messages</text>
+    <rect x="108" y="344" width="192" height="62" rx="8" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="126" y="370" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="800">Provider setup</text>
+    <text x="126" y="391" fill="#4F5751" font-family="Consolas, monospace" font-size="12">3 messages</text>
+    <rect x="108" y="418" width="192" height="62" rx="8" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="126" y="444" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="800">RAG evaluation</text>
+    <text x="126" y="465" fill="#4F5751" font-family="Consolas, monospace" font-size="12">5 messages</text>
+  </g>
+  <text x="388" y="127" fill="#778078" font-family="Consolas, monospace" font-size="13" font-weight="700">PRIVATE AI WORKSPACE</text>
+  <text x="388" y="164" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="38" font-weight="820">Chat, retrieve, search, and run tools from one shell.</text>
+  <rect x="388" y="206" width="292" height="92" rx="12" fill="#FBFBF8" stroke="#D8DED7"/>
+  <text x="410" y="238" fill="#166052" font-family="Consolas, monospace" font-size="13" font-weight="800">PROVIDERS</text>
+  <text x="410" y="266" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800">OpenAI, Anthropic, Gemini, Azure, DashScope, Ollama</text>
+  <rect x="702" y="206" width="214" height="92" rx="12" fill="#FBFBF8" stroke="#D8DED7"/>
+  <text x="724" y="238" fill="#166052" font-family="Consolas, monospace" font-size="13" font-weight="800">RAG</text>
+  <text x="724" y="266" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800">Hybrid retrieval with citations and evals</text>
+  <rect x="938" y="206" width="214" height="92" rx="12" fill="#FBFBF8" stroke="#D8DED7"/>
+  <text x="960" y="238" fill="#166052" font-family="Consolas, monospace" font-size="13" font-weight="800">TOOLS</text>
+  <text x="960" y="266" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800">HTTP MCP plus Desktop plugin controls</text>
+  <rect x="388" y="334" width="764" height="166" rx="14" fill="#17211C"/>
+  <text x="416" y="370" fill="#9FDBC8" font-family="Consolas, monospace" font-size="14" font-weight="800">ADVANCED SETTINGS</text>
+  <g fill="white" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="800">
+    <text x="416" y="414">RAG</text>
+    <text x="552" y="414">Web search</text>
+    <text x="744" y="414">MCP</text>
+    <text x="874" y="414">Plugins</text>
+    <text x="1024" y="414">Code</text>
+  </g>
+  <g fill="#9FDBC8" font-family="Consolas, monospace" font-size="12" font-weight="700">
+    <text x="416" y="446">hybrid / citations</text>
+    <text x="552" y="446">grounded answers</text>
+    <text x="744" y="446">HTTP safe subset</text>
+    <text x="874" y="446">Desktop only</text>
+    <text x="1024" y="446">Desktop only</text>
+  </g>
+  <path d="M416 470H1118" stroke="#315F9D" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="416" cy="470" r="10" fill="#9FDBC8"/>
+  <circle cx="552" cy="470" r="10" fill="#9FDBC8"/>
+  <circle cx="744" cy="470" r="10" fill="#9FDBC8"/>
+  <circle cx="874" cy="470" r="10" fill="#F4E5DC"/>
+  <circle cx="1024" cy="470" r="10" fill="#F4E5DC"/>
+  <text x="388" y="538" fill="#4F5751" font-family="Consolas, monospace" font-size="14">Web + Desktop + Mobile shared core. Terminal and arbitrary shell execution stay blocked.</text>
+</svg>

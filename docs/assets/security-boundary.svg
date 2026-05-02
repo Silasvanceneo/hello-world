@@ -1,0 +1,30 @@
+<svg width="1280" height="560" viewBox="0 0 1280 560" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Security boundary</title>
+  <desc id="desc">Safe capabilities are separated from Desktop-only guarded capabilities and blocked terminal access.</desc>
+  <rect width="1280" height="560" fill="#F5F6F4"/>
+  <text x="64" y="78" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="44" font-weight="820">Security boundary</text>
+  <g transform="translate(64 136)">
+    <rect width="360" height="300" rx="18" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="28" y="52" fill="#166052" font-family="Consolas, monospace" font-size="16" font-weight="800">SHARED SAFE</text>
+    <text x="28" y="96" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="820">Available on all clients</text>
+    <text x="28" y="150" fill="#4F5751" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Chat, provider runtime, RAG query, Web search, HTTP MCP.</text>
+    <rect x="28" y="222" width="304" height="44" rx="8" fill="#DCEBE7"/>
+    <text x="48" y="250" fill="#166052" font-family="Consolas, monospace" font-size="13" font-weight="800">Runtime keys only</text>
+  </g>
+  <g transform="translate(460 136)">
+    <rect width="360" height="300" rx="18" fill="#17211C"/>
+    <text x="28" y="52" fill="#9FDBC8" font-family="Consolas, monospace" font-size="16" font-weight="800">DESKTOP GUARDED</text>
+    <text x="28" y="96" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="820">Allowed with policy gates</text>
+    <text x="28" y="150" fill="#DCEBE7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Keychain, stdio MCP registration, plugin control plane, sandboxed JS/Python.</text>
+    <rect x="28" y="222" width="304" height="44" rx="8" fill="#315F9D"/>
+    <text x="48" y="250" fill="#FFFFFF" font-family="Consolas, monospace" font-size="13" font-weight="800">Confirmation required</text>
+  </g>
+  <g transform="translate(856 136)">
+    <rect width="360" height="300" rx="18" fill="#FFF8F4" stroke="#E3C8B8"/>
+    <text x="28" y="52" fill="#9F4D2F" font-family="Consolas, monospace" font-size="16" font-weight="800">BLOCKED</text>
+    <text x="28" y="96" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="820">Never exposed by default</text>
+    <text x="28" y="150" fill="#4F5751" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Terminal, shell, cmd, PowerShell, arbitrary process spawn, broad filesystem grants.</text>
+    <rect x="28" y="222" width="304" height="44" rx="8" fill="#F4E5DC"/>
+    <text x="48" y="250" fill="#9F4D2F" font-family="Consolas, monospace" font-size="13" font-weight="800">Regression tested</text>
+  </g>
+</svg>

@@ -1,0 +1,71 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Three-platform capability map</title>
+  <desc id="desc">Capability matrix across Web, Desktop, and Mobile.</desc>
+  <rect width="1280" height="720" fill="#F5F6F4"/>
+  <text x="64" y="78" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="44" font-weight="820">Three-platform capability map</text>
+  <text x="64" y="112" fill="#4F5751" font-family="Consolas, monospace" font-size="15">Shared safe core plus explicit Desktop-only expansion.</text>
+  <g transform="translate(64 156)">
+    <rect width="350" height="470" rx="16" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="28" y="50" fill="#166052" font-family="Consolas, monospace" font-size="16" font-weight="800">WEB</text>
+    <text x="28" y="92" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="820">Safe browser workspace</text>
+    <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" fill="#171A17">
+      <text x="28" y="150">Provider chat</text>
+      <text x="28" y="198">Native provider adapters</text>
+      <text x="28" y="246">RAG query and citations</text>
+      <text x="28" y="294">Web search</text>
+      <text x="28" y="342">HTTP MCP</text>
+    </g>
+    <g fill="#166052">
+      <circle cx="308" cy="144" r="9"/>
+      <circle cx="308" cy="192" r="9"/>
+      <circle cx="308" cy="240" r="9"/>
+      <circle cx="308" cy="288" r="9"/>
+      <circle cx="308" cy="336" r="9"/>
+    </g>
+    <rect x="28" y="382" width="294" height="44" rx="8" fill="#F4E5DC"/>
+    <text x="46" y="410" fill="#9F4D2F" font-family="Consolas, monospace" font-size="13" font-weight="800">No stdio MCP, code execution, or terminal</text>
+  </g>
+  <g transform="translate(465 156)">
+    <rect width="350" height="470" rx="16" fill="#17211C"/>
+    <text x="28" y="50" fill="#9FDBC8" font-family="Consolas, monospace" font-size="16" font-weight="800">DESKTOP</text>
+    <text x="28" y="92" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="820">Full local workstation</text>
+    <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" fill="#FFFFFF">
+      <text x="28" y="150">Shared safe core</text>
+      <text x="28" y="198">Keychain provider secrets</text>
+      <text x="28" y="246">Durable RAG index</text>
+      <text x="28" y="294">Desktop proxy fallback</text>
+      <text x="28" y="342">stdio MCP and plugins</text>
+      <text x="28" y="390">Sandboxed JS/Python code</text>
+    </g>
+    <g fill="#9FDBC8">
+      <circle cx="308" cy="144" r="9"/>
+      <circle cx="308" cy="192" r="9"/>
+      <circle cx="308" cy="240" r="9"/>
+      <circle cx="308" cy="288" r="9"/>
+      <circle cx="308" cy="336" r="9"/>
+      <circle cx="308" cy="384" r="9"/>
+    </g>
+    <text x="28" y="432" fill="#F4E5DC" font-family="Consolas, monospace" font-size="13" font-weight="800">No arbitrary shell endpoint</text>
+  </g>
+  <g transform="translate(866 156)">
+    <rect width="350" height="470" rx="16" fill="#FFFFFF" stroke="#D8DED7"/>
+    <text x="28" y="50" fill="#166052" font-family="Consolas, monospace" font-size="16" font-weight="800">MOBILE</text>
+    <text x="28" y="92" fill="#171A17" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="820">Portable capture client</text>
+    <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" fill="#171A17">
+      <text x="28" y="150">Provider chat</text>
+      <text x="28" y="198">RAG query and citations</text>
+      <text x="28" y="246">Web search</text>
+      <text x="28" y="294">HTTP MCP</text>
+      <text x="28" y="342">Camera input</text>
+      <text x="28" y="390">Voice input/playback</text>
+    </g>
+    <g fill="#166052">
+      <circle cx="308" cy="144" r="9"/>
+      <circle cx="308" cy="192" r="9"/>
+      <circle cx="308" cy="240" r="9"/>
+      <circle cx="308" cy="288" r="9"/>
+      <circle cx="308" cy="336" r="9"/>
+      <circle cx="308" cy="384" r="9"/>
+    </g>
+  </g>
+</svg>
