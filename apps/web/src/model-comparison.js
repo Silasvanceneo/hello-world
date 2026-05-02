@@ -6,6 +6,7 @@ export async function compareProvidersInBrowser({
   messages,
   providerSecrets,
   streamChat = streamChatInBrowser,
+  fetch,
   now = () => new Date().toISOString(),
   nowMs = () => performance.now(),
 }) {
@@ -20,6 +21,7 @@ export async function compareProvidersInBrowser({
         modelId,
         apiKey: providerSecrets.get(provider.id),
         messages: [...messages, { role: 'user', content: prompt }],
+        fetch,
       });
       const completedAt = now();
       return {

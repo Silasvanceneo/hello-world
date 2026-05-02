@@ -18,7 +18,7 @@ Implemented baseline:
 
 ## Web presets
 
-The Web settings surface includes provider presets for native cloud APIs, OpenAI-compatible cloud APIs, relay gateways, and local runtimes. These presets are convenience metadata only; they do not include credentials. Direct browser validation still follows each provider's CORS policy.
+The Web settings surface includes provider presets for native cloud APIs, OpenAI-compatible cloud APIs, relay gateways, and local runtimes. These presets are convenience metadata only; they do not include credentials. The Provider panel has an explicit `Refresh models` action that lists models from the configured provider and fills the Model field suggestions. Direct browser validation still follows each provider's CORS policy; the Windows Desktop app uses the restricted Tauri provider fetch bridge instead.
 
 Native protocol presets are exposed only after dedicated adapters and mocked request/streaming tests exist.
 

@@ -115,6 +115,24 @@ test('streamChatInBrowser posts to provider and returns full streamed text', asy
   assert.equal(text, 'Hello!');
 });
 
+test('streamChatInBrowser can use a desktop provider fetch bridge', async () => {
+  const calls = [];
+  const text = await streamChatInBrowser({
+    provider: { type: 'openai-compatible', baseUrl: 'https://api.example.test/v1' },
+    modelId: 'gpt-test',
+    apiKey: 'runtime-key',
+    messages: [{ role: 'user', content: 'Hello' }],
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return response('data: {"choices":[{"delta":{"content":"Desktop"}}]}\n\n');
+    },
+  });
+
+  assert.equal(text, 'Desktop');
+  assert.equal(calls[0].url, 'https://api.example.test/v1/chat/completions');
+  assert.equal(new Headers(calls[0].init.headers).get('authorization'), 'Bearer runtime-key');
+});
+
 test('streamChatInBrowser posts native Anthropic, Gemini, Azure, and DashScope requests', async () => {
   const anthropicText = await streamChatInBrowser({
     provider: { type: 'anthropic', baseUrl: 'https://api.anthropic.com/v1' },

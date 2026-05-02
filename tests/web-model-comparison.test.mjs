@@ -9,11 +9,13 @@ const providers = [
 
 test('compareProvidersInBrowser returns side-by-side browser comparison data', async () => {
   const calls = [];
+  const desktopFetch = async () => new Response('ok');
   const results = await compareProvidersInBrowser({
     providers,
     prompt: 'same prompt',
     providerSecrets: new Map([['p1', 'runtime-key']]),
     messages: [{ role: 'system', content: 'be concise' }],
+    fetch: desktopFetch,
     now: () => '2026-04-29T00:00:00.000Z',
     nowMs: () => 100,
     streamChat: async (request) => {
@@ -27,6 +29,7 @@ test('compareProvidersInBrowser returns side-by-side browser comparison data', a
   assert.equal(results[0].text, 'model-a: same prompt');
   assert.equal(results[0].usage.totalTokens, 5);
   assert.equal(calls[0].apiKey, 'runtime-key');
+  assert.equal(calls[0].fetch, desktopFetch);
   assert.equal(calls[1].messages.at(-1).content, 'same prompt');
 });
 

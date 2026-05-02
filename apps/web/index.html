@@ -177,10 +177,12 @@
             </select>
           </label>
           <label data-i18n-label="field.baseUrl">Base URL<input id="provider-base-url" placeholder="http://127.0.0.1:11434" /></label>
-          <label data-i18n-label="field.model">Model<input id="provider-model" placeholder="gpt-4.1-mini or llama3.2" data-i18n-placeholder="provider.modelPlaceholder" /></label>
+          <label data-i18n-label="field.model">Model<input id="provider-model" list="provider-model-options" placeholder="gpt-4.1-mini or llama3.2" data-i18n-placeholder="provider.modelPlaceholder" /></label>
+          <datalist id="provider-model-options"></datalist>
           <label data-i18n-label="field.apiKey">API key<input id="provider-api-key" type="password" placeholder="Runtime only; not persisted" data-i18n-placeholder="provider.keyPlaceholder" /></label>
           <div class="panel-actions">
             <button id="detect-local-ollama" class="secondary-button" type="button" data-i18n="provider.detectOllama">Detect Ollama</button>
+            <button id="refresh-provider-models" class="secondary-button" type="button" data-i18n="provider.refreshModels">Refresh models</button>
             <button id="save-provider" class="primary-button" type="button" data-i18n="action.save">Save</button>
           </div>
           <p id="provider-status" class="status-text" data-i18n="provider.noneConfigured">No provider configured.</p>

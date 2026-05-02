@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   bindDesktopCaptureRequests,
   canUseTauriInvoke,
+  createDesktopProviderFetch,
   detectLocalOllama,
   deleteDesktopProviderSecret,
   readDesktopProviderSecret,
@@ -50,12 +51,14 @@ test('desktop capability summary reports native OS integrations when available',
     keychain: true,
     local_ollama_detection: true,
     sandboxed_code_execution: true,
+    provider_fetch_proxy: true,
   });
 
-  assert.equal(summary.ready.length, 7);
+  assert.equal(summary.ready.length, 8);
   assert.equal(summary.deferred.length, 0);
-  assert.match(summary.message, /7 available/);
+  assert.match(summary.message, /8 available/);
   assert(summary.ready.some((item) => item.id === 'keychain' && /OS keychain/.test(item.reason)));
+  assert(summary.ready.some((item) => item.id === 'provider_fetch_proxy' && /browser CORS/.test(item.reason)));
 });
 
 test('desktop keychain helpers invoke native commands without exposing secrets in command names', async () => {
@@ -80,6 +83,32 @@ test('desktop keychain helpers invoke native commands without exposing secrets i
   assert.equal(calls[0].payload.providerId, 'p1');
   assert.equal(calls[0].payload.secret, 'runtime-secret');
   assert.equal(read.value, 'runtime-secret');
+});
+
+test('desktop provider fetch helper wraps Tauri response as a Fetch Response', async () => {
+  const calls = [];
+  const fetch = createDesktopProviderFetch({
+    invoke: async (command, payload) => {
+      calls.push({ command, payload });
+      return {
+        status: 200,
+        statusText: 'OK',
+        headers: { 'content-type': 'application/json' },
+        body: '{"data":[{"id":"gpt-test"}]}',
+      };
+    },
+  });
+
+  const response = await fetch('https://api.example.test/v1/models', {
+    method: 'GET',
+    headers: { authorization: 'Bearer runtime-secret' },
+  });
+
+  assert.equal(response.ok, true);
+  assert.deepEqual(await response.json(), { data: [{ id: 'gpt-test' }] });
+  assert.equal(calls[0].command, 'desktop_provider_fetch');
+  assert.equal(calls[0].payload.request.url, 'https://api.example.test/v1/models');
+  assert.equal(calls[0].payload.request.headers.authorization, 'Bearer runtime-secret');
 });
 
 test('desktop capture request binding listens through Tauri events', async () => {

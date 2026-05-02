@@ -56,6 +56,7 @@ import { applyTranslations, createTranslator } from './localization.js';
 import { bindMultiWindowSync, writeStateAcrossWindows } from './multi-window-sync.js';
 import {
   bindDesktopCaptureRequests,
+  createDesktopProviderFetch,
   detectLocalOllama,
   readDesktopNativeCapabilities,
   summarizeDesktopNativeCapabilities,
@@ -82,6 +83,7 @@ let comparisonResults = [];
 let sessionFilters = createInitialSessionFilters();
 const expandedMessageSessions = new Set();
 let desktopCapabilitySummary;
+const desktopProviderFetch = createDesktopProviderFetch();
 
 const elements = {
   agentIcon: document.querySelector('#agent-icon'),
@@ -131,6 +133,7 @@ const elements = {
   providerBaseUrl: document.querySelector('#provider-base-url'),
   detectLocalOllama: document.querySelector('#detect-local-ollama'),
   providerModel: document.querySelector('#provider-model'),
+  providerModelOptions: document.querySelector('#provider-model-options'),
   providerName: document.querySelector('#provider-name'),
   providerApiKey: document.querySelector('#provider-api-key'),
   providerPreset: document.querySelector('#provider-preset'),
@@ -141,6 +144,7 @@ const elements = {
   settingsTriggers: document.querySelectorAll('[data-open-settings]'),
   chatTriggers: document.querySelectorAll('[data-open-chat]'),
   saveProvider: document.querySelector('#save-provider'),
+  refreshProviderModels: document.querySelector('#refresh-provider-models'),
   saveAgentPreset: document.querySelector('#save-agent-preset'),
   saveBudget: document.querySelector('#save-budget'),
   savePromptTemplate: document.querySelector('#save-prompt-template'),
@@ -300,6 +304,7 @@ elements.composer.addEventListener('submit', async (event) => {
       modelId: getActiveAgentPreset(state)?.defaultModelId ?? routeChoice.modelId ?? provider.defaultModelId ?? defaultModel(provider.type),
       apiKey: providerSecrets.get(provider.id),
       signal: activeAbortController.signal,
+      fetch: desktopProviderFetch,
       messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
       onDelta: (_delta, fullText) => {
         elements.providerStatus.textContent = t('status.streaming', { count: fullText.length });
@@ -352,6 +357,7 @@ elements.compareModels.addEventListener('click', async () => {
       prompt: text,
       providerSecrets,
       messages: createProviderMessagesForActiveAgent(state, getActiveSession(state)),
+      fetch: desktopProviderFetch,
     });
     elements.providerStatus.textContent = t('status.comparisonFinished');
   } finally {
@@ -517,25 +523,38 @@ elements.messages.addEventListener('drop', (event) => {
 });
 
 elements.saveProvider.addEventListener('click', async () => {
-  const provider = createProviderFromForm({
-    name: elements.providerName.value,
-    type: elements.providerType.value,
-    baseUrl: elements.providerBaseUrl.value,
-    modelId: elements.providerModel.value,
-    apiKey: elements.providerApiKey.value,
-  });
-  if (elements.providerApiKey.value) {
-    providerSecrets.set(provider.id, elements.providerApiKey.value);
-  }
+  const provider = createProviderDraftFromInputs();
+  rememberProviderSecret(provider);
   state = upsertProvider(state, provider);
   elements.providerApiKey.value = '';
   saveState();
   render();
   try {
-    const models = await validateProviderInBrowser(provider, { apiKey: providerSecrets.get(provider.id) });
+    const models = await refreshProviderModels(provider);
     elements.providerStatus.textContent = describeModelList(models, provider.defaultModelId, { t });
   } catch (error) {
     elements.providerStatus.textContent = t('status.savedBut', { message: describeProviderValidationError(error, provider, { t }) });
+  }
+});
+
+elements.refreshProviderModels.addEventListener('click', async () => {
+  const provider = createProviderDraftFromInputs(state.providers[0]?.id);
+  rememberProviderSecret(provider);
+  elements.refreshProviderModels.disabled = true;
+  elements.providerStatus.textContent = t('provider.modelsRefreshing');
+  try {
+    const models = await refreshProviderModels(provider);
+    if (!elements.providerModel.value && models[0]) {
+      elements.providerModel.value = models[0];
+    }
+    elements.providerStatus.textContent = t('provider.modelsLoaded', {
+      count: models.length,
+      plural: models.length === 1 ? '' : 's',
+    });
+  } catch (error) {
+    elements.providerStatus.textContent = describeProviderValidationError(error, provider, { t });
+  } finally {
+    elements.refreshProviderModels.disabled = false;
   }
 });
 
@@ -805,6 +824,38 @@ async function attachNativeImage(name, producer) {
     const message = error instanceof Error ? error.message : t('status.nativeInputUnknown');
     elements.providerStatus.textContent = t('status.nativeInputUnavailable', { message });
   }
+}
+
+function createProviderDraftFromInputs(id) {
+  return createProviderFromForm({
+    name: elements.providerName.value,
+    type: elements.providerType.value,
+    baseUrl: elements.providerBaseUrl.value,
+    modelId: elements.providerModel.value,
+    apiKey: elements.providerApiKey.value,
+  }, new Date().toISOString(), id);
+}
+
+function rememberProviderSecret(provider) {
+  if (elements.providerApiKey.value) {
+    providerSecrets.set(provider.id, elements.providerApiKey.value);
+  }
+}
+
+async function refreshProviderModels(provider) {
+  const models = await validateProviderInBrowser(provider, {
+    apiKey: providerSecrets.get(provider.id),
+    fetch: desktopProviderFetch,
+  });
+  renderProviderModelOptions(models);
+  return models;
+}
+
+function renderProviderModelOptions(models) {
+  elements.providerModelOptions.innerHTML = models
+    .slice(0, 200)
+    .map((model) => `<option value="${escapeHtml(model)}"></option>`)
+    .join('');
 }
 
 function appendPromptText(text) {

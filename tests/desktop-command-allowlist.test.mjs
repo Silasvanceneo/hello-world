@@ -21,6 +21,7 @@ test('desktop Tauri command allowlist exposes no terminal or shell execution com
     'read_desktop_provider_secret',
     'delete_desktop_provider_secret',
     'run_sandboxed_code',
+    'desktop_provider_fetch',
   ]);
   assert(commands.every((command) => !/terminal|shell|process|command|spawn/i.test(command)));
 });
@@ -41,4 +42,15 @@ test('desktop controlled code runner does not expose arbitrary command fields', 
   assert.equal(/command\s*:\s*String/.test(source), false);
   assert.equal(/shell\s*:\s*String/.test(source), false);
   assert.equal(/powershell|cmd\.exe|\/bin\/sh/i.test(source), false);
+});
+
+test('desktop provider fetch is not an arbitrary network proxy', async () => {
+  const source = await readFile(mainSourcePath, 'utf8');
+
+  assert.match(source, /fn validate_provider_fetch_request/);
+  assert.match(source, /Desktop provider fetch supports only GET and POST/);
+  assert.match(source, /Provider URL must not include credentials/);
+  assert.match(source, /Desktop provider fetch allows HTTPS endpoints/);
+  assert.match(source, /fn is_allowed_provider_header/);
+  assert.match(source, /redirect\(reqwest::redirect::Policy::none\(\)\)/);
 });

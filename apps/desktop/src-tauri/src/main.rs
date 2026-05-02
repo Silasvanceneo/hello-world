@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{
+    collections::HashMap,
     ffi::c_void,
     fs,
     io::Write,
@@ -12,11 +13,13 @@ use std::{
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Emitter, Manager,
 };
+use url::Url;
 use windows_sys::Win32::{
     Foundation::{GetLastError, ERROR_NOT_FOUND, HWND},
     Security::Credentials::{
@@ -42,6 +45,7 @@ struct DesktopNativeCapabilities {
     keychain: bool,
     local_ollama_detection: bool,
     sandboxed_code_execution: bool,
+    provider_fetch_proxy: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -65,6 +69,25 @@ struct DesktopProviderSecretReadResult {
 #[derive(serde::Serialize, Clone)]
 struct DesktopCaptureRequest {
     source: String,
+}
+
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct DesktopProviderFetchRequest {
+    url: String,
+    method: String,
+    headers: HashMap<String, String>,
+    body: Option<String>,
+    timeout_ms: Option<u64>,
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DesktopProviderFetchResponse {
+    status: u16,
+    status_text: String,
+    headers: HashMap<String, String>,
+    body: String,
 }
 
 #[derive(serde::Deserialize)]
@@ -111,6 +134,7 @@ fn desktop_native_capabilities() -> DesktopNativeCapabilities {
         keychain: true,
         local_ollama_detection: true,
         sandboxed_code_execution: true,
+        provider_fetch_proxy: true,
     }
 }
 
@@ -176,6 +200,61 @@ fn run_sandboxed_code(
     result
 }
 
+#[tauri::command]
+async fn desktop_provider_fetch(
+    request: DesktopProviderFetchRequest,
+) -> Result<DesktopProviderFetchResponse, String> {
+    validate_provider_fetch_request(&request)?;
+    let timeout = Duration::from_millis(request.timeout_ms.unwrap_or(30_000).clamp(1_000, 60_000));
+    let client = reqwest::Client::builder()
+        .timeout(timeout)
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .map_err(|error| format!("Could not create desktop provider client: {error}"))?;
+
+    let method = if request.method.eq_ignore_ascii_case("POST") {
+        reqwest::Method::POST
+    } else {
+        reqwest::Method::GET
+    };
+    let mut builder = client
+        .request(method, request.url)
+        .headers(provider_fetch_headers(&request.headers)?);
+    if let Some(body) = request.body {
+        builder = builder.body(body);
+    }
+
+    let response = builder
+        .send()
+        .await
+        .map_err(|error| format!("Desktop provider request failed: {error}"))?;
+    let status = response.status();
+    let headers = response
+        .headers()
+        .iter()
+        .filter_map(|(name, value)| {
+            value
+                .to_str()
+                .ok()
+                .map(|text| (name.as_str().to_string(), text.to_string()))
+        })
+        .collect();
+    let body = response
+        .text()
+        .await
+        .map_err(|error| format!("Could not read desktop provider response: {error}"))?;
+    if body.len() > 2_000_000 {
+        return Err("Desktop provider response exceeded the 2 MB limit.".to_string());
+    }
+
+    Ok(DesktopProviderFetchResponse {
+        status: status.as_u16(),
+        status_text: status.canonical_reason().unwrap_or("").to_string(),
+        headers,
+        body,
+    })
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -189,7 +268,8 @@ fn main() {
             save_desktop_provider_secret,
             read_desktop_provider_secret,
             delete_desktop_provider_secret,
-            run_sandboxed_code
+            run_sandboxed_code,
+            desktop_provider_fetch
         ])
         .run(tauri::generate_context!())
         .expect("error while running hello-world desktop shell");
@@ -227,6 +307,77 @@ fn validate_sandbox_request(request: &SandboxCodeRequest) -> Result<(), String> 
         return Err("Environment references must be safe variable names.".to_string());
     }
     Ok(())
+}
+
+fn validate_provider_fetch_request(request: &DesktopProviderFetchRequest) -> Result<(), String> {
+    let url = Url::parse(&request.url).map_err(|_| "Provider URL is not valid.".to_string())?;
+    let scheme = url.scheme();
+    let host = url
+        .host_str()
+        .ok_or_else(|| "Provider URL must include a host.".to_string())?;
+    if !matches!(request.method.to_uppercase().as_str(), "GET" | "POST") {
+        return Err("Desktop provider fetch supports only GET and POST.".to_string());
+    }
+    if !url.username().is_empty() || url.password().is_some() {
+        return Err("Provider URL must not include credentials.".to_string());
+    }
+    if request.url.len() > 2_048 {
+        return Err("Provider URL is too long.".to_string());
+    }
+    if request.body.as_ref().map_or(0, |body| body.len()) > 1_000_000 {
+        return Err("Provider request body exceeded the 1 MB limit.".to_string());
+    }
+    if request.headers.len() > 16 {
+        return Err("Provider request has too many headers.".to_string());
+    }
+    if scheme == "https" {
+        return Ok(());
+    }
+    if scheme == "http" && is_allowed_local_provider(host, url.port_or_known_default()) {
+        return Ok(());
+    }
+    Err(
+        "Desktop provider fetch allows HTTPS endpoints, plus local Ollama on 127.0.0.1:11434."
+            .to_string(),
+    )
+}
+
+fn is_allowed_local_provider(host: &str, port: Option<u16>) -> bool {
+    matches!(host, "127.0.0.1" | "localhost") && port == Some(11434)
+}
+
+fn provider_fetch_headers(headers: &HashMap<String, String>) -> Result<HeaderMap, String> {
+    let mut result = HeaderMap::new();
+    for (name, value) in headers {
+        let lower = name.to_ascii_lowercase();
+        if !is_allowed_provider_header(&lower) {
+            return Err(format!("Provider header is not allowed: {name}"));
+        }
+        if value.len() > 8_000 || value.contains('\r') || value.contains('\n') {
+            return Err(format!("Provider header value is invalid: {name}"));
+        }
+        let header_name = HeaderName::from_bytes(lower.as_bytes())
+            .map_err(|_| format!("Provider header name is invalid: {name}"))?;
+        let header_value = HeaderValue::from_str(value)
+            .map_err(|_| format!("Provider header value is invalid: {name}"))?;
+        result.insert(header_name, header_value);
+    }
+    Ok(result)
+}
+
+fn is_allowed_provider_header(name: &str) -> bool {
+    matches!(
+        name,
+        "accept"
+            | "api-key"
+            | "anthropic-version"
+            | "authorization"
+            | "content-type"
+            | "openai-beta"
+            | "x-api-key"
+            | "x-dashscope-sse"
+            | "x-goog-api-key"
+    )
 }
 
 fn run_sandboxed_code_in_dir(

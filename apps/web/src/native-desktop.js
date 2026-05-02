@@ -72,6 +72,32 @@ export async function executeDesktopCode({
   return invoke('run_sandboxed_code', { request, confirmation });
 }
 
+export function createDesktopProviderFetch({
+  environment = globalThis,
+  invoke = environment.__TAURI__?.core?.invoke,
+} = {}) {
+  if (!invoke) {
+    return undefined;
+  }
+  return async (url, init = {}) => {
+    const headers = Object.fromEntries(new Headers(init.headers ?? {}).entries());
+    const response = await invoke('desktop_provider_fetch', {
+      request: {
+        url: String(url),
+        method: init.method ?? 'GET',
+        headers,
+        body: typeof init.body === 'string' ? init.body : undefined,
+        timeoutMs: 60000,
+      },
+    });
+    return new Response(response.body ?? '', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers ?? {},
+    });
+  };
+}
+
 export async function bindDesktopCaptureRequests({
   environment = globalThis,
   listen = environment.__TAURI__?.event?.listen,
@@ -137,6 +163,14 @@ export function summarizeDesktopNativeCapabilities(capabilities = {}) {
       reason: capabilities.sandboxed_code_execution === true
         ? 'Runs supported snippets through controlled Desktop runner commands after confirmation.'
         : 'Code execution stays hidden outside the Desktop sandbox runner.',
+    },
+    {
+      id: 'provider_fetch_proxy',
+      label: 'Provider fetch proxy',
+      available: capabilities.provider_fetch_proxy === true,
+      reason: capabilities.provider_fetch_proxy === true
+        ? 'Routes provider requests through the Desktop app so cloud APIs are not blocked by browser CORS.'
+        : 'Web and Mobile still need provider CORS support or a self-hosted gateway.',
     },
   ];
   const ready = items.filter((item) => item.available);
