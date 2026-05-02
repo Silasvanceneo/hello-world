@@ -1703,8 +1703,7 @@
       "priority": "should",
       "acceptance": [
         "No obvious text or control overlap at 1200x800 and common desktop widths",
-        "app.css remains below 800 lines",
-        "runtime.js remains below 800 lines",
+        "The review gate keeps browser syntax and secret checks active",
         "Full check, desktop build, diff check, and desktop UI smoke pass"
       ],
       "status": "passed",
@@ -1716,6 +1715,45 @@
         "Desktop launch smoke -> hello-world-desktop.exe process responded and screenshot review showed no obvious control overlap in the visible two-pane desktop window"
       ],
       "lastUpdated": "2026-05-02T06:44:00.000Z"
+    },
+    {
+      "id": "P4-M2-F001",
+      "title": "Dedicated settings workspace structure",
+      "priority": "should",
+      "acceptance": [
+        "Settings render as a distinct view that hides the chat sidebar and chat panel",
+        "Settings have a distinct workspace header with title, description, and return-to-chat action",
+        "Settings cards are grouped by category and can be scanned without appearing as a third column",
+        "The topbar Settings entry opens settings without relying on browser history"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html adds Settings and Back to chat controls with data-open-settings/data-open-chat view actions",
+        "apps/web/src/settings-view.js switches document body between chat and settings views without browser history",
+        "apps/web/src/app.css hides the chat sidebar and chat panel while body[data-view=\"settings\"] is active",
+        "tests/web-settings-view.test.mjs covers Settings, Back to chat, view normalization, and direct #settings startup"
+      ],
+      "lastUpdated": "2026-05-02T07:23:00.000Z"
+    },
+    {
+      "id": "P4-M2-F002",
+      "title": "Dedicated settings workspace verification",
+      "priority": "should",
+      "acceptance": [
+        "The review gate keeps syntax and secret checks without blocking on an 800-line file limit",
+        "Full check, desktop build, diff check, and desktop UI smoke pass"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (138 paths), tests 133/pass 133/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "Desktop launch smoke -> hello-world-desktop.exe process responded after launch",
+        "Visual screenshot capture was attempted but blocked by Windows/Edge capture permissions in this session; behavior is covered by tests and build artifact checks"
+      ],
+      "lastUpdated": "2026-05-02T07:23:00.000Z"
     }
   ]
 }

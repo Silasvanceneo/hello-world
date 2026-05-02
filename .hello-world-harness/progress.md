@@ -358,3 +358,19 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `git diff --check` with line-ending warnings only; `apps/web/src/app.css` is 728 lines and `apps/web/src/runtime.js` is 782 lines.
 - Verification passed: `npm run build:desktop` built `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`.
 - Desktop UI smoke passed: launched the release executable, confirmed the process responded, and captured `.tmp-tests/desktop-ui-p4-m1.png` showing the polished two-pane workspace with sidebar, chat, composer, and topbar Settings access visible.
+
+## 2026-05-02T06:55:00.000Z
+
+- Started P4-M2 dedicated settings workspace polish.
+- Scope now treats Settings as a true separate view: opening Settings hides the chat sidebar and chat panel, and Back to chat returns to the composer without depending on browser history.
+- The project review gate is being updated to keep syntax and secret checks without blocking UI work on an 800-line file limit, per user direction.
+
+## 2026-05-02T07:23:00.000Z
+
+- Completed P4-M2 dedicated settings workspace polish.
+- Added `apps/web/src/settings-view.js` and wired the Web runtime so Settings and Back to chat switch `body[data-view]` between `settings` and `chat`; Back focuses the composer instead of relying on browser history.
+- Updated the Web shell so Settings is a separate view that hides the sidebar/chat panel, with category anchors still available inside the settings workspace.
+- Updated `scripts/review-check.mjs` so the review gate keeps browser JavaScript syntax and secret checks but no longer blocks on a hard 800-line file limit.
+- Verification passed: `npm run check` -> scaffold check passed (138 paths), tests 133/pass 133/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable.
+- Desktop launch smoke passed: `hello-world-desktop.exe` started and reported a responding main window. Screenshot capture was attempted but blocked by Windows/Edge capture permissions in this session.

@@ -1,7 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { extname, join, relative, sep } from 'node:path';
 
-const maxFileLines = 800;
 const roots = ['README.md', 'package.json', 'docs', 'apps', 'packages', 'scripts', 'tests'];
 const ignoredDirectoryNames = new Set([
   '.git',
@@ -27,7 +26,6 @@ const scannedExtensions = new Set([
   '.tsx',
   '.webmanifest',
 ]);
-const lineLimitedExtensions = new Set(['.css', '.html', '.js', '.mjs', '.rs', '.toml', '.ts', '.tsx']);
 const secretPatterns = [
   {
     name: 'OpenAI-style secret',
@@ -45,10 +43,6 @@ const warnings = [];
 for (const filePath of collectFiles(roots)) {
   const content = readFileSync(filePath, 'utf8');
   const normalizedPath = relative(process.cwd(), filePath).split(sep).join('/');
-  const lineCount = countLines(content);
-  if (lineLimitedExtensions.has(extname(filePath)) && lineCount > maxFileLines) {
-    failures.push(`${normalizedPath}: ${lineCount} lines exceeds ${maxFileLines}`);
-  }
   if (extname(filePath) === '.js') {
     const syntaxError = checkBrowserJavaScriptSyntax(content);
     if (syntaxError) {
@@ -93,7 +87,7 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`review check passed (${roots.length} roots, max ${maxFileLines} lines/file, no suspicious secrets).`);
+console.log(`review check passed (${roots.length} roots, syntax checks, no suspicious secrets).`);
 
 function collectFiles(paths) {
   const files = [];

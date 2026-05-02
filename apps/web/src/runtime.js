@@ -48,6 +48,7 @@ import { bindMessageListWindow, renderMessageList } from './message-list.js';
 import { bindMultiWindowSync, writeStateAcrossWindows } from './multi-window-sync.js';
 import { bindDesktopCaptureRequests, detectLocalOllama } from './native-desktop.js';
 import { configureServiceWorker } from './pwa-runtime.js';
+import { bindSettingsView } from './settings-view.js';
 import {
   captureMobilePhoto,
   captureScreenImage,
@@ -118,6 +119,8 @@ const elements = {
   providerType: document.querySelector('#provider-type'),
   routingStatus: document.querySelector('#routing-status'),
   routingStrategy: document.querySelector('#model-routing-strategy'),
+  settingsTriggers: document.querySelectorAll('[data-open-settings]'),
+  chatTriggers: document.querySelectorAll('[data-open-chat]'),
   saveProvider: document.querySelector('#save-provider'),
   saveAgentPreset: document.querySelector('#save-agent-preset'),
   saveBudget: document.querySelector('#save-budget'),
@@ -315,6 +318,14 @@ bindMultiWindowSync({
   parseState,
   render,
   onStatus: (message) => { elements.providerStatus.textContent = message; },
+});
+
+bindSettingsView({
+  root: document.body,
+  settingsTriggers: elements.settingsTriggers,
+  chatTriggers: elements.chatTriggers,
+  focusTarget: elements.prompt,
+  scrollTarget: elements.composer,
 });
 
 elements.comparisonResults.addEventListener('click', (event) => {

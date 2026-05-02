@@ -954,6 +954,38 @@
         "Capture or inspect desktop UI smoke evidence",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P4-M2",
+      "scope": "Dedicated settings workspace polish",
+      "dependencies": [
+        "P4-M1"
+      ],
+      "doneCriteria": [
+        "Settings render as a distinct view that hides the chat sidebar and chat panel",
+        "Settings have an obvious title, description, category navigation, and return-to-chat action",
+        "Back to chat returns to the chat view and focuses the composer instead of relying on browser history",
+        "The review gate no longer blocks UI work on an 800-line file limit while keeping syntax and secret checks",
+        "Tests, Web build, desktop build, diff checks, and desktop UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Capture or inspect desktop UI smoke evidence",
+        "Create git checkpoint"
+      ]
     }
   ]
 }
