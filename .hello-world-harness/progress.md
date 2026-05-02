@@ -374,3 +374,18 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (138 paths), tests 133/pass 133/fail 0, build:web passed, review passed.
 - Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable.
 - Desktop launch smoke passed: `hello-world-desktop.exe` started and reported a responding main window. Screenshot capture was attempted but blocked by Windows/Edge capture permissions in this session.
+
+## 2026-05-02T07:38:11.217Z
+
+- Started P4-M3 settings information architecture and return-state polish.
+- Scope: convert Settings from a sequence of equal cards into a dedicated settings workspace with section navigation, grouped content, and chat scroll restoration on Back.
+- Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-settings-view.test.mjs` -> tests 4/pass 4/fail 0.
+
+## 2026-05-02T07:44:15.966Z
+
+- Completed P4-M3 settings information architecture and return-state polish.
+- Settings now render as a dedicated workspace with section navigation, grouped content, Provider prioritized first, and responsive single-column collapse.
+- Back to chat now restores the previous chat message scroll position when possible and still focuses the composer.
+- Verification passed: `npm run check` -> scaffold check passed (138 paths), tests 135/pass 135/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; desktop launch smoke reported a responding process.
+- UI smoke passed: local HTTP + Edge headless captured `.tmp-tests/settings-p4-m3-http.png` showing the dedicated Settings view with sidebar/chat hidden and Provider prioritized.

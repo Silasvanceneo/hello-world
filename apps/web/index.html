@@ -108,24 +108,33 @@
         <header class="settings-header">
           <div>
             <p class="eyebrow">Workspace settings</p>
-            <h2>Configure once, chat faster.</h2>
-            <p>Providers, agents, prompts, cost controls, sync, backups, and security defaults live here away from the chat canvas.</p>
+            <h2>Settings</h2>
+            <p>Manage providers, assistants, prompts, routing, local data, and safety defaults outside the chat surface.</p>
           </div>
           <a class="settings-return" href="#chat" data-open-chat>Back to chat</a>
         </header>
 
-        <nav class="settings-nav" aria-label="Settings sections">
-          <a href="#settings-provider">Provider</a>
-          <a href="#settings-agent">Agent</a>
-          <a href="#settings-prompts">Prompts</a>
-          <a href="#settings-route">Routing</a>
-          <a href="#settings-cost">Cost</a>
-          <a href="#settings-sync">Sync</a>
-          <a href="#settings-backup">Backup</a>
-          <a href="#settings-security">Security</a>
-        </nav>
+        <div class="settings-workspace">
+          <nav class="settings-nav" aria-label="Settings sections">
+            <p class="section-label">Sections</p>
+            <a href="#settings-provider"><span>01</span>Provider</a>
+            <a href="#settings-agent"><span>02</span>Agent</a>
+            <a href="#settings-prompts"><span>03</span>Prompts</a>
+            <a href="#settings-route"><span>04</span>Routing</a>
+            <a href="#settings-cost"><span>05</span>Cost</a>
+            <a href="#settings-sync"><span>06</span>Sync</a>
+            <a href="#settings-backup"><span>07</span>Backup</a>
+            <a href="#settings-security"><span>08</span>Security</a>
+          </nav>
 
-        <div id="settings-provider" class="panel-card">
+          <div class="settings-main">
+            <section class="settings-section" aria-labelledby="settings-core-heading">
+              <div class="settings-section-header">
+                <p class="section-label">Core setup</p>
+                <h3 id="settings-core-heading">Connection, assistant, and prompts</h3>
+              </div>
+
+        <div id="settings-provider" class="panel-card settings-card-wide">
           <p class="section-label">Provider</p>
           <h2>Connection</h2>
           <label>Name<input id="provider-name" placeholder="Local Ollama" /></label>
@@ -155,7 +164,7 @@
             </select>
           </label>
           <label>Name<input id="agent-name" placeholder="Research editor" /></label>
-          <label>Icon<input id="agent-icon" maxlength="3" placeholder="◯" /></label>
+          <label>Icon<input id="agent-icon" maxlength="3" placeholder="AI" /></label>
           <label>Default model<input id="agent-model" placeholder="Optional model override" /></label>
           <label>System prompt<textarea id="agent-system-prompt" rows="4" placeholder="How should this agent behave?"></textarea></label>
           <label>Enabled tools<input id="agent-tools" placeholder="file-attachments, vision-input" /></label>
@@ -197,6 +206,14 @@
           <p id="prompt-template-status" class="status-text">No template selected.</p>
         </div>
 
+            </section>
+
+            <section class="settings-section" aria-labelledby="settings-workflow-heading">
+              <div class="settings-section-header">
+                <p class="section-label">Workflow</p>
+                <h3 id="settings-workflow-heading">Routing and cost controls</h3>
+              </div>
+
         <div id="settings-route" class="panel-card">
           <p class="section-label">Model router</p>
           <h2>Route</h2>
@@ -228,6 +245,14 @@
           <p id="cost-status" class="status-text">$0.0000 estimated.</p>
           <ul id="cost-trends" class="security-list cost-trends" aria-label="Usage trends"></ul>
         </div>
+
+            </section>
+
+            <section class="settings-section" aria-labelledby="settings-data-heading">
+              <div class="settings-section-header">
+                <p class="section-label">Local data</p>
+                <h3 id="settings-data-heading">Sync and backup</h3>
+              </div>
 
         <div id="settings-sync" class="panel-card">
           <p class="section-label">Sync foundation</p>
@@ -261,6 +286,14 @@
           <p id="backup-status" class="status-text">Ready to export local data.</p>
         </div>
 
+            </section>
+
+            <section class="settings-section" aria-labelledby="settings-safety-heading">
+              <div class="settings-section-header">
+                <p class="section-label">Safety</p>
+                <h3 id="settings-safety-heading">Default blocked capabilities</h3>
+              </div>
+
         <div id="settings-security" class="panel-card inverted-card">
           <p class="section-label">Security defaults</p>
           <ul class="security-list">
@@ -269,6 +302,9 @@
             <li>stdio MCP <span>off</span></li>
             <li>Broad filesystem <span>off</span></li>
           </ul>
+        </div>
+            </section>
+          </div>
         </div>
       </aside>
     </main>

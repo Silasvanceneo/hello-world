@@ -1754,6 +1754,65 @@
         "Visual screenshot capture was attempted but blocked by Windows/Edge capture permissions in this session; behavior is covered by tests and build artifact checks"
       ],
       "lastUpdated": "2026-05-02T07:23:00.000Z"
+    },
+    {
+      "id": "P4-M3-F001",
+      "title": "Settings information architecture polish",
+      "priority": "should",
+      "acceptance": [
+        "Settings use a dedicated workspace layout with section navigation and main content instead of an equal card pile",
+        "Core provider setup is prioritized in the first visible settings area",
+        "Settings remain a separate view and do not reintroduce a persistent third column beside chat",
+        "The layout collapses to a single-column settings view on narrow screens"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html wraps settings controls in settings-workspace, settings-nav, settings-main, and grouped settings-section blocks",
+        "apps/web/src/app.css renders Settings as a standalone workspace with left section navigation, grouped right-side content, Provider as a wide first card, and single-column responsive collapse",
+        "HTTP Edge headless UI smoke -> .tmp-tests/settings-p4-m3-http.png captured the #settings view with sidebar/chat hidden and Provider prioritized in the first settings viewport"
+      ],
+      "lastUpdated": "2026-05-02T07:44:15.966Z"
+    },
+    {
+      "id": "P4-M3-F002",
+      "title": "Settings return-state behavior",
+      "priority": "should",
+      "acceptance": [
+        "Opening Settings captures the current chat message scroll position",
+        "Back to chat restores the captured chat scroll position when possible",
+        "Back to chat still focuses the composer and does not rely on browser history",
+        "Behavior is covered by unit tests"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/settings-view.js captures messages scroll position before opening Settings and restores it on Back to chat",
+        "apps/web/src/runtime.js passes the message list as scrollContainer while Back still focuses the composer",
+        "tests/web-settings-view.test.mjs covers click switching, direct #settings startup, and scroll restoration with and without scrollTo"
+      ],
+      "lastUpdated": "2026-05-02T07:44:15.966Z"
+    },
+    {
+      "id": "P4-M3-F003",
+      "title": "Settings polish verification",
+      "priority": "should",
+      "acceptance": [
+        "Full check passes",
+        "Diff whitespace check passes",
+        "Desktop build passes",
+        "Desktop launch smoke is attempted and result is recorded"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (138 paths), tests 135/pass 135/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "Desktop launch smoke -> hello-world-desktop.exe process responded after launch",
+        "HTTP Edge headless UI smoke -> .tmp-tests/settings-p4-m3-http.png captured the dedicated Settings view"
+      ],
+      "lastUpdated": "2026-05-02T07:44:15.966Z"
     }
   ]
 }

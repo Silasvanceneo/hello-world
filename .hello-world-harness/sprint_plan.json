@@ -986,6 +986,38 @@
         "Capture or inspect desktop UI smoke evidence",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P4-M3",
+      "scope": "Settings information architecture and return-state polish",
+      "dependencies": [
+        "P4-M2"
+      ],
+      "doneCriteria": [
+        "Settings page has a dedicated navigation and grouped main content structure rather than equal cards",
+        "The first settings viewport prioritizes provider setup and core workspace controls",
+        "Back to chat restores the previous chat scroll position when possible and focuses the composer",
+        "The settings workspace remains responsive without becoming a chat-side third column",
+        "Tests, Web build, desktop build, diff checks, and desktop launch smoke verification pass or blockers are recorded"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Capture or inspect desktop launch evidence",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

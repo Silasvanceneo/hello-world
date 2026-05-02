@@ -325,6 +325,7 @@ bindSettingsView({
   settingsTriggers: elements.settingsTriggers,
   chatTriggers: elements.chatTriggers,
   focusTarget: elements.prompt,
+  scrollContainer: elements.messages,
   scrollTarget: elements.composer,
 });
 
