@@ -26,30 +26,44 @@
         <button id="new-session" class="new-chat-button" type="button">New chat <span aria-hidden="true">&rarr;</span></button>
 
         <div class="sidebar-section">
-          <p class="section-label">Conversations</p>
-          <div class="session-organizer" aria-label="Conversation filters">
-            <input id="session-search" placeholder="Search chats" />
-            <select id="session-archive-filter" aria-label="Conversation scope">
-              <option value="active">Active chats</option>
-              <option value="archived">Archived chats</option>
-              <option value="deleted">Trash</option>
-              <option value="all">All chats</option>
-            </select>
-            <select id="session-tag-filter" aria-label="Conversation tag">
-              <option value="">All tags</option>
-            </select>
-          </div>
-          <nav id="session-list" class="session-list" aria-label="Chat history"></nav>
-          <div class="session-controls" aria-label="Current conversation organization">
-            <label>Tags<input id="session-tags" placeholder="research, work" /></label>
-            <label class="compact-check"><input id="session-pinned" type="checkbox" /> Pin</label>
-            <label class="compact-check"><input id="session-archived" type="checkbox" /> Archive</label>
-            <button id="save-session-organization" class="secondary-button" type="button">Save chat</button>
-            <button id="trash-session" class="secondary-button" type="button">Move to trash</button>
-            <button id="restore-session" class="secondary-button" type="button" hidden>Restore</button>
-            <button id="delete-session-forever" class="secondary-button" type="button" hidden>Delete forever</button>
+          <div class="sidebar-heading">
+            <p class="section-label">Conversations</p>
             <p id="session-organization-status" class="status-text">0 active / 0 archived / 0 total</p>
           </div>
+          <div class="session-organizer" aria-label="Conversation navigation filters">
+            <input id="session-search" placeholder="Search chats" />
+            <div class="session-filter-row">
+              <select id="session-archive-filter" aria-label="Conversation scope">
+                <option value="active">Active chats</option>
+                <option value="archived">Archived chats</option>
+                <option value="deleted">Trash</option>
+                <option value="all">All chats</option>
+              </select>
+              <select id="session-tag-filter" aria-label="Conversation tag">
+                <option value="">All tags</option>
+              </select>
+            </div>
+          </div>
+          <nav id="session-list" class="session-list" aria-label="Chat history"></nav>
+          <details class="session-controls" aria-label="Current conversation organization">
+            <summary>
+              <span>Current chat</span>
+              <small>tags, pin, archive</small>
+            </summary>
+            <div class="session-control-body">
+              <label>Tags<input id="session-tags" placeholder="research, work" /></label>
+              <div class="session-check-row">
+                <label class="compact-check"><input id="session-pinned" type="checkbox" /> Pin</label>
+                <label class="compact-check"><input id="session-archived" type="checkbox" /> Archive</label>
+              </div>
+              <div class="session-action-grid">
+                <button id="save-session-organization" class="secondary-button" type="button">Save chat</button>
+                <button id="trash-session" class="secondary-button" type="button">Move to trash</button>
+                <button id="restore-session" class="secondary-button" type="button" hidden>Restore</button>
+                <button id="delete-session-forever" class="secondary-button" type="button" hidden>Delete forever</button>
+              </div>
+            </div>
+          </details>
         </div>
 
         <div class="sidebar-footer" aria-label="Local status">

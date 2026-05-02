@@ -49,15 +49,18 @@ export function renderSessionListItems(view) {
     return `<p class="session-empty">${escapeHtml(view.emptyLabel)}</p>`;
   }
   return view.items.map((item) => {
-    const badges = [
+    const stateBadges = [
       item.pinned ? 'Pinned' : undefined,
       item.archived ? 'Archived' : undefined,
-      item.tags.length > 0 ? item.tags.join(', ') : undefined,
-      `${item.messageCount} msg`,
-    ].filter(Boolean).join(' / ');
+      item.deleted ? 'Trash' : undefined,
+      ...item.tags,
+    ].filter(Boolean);
     return `<button class="session-item ${item.active ? 'active' : ''}" data-session-id="${escapeHtml(item.id)}" type="button">
-      <span>${escapeHtml(item.title)}</span>
-      <small>${escapeHtml(badges)}</small>
+      <span class="session-title-text">${escapeHtml(item.title)}</span>
+      <small class="session-meta">${escapeHtml(formatMessageCount(item.messageCount))}</small>
+      ${stateBadges.length > 0
+        ? `<span class="session-badges">${stateBadges.map((badge) => `<em>${escapeHtml(badge)}</em>`).join('')}</span>`
+        : ''}
     </button>`;
   }).join('');
 }
@@ -186,6 +189,10 @@ function createEmptyLabel(filters) {
   if (filters.query || filters.tag) return 'No matching conversations.';
   if (filters.archiveFilter === 'archived') return 'No archived conversations.';
   return 'No conversations yet.';
+}
+
+function formatMessageCount(count) {
+  return `${count} ${count === 1 ? 'message' : 'messages'}`;
 }
 
 function escapeHtml(value) {

@@ -42,13 +42,35 @@ test('session organizer searches title, tags, and message text', () => {
 
 test('session organizer escapes rendered labels', () => {
   const view = createSessionListViewModel([
-    session({ id: 'safe', title: '<img src=x onerror=alert(1)>', tags: ['a&b'] }),
+    session({ id: 'safe', title: '<img src=x onerror=alert(1)>', tags: ['a&b'], pinned: true, messageText: 'Hello' }),
   ], { archiveFilter: 'all' });
   const html = renderSessionListItems(view);
 
   assert.equal(html.includes('<img src=x'), false);
   assert.match(html, /&lt;img src=x/);
   assert.match(html, /a&amp;b/);
+  assert.match(html, /session-badges/);
+  assert.match(html, /<em>Pinned<\/em>/);
+  assert.match(html, /1 message/);
+});
+
+test('session organizer renders state badges and plural message counts', () => {
+  const view = createSessionListViewModel([
+    {
+      ...session({ id: 'multi', title: 'Multi', archived: true, tags: ['work'] }),
+      messages: [
+        { role: 'user', content: [{ type: 'text', text: 'One' }] },
+        { role: 'assistant', content: [{ type: 'text', text: 'Two' }] },
+      ],
+    },
+    session({ id: 'trash', title: 'Deleted', deletedAt: '2026-05-04T00:00:00.000Z' }),
+  ], { archiveFilter: 'all' });
+  const html = renderSessionListItems(view);
+
+  assert.match(html, /2 messages/);
+  assert.match(html, /<em>Archived<\/em>/);
+  assert.match(html, /<em>work<\/em>/);
+  assert.equal(html.includes('<em>Trash</em>'), false);
 });
 
 function session(overrides = {}) {

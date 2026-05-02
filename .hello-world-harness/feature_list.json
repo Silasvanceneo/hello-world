@@ -1872,6 +1872,105 @@
         "HTTP Edge headless UI smoke -> .tmp-tests/chat-p4-m4-empty.png captured the improved empty chat workspace"
       ],
       "lastUpdated": "2026-05-02T08:00:12.067Z"
+    },
+    {
+      "id": "P4-M5-F001",
+      "title": "Conversation sidebar information architecture polish",
+      "priority": "should",
+      "acceptance": [
+        "Conversation search and filters are grouped as navigation controls instead of loose form fields",
+        "Current conversation organization controls move into a dedicated collapsible management area",
+        "The sidebar keeps conversation history visible as the primary surface",
+        "The local runtime status remains visible without competing with conversation controls"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/index.html groups conversation search and filter controls under a sidebar navigation block",
+        "apps/web/index.html moves current conversation tags, pin, archive, trash, restore, and permanent delete actions into a compact details disclosure",
+        "apps/web/src/app.css keeps conversation history as the primary sidebar surface while preserving the local runtime status footer"
+      ],
+      "lastUpdated": "2026-05-02T08:31:00.000Z"
+    },
+    {
+      "id": "P4-M5-F002",
+      "title": "Conversation list item hierarchy polish",
+      "priority": "should",
+      "acceptance": [
+        "Conversation items render title, message count, and state metadata with clearer hierarchy",
+        "Pinned, archived, deleted, and tag states render as escaped badge elements",
+        "Active conversation remains visually distinct",
+        "Empty conversation scopes still show user-readable empty labels"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/session-organizer.js renders session-title-text, session-meta, and escaped state/tag badge elements",
+        "tests/web-session-organizer.test.mjs covers escaped badges plus singular and plural message counts",
+        "node --test --experimental-strip-types --test-isolation=none tests/web-session-organizer.test.mjs -> tests 5/pass 5/fail 0"
+      ],
+      "lastUpdated": "2026-05-02T08:31:00.000Z"
+    },
+    {
+      "id": "P4-M5-F003",
+      "title": "Sidebar polish verification",
+      "priority": "should",
+      "acceptance": [
+        "Full check passes",
+        "Diff whitespace check passes",
+        "Desktop build passes",
+        "Sidebar UI smoke screenshot confirms the improved conversation navigation"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (138 paths), tests 137/pass 137/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed",
+        "HTTP smoke -> http://127.0.0.1:4173/ returned 200 with session-list and brand-icon.png present; Edge/Chrome headless screenshot attempts wrote connection-refused pages in this sandbox and were not used as visual evidence"
+      ],
+      "lastUpdated": "2026-05-02T08:31:00.000Z"
+    },
+    {
+      "id": "P4-M6-F001",
+      "title": "Cross-platform app icon unification",
+      "priority": "should",
+      "acceptance": [
+        "Web favicon and PWA manifest icon use the user-provided source image",
+        "Windows desktop icon uses the same source image",
+        "Android launcher and round launcher icons use the same source image",
+        "Android foreground and splash assets are regenerated from the same source image"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "image.png and apps/web/static/brand-icon.png have matching SHA256 c049207f7d0502b1513de09e70e7aa1368c234ecc00e0f6dc426f4c21b685746",
+        "apps/desktop/src-tauri/icons/icon.ico regenerated from image.png with common Windows icon sizes",
+        "Android mipmap launcher, round launcher, foreground, and drawable splash PNGs regenerated from image.png"
+      ],
+      "lastUpdated": "2026-05-02T08:31:00.000Z"
+    },
+    {
+      "id": "P4-M6-F002",
+      "title": "Cross-platform icon build verification",
+      "priority": "should",
+      "acceptance": [
+        "Generated icon assets have expected platform sizes",
+        "Web build still includes brand-icon.png",
+        "Desktop release build accepts the regenerated icon",
+        "Android debug APK resource compilation accepts regenerated launcher and splash assets"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "PIL size check passed for 22 desktop/Android icon and splash files",
+        "npm run check -> scaffold check passed (138 paths), tests 137/pass 137/fail 0, build:web passed, review passed",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "npm run build:mobile -> Capacitor sync and scaffold check passed",
+        "ANDROID_HOME/ANDROID_SDK_ROOT set to local Android SDK; npm --workspace apps/mobile run android:debug -> BUILD SUCCESSFUL and app-debug.apk generated"
+      ],
+      "lastUpdated": "2026-05-02T08:31:00.000Z"
     }
   ]
 }

@@ -1050,6 +1050,73 @@
         "Capture or inspect chat UI smoke evidence",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P4-M5",
+      "scope": "Conversation sidebar information architecture polish",
+      "dependencies": [
+        "P4-M4"
+      ],
+      "doneCriteria": [
+        "Conversation search and filters are visually grouped as sidebar navigation controls",
+        "Current conversation organization actions are available from a compact collapsible management area",
+        "Conversation list items show clearer metadata and escaped status badges",
+        "The sidebar remains responsive without hiding core chat navigation",
+        "Tests, Web build, desktop build, diff checks, desktop launch smoke, and sidebar UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Capture or inspect sidebar UI smoke evidence",
+        "Create git checkpoint"
+      ]
+    },
+    {
+      "id": "P4-M6",
+      "scope": "Cross-platform app icon unification",
+      "dependencies": [
+        "P0-M6",
+        "P4-M5"
+      ],
+      "doneCriteria": [
+        "The Web favicon and PWA manifest icon use the user-provided image",
+        "The Windows desktop icon is regenerated from the user-provided image",
+        "Android launcher, round launcher, foreground, and splash assets are regenerated from the user-provided image",
+        "Generated icon assets have expected platform sizes",
+        "Tests, Web build, desktop build, mobile sync build, Android debug build, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "image.png",
+        "apps/web/static/",
+        "apps/desktop/src-tauri/icons/",
+        "apps/mobile/android/app/src/main/res/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "python PIL icon size/hash check",
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop",
+        "npm run build:mobile",
+        "npm --workspace apps/mobile run android:debug"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Record generated resource sizes and build evidence",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

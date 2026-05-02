@@ -403,3 +403,27 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (138 paths), tests 136/pass 136/fail 0, build:web passed, review passed.
 - Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; desktop launch smoke reported a responding process.
 - UI smoke passed: local HTTP + Edge headless captured `.tmp-tests/chat-p4-m4-empty.png` showing the improved empty chat workspace and compact composer.
+
+## 2026-05-02T08:05:59.067Z
+
+- Started P4-M5 conversation sidebar information architecture polish.
+- Scope: group search/filter controls, move current chat organization into a compact management area, and improve conversation item metadata/badges without changing local-first state behavior.
+
+## 2026-05-02T08:31:00.000Z
+
+- Completed P4-M5 conversation sidebar information architecture polish.
+- Sidebar search and filters are now grouped as conversation navigation controls, while current chat organization actions live in a compact details disclosure.
+- Conversation list items now show a clearer title, message-count metadata, and escaped pinned/archived/trash/tag badges.
+- Verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-session-organizer.test.mjs` -> tests 5/pass 5/fail 0.
+- Verification passed: `npm run check` -> scaffold check passed (138 paths), tests 137/pass 137/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; `npm run build:mobile` passed.
+- HTTP smoke passed: `http://127.0.0.1:4173/` returned 200 with `session-list` and `brand-icon.png` present. Edge/Chrome headless screenshot attempts wrote connection-refused pages in this sandbox, so they were not used as visual evidence.
+
+## 2026-05-02T08:31:00.000Z
+
+- Completed P4-M6 cross-platform app icon unification from the user-provided `image.png`.
+- Confirmed `image.png` and `apps/web/static/brand-icon.png` have the same SHA256, so the Web favicon/PWA/brand icon already uses the requested image.
+- Regenerated `apps/desktop/src-tauri/icons/icon.ico` from the requested image with common Windows icon sizes.
+- Regenerated Android launcher, round launcher, foreground, and splash PNG assets under `apps/mobile/android/app/src/main/res/` from the requested image.
+- Verification passed: PIL size/hash check covered 22 desktop/Android icon and splash assets.
+- Verification passed: `npm run check`, `git diff --check`, `npm run build:desktop`, `npm run build:mobile`, and `ANDROID_HOME`/`ANDROID_SDK_ROOT` scoped `npm --workspace apps/mobile run android:debug` -> BUILD SUCCESSFUL with `app-debug.apk` generated.
