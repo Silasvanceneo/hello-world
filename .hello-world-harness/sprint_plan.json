@@ -1018,6 +1018,38 @@
         "Capture or inspect desktop launch evidence",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P4-M4",
+      "scope": "Chat workspace empty-state and composer polish",
+      "dependencies": [
+        "P4-M3"
+      ],
+      "doneCriteria": [
+        "The empty chat page presents actionable task starters instead of a mostly blank canvas",
+        "Task starter buttons fill the composer draft and focus the input without sending automatically",
+        "The composer uses a compact desktop action row while preserving all existing tools and send/stop/branch/compare controls",
+        "Message bubbles show clearer role and timestamp metadata with escaped content",
+        "Tests, Web build, desktop build, diff checks, desktop launch smoke, and chat UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Capture or inspect chat UI smoke evidence",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

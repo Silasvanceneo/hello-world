@@ -190,6 +190,7 @@ body[data-view="settings"] .settings-panel {
 .attachment-chip,
 .tool-button,
 .file-picker,
+.prompt-starter,
 .primary-button,
 .secondary-button,
 .new-chat-button,
@@ -210,7 +211,8 @@ body[data-view="settings"] .settings-panel {
 .primary-button,
 .secondary-button,
 .tool-button,
-.file-picker {
+.file-picker,
+.prompt-starter {
   display: inline-flex;
   min-height: 34px;
   align-items: center;
@@ -239,7 +241,8 @@ body[data-view="settings"] .settings-panel {
 }
 .secondary-button,
 .tool-button,
-.file-picker {
+.file-picker,
+.prompt-starter {
   color: var(--ink-soft);
   background: var(--surface);
   border-color: var(--line);
@@ -247,6 +250,7 @@ body[data-view="settings"] .settings-panel {
 .secondary-button:hover,
 .tool-button:hover,
 .file-picker:hover,
+.prompt-starter:hover,
 .session-item:hover {
   color: var(--ink);
   background: var(--surface-muted);
@@ -541,12 +545,18 @@ label {
 }
 .empty-state {
   display: grid;
-  place-items: center;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1.1fr);
   align-content: center;
+  align-items: center;
   min-height: 100%;
+  gap: 24px;
+  padding: clamp(24px, 5vw, 64px);
+}
+.empty-copy {
+  display: grid;
   gap: 12px;
-  padding: 24px;
-  text-align: center;
+  justify-items: start;
+  text-align: left;
 }
 .mascot-card {
   display: grid;
@@ -570,29 +580,38 @@ label {
 .empty-state h3 {
   max-width: 560px;
   color: #1d2620;
-  font-size: clamp(36px, 5vw, 70px);
+  font-size: clamp(38px, 5vw, 76px);
   font-weight: 820;
+  line-height: 0.96;
 }
 .empty-state p:not(.eyebrow) {
-  max-width: 620px;
+  max-width: 520px;
   margin: 0;
   color: var(--ink-soft);
   font-size: 15px;
 }
 .prompt-suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 8px;
+  display: grid;
+  gap: 10px;
+  width: 100%;
 }
-.prompt-suggestions span {
-  padding: 7px 10px;
+.prompt-starter {
+  display: grid;
+  justify-content: stretch;
+  gap: 4px;
+  min-height: 74px;
+  padding: 13px;
   border: 1px solid var(--line);
-  border-radius: 999px;
   background: var(--surface);
+  text-align: left;
+}
+.prompt-starter span {
+  color: var(--ink);
+  font-weight: 800;
+}
+.prompt-starter small {
   color: var(--ink-soft);
-  font-size: 12px;
+  font: 12px/1.35 var(--body);
 }
 .message {
   display: grid;
@@ -622,7 +641,7 @@ label {
 }
 .message-bubble {
   min-width: 0;
-  padding: 12px 14px;
+  padding: 13px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
@@ -632,12 +651,21 @@ label {
   grid-row: 1;
   background: #fff8f4;
 }
-.message strong {
-  display: block;
+.message-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 5px;
+}
+.message strong,
+.message time {
   color: var(--ink-muted);
   font-family: var(--mono);
   font-size: 11px;
+}
+.message time {
+  flex: 0 0 auto;
 }
 .message p,
 .comparison-card pre {
@@ -652,7 +680,7 @@ label {
 }
 .chat-dock {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   padding: 12px;
   border-top: 1px solid var(--line);
   background: rgba(251, 251, 248, 0.96);
@@ -699,8 +727,8 @@ label {
 }
 .composer {
   display: grid;
-  gap: 10px;
-  padding: 10px;
+  gap: 8px;
+  padding: 9px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
@@ -724,12 +752,11 @@ label {
 }
 .composer-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
-  align-items: end;
 }
 .composer textarea {
-  min-height: 84px;
+  min-height: 72px;
   max-height: 190px;
   border: 0;
   background: transparent;
@@ -739,7 +766,10 @@ label {
   outline: none;
 }
 .composer-actions {
-  width: 144px;
+  display: grid;
+  grid-template-columns: minmax(108px, 1.3fr) repeat(3, minmax(88px, 1fr));
+  align-items: stretch;
+  width: 100%;
 }
 .composer-actions .primary-button,
 .composer-actions .secondary-button {
@@ -855,6 +885,14 @@ label {
   .settings-card-wide {
     grid-column: auto;
   }
+  .empty-state {
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding: 22px;
+  }
+  .empty-state h3 {
+    font-size: 42px;
+  }
   .topbar,
   .composer-main {
     grid-template-columns: 1fr;
@@ -867,6 +905,7 @@ label {
     white-space: normal;
   }
   .composer-actions {
+    grid-template-columns: 1fr 1fr;
     width: 100%;
   }
   .message,

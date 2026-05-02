@@ -308,6 +308,7 @@ bindMessageListWindow({
     prepareEditDraft: prepareUserMessageEditDraft,
     prepareRetryDraft: prepareActiveSessionRetryDraft,
   }),
+  promptTarget: elements.prompt,
   render,
 });
 

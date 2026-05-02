@@ -389,3 +389,17 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `npm run check` -> scaffold check passed (138 paths), tests 135/pass 135/fail 0, build:web passed, review passed.
 - Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; desktop launch smoke reported a responding process.
 - UI smoke passed: local HTTP + Edge headless captured `.tmp-tests/settings-p4-m3-http.png` showing the dedicated Settings view with sidebar/chat hidden and Provider prioritized.
+
+## 2026-05-02T07:54:40.247Z
+
+- Started P4-M4 chat workspace empty-state and composer polish.
+- Scope: make the empty chat surface actionable, compact the desktop composer controls, and improve message metadata hierarchy without changing provider/runtime secret behavior.
+
+## 2026-05-02T08:00:12.067Z
+
+- Completed P4-M4 chat workspace empty-state and composer polish.
+- Empty chat now shows actionable prompt starter buttons that fill and focus the composer without sending automatically.
+- Composer actions now use a compact desktop action row; message bubbles include role/time metadata while preserving existing chat data contracts.
+- Verification passed: `npm run check` -> scaffold check passed (138 paths), tests 136/pass 136/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `npm run build:desktop` built the release executable; desktop launch smoke reported a responding process.
+- UI smoke passed: local HTTP + Edge headless captured `.tmp-tests/chat-p4-m4-empty.png` showing the improved empty chat workspace and compact composer.

@@ -1813,6 +1813,65 @@
         "HTTP Edge headless UI smoke -> .tmp-tests/settings-p4-m3-http.png captured the dedicated Settings view"
       ],
       "lastUpdated": "2026-05-02T07:44:15.966Z"
+    },
+    {
+      "id": "P4-M4-F001",
+      "title": "Chat empty-state task launch surface",
+      "priority": "should",
+      "acceptance": [
+        "Empty chat state presents clear task actions rather than a large blank canvas",
+        "Task actions are rendered as safe buttons with prompt draft text stored in data attributes",
+        "Clicking a task action fills the composer and focuses it without sending automatically",
+        "Task labels and prompt values are escaped in rendered HTML"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/message-list.js renders prompt-starter buttons in the empty chat state with escaped data-prompt-starter values",
+        "apps/web/src/message-list.js applies prompt starters to the composer and focuses it without sending automatically",
+        "tests/web-message-list.test.mjs covers prompt starter rendering, escaping, and composer fill/focus behavior"
+      ],
+      "lastUpdated": "2026-05-02T08:00:12.067Z"
+    },
+    {
+      "id": "P4-M4-F002",
+      "title": "Chat composer density and message hierarchy polish",
+      "priority": "should",
+      "acceptance": [
+        "Composer actions are a compact desktop action row instead of a tall stacked button column",
+        "Input tools remain accessible without dominating the first viewport",
+        "Messages include clearer role and timestamp metadata without changing chat data contracts",
+        "Mobile layout keeps composer actions and messages readable without overlap"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/app.css renders the empty chat state as a two-column task launch surface on desktop with mobile single-column collapse",
+        "apps/web/src/app.css changes composer actions from a tall stacked desktop column into a compact action row while preserving mobile wrapping",
+        "apps/web/src/message-list.js adds escaped message time metadata without changing ChatMessage data contracts"
+      ],
+      "lastUpdated": "2026-05-02T08:00:12.067Z"
+    },
+    {
+      "id": "P4-M4-F003",
+      "title": "Chat workspace polish verification",
+      "priority": "should",
+      "acceptance": [
+        "Full check passes",
+        "Diff whitespace check passes",
+        "Desktop build passes",
+        "Chat UI smoke screenshot confirms the improved empty chat workspace"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "npm run check -> scaffold check passed (138 paths), tests 136/pass 136/fail 0, build:web passed, review passed",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "Desktop launch smoke -> hello-world-desktop.exe process responded after launch",
+        "HTTP Edge headless UI smoke -> .tmp-tests/chat-p4-m4-empty.png captured the improved empty chat workspace"
+      ],
+      "lastUpdated": "2026-05-02T08:00:12.067Z"
     }
   ]
 }

@@ -56,8 +56,11 @@ test('web message list renders empty state and escapes message text', () => {
   const messageHtml = renderMessageList(session);
 
   assert.match(emptyHtml, /empty-state/);
+  assert.match(emptyHtml, /data-prompt-starter="Review these files and turn them into a clear action plan\."/);
+  assert.match(emptyHtml, /prompt-starter/);
   assert.equal(messageHtml.includes('<script>alert(1)</script>'), false);
   assert.match(messageHtml, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+  assert.match(messageHtml, /<time datetime="2026-05-02T03:00:00.000Z">/);
 });
 
 test('web message list renders edit and retry controls for eligible messages', () => {
@@ -159,4 +162,34 @@ test('web message list binding routes edit and retry actions', () => {
     ['edit', 'user-1'],
     ['retry'],
   ]);
+});
+
+test('web message list binding applies prompt starters to the composer', () => {
+  const listeners = new Map();
+  const calls = [];
+  const promptTarget = {
+    value: '',
+    focus: () => calls.push('focus'),
+  };
+  const elements = {
+    messages: {
+      addEventListener: (eventName, listener) => listeners.set(eventName, listener),
+    },
+  };
+
+  bindMessageListWindow({
+    elements,
+    getSession: () => createSession('session-1', '2026-05-02T03:00:00.000Z'),
+    promptTarget,
+  });
+  listeners.get('click')({
+    target: {
+      closest: (selector) => selector === '[data-prompt-starter]'
+        ? { dataset: { promptStarter: 'Draft a plan' } }
+        : undefined,
+    },
+  });
+
+  assert.equal(promptTarget.value, 'Draft a plan');
+  assert.deepEqual(calls, ['focus']);
 });

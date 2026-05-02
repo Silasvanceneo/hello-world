@@ -26,9 +26,23 @@ export function renderMessageList(session, options = {}) {
   ].filter(Boolean).join('');
 }
 
-export function bindMessageListWindow({ elements, getSession, expandSession, editMessage, retryLastAssistant, render }) {
+export function bindMessageListWindow({
+  elements,
+  getSession,
+  expandSession,
+  editMessage,
+  retryLastAssistant,
+  render,
+  promptTarget,
+}) {
   elements.messages.addEventListener('click', (event) => {
     const session = getSession();
+    const starterButton = event.target.closest('[data-prompt-starter]');
+    if (starterButton?.dataset?.promptStarter) {
+      applyPromptStarter({ button: starterButton, promptTarget });
+      return;
+    }
+
     const button = event.target.closest('[data-expand-messages]');
     if (session && button && button.dataset.expandMessages === session.id) {
       expandSession(session.id);
@@ -53,13 +67,17 @@ export function bindMessageListWindow({ elements, getSession, expandSession, edi
 function renderMessage(message, options = {}) {
   const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n');
   const label = message.role === 'assistant' ? 'Assistant' : 'You';
+  const timestamp = formatMessageTime(message.createdAt);
   const avatar = message.role === 'assistant'
     ? '<img src="./brand-icon.png" alt="" />'
     : '<span>Y</span>';
   return `<article class="message ${escapeHtml(message.role)}">
     <div class="message-avatar" aria-hidden="true">${avatar}</div>
     <div class="message-bubble">
-      <strong>${escapeHtml(label)}</strong>
+      <div class="message-meta">
+        <strong>${escapeHtml(label)}</strong>
+        <time datetime="${escapeHtml(message.createdAt)}">${escapeHtml(timestamp)}</time>
+      </div>
       <p>${escapeHtml(text)}</p>
       ${renderMessageActions(message, options)}
     </div>
@@ -77,20 +95,56 @@ function renderMessageActions(message, options) {
 }
 
 function renderEmptyState() {
+  const starters = [
+    {
+      label: 'Plan with files',
+      prompt: 'Review these files and turn them into a clear action plan.',
+    },
+    {
+      label: 'Compare models',
+      prompt: 'Answer this with two different models and show the tradeoffs.',
+    },
+    {
+      label: 'Explain a screenshot',
+      prompt: 'Analyze this screenshot and explain what matters most.',
+    },
+  ];
   return `<div class="empty-state">
-    <figure class="mascot-card">
-      <img src="./brand-icon.png" alt="" />
-      <figcaption>hello-world assistant</figcaption>
-    </figure>
-    <p class="eyebrow">Local-first, multi-model, private by default</p>
-    <h3>Ask less.<br />Know more.</h3>
-    <p>Connect Ollama or an OpenAI-compatible endpoint, then chat with files, screenshots, camera images, voice input, and model comparison.</p>
-    <div class="prompt-suggestions" aria-label="Prompt ideas">
-      <span>Explain this PDF</span>
-      <span>Compare two models</span>
-      <span>Summarize a screenshot</span>
+    <div class="empty-copy">
+      <figure class="mascot-card">
+        <img src="./brand-icon.png" alt="" />
+        <figcaption>hello-world assistant</figcaption>
+      </figure>
+      <p class="eyebrow">Local-first, multi-model, private by default</p>
+      <h3>Start a focused workspace.</h3>
+      <p>Use local providers, files, screenshots, voice, and model comparison from one chat surface.</p>
+    </div>
+    <div class="prompt-suggestions" aria-label="Prompt starters">
+      ${starters.map((starter) => `<button class="prompt-starter" type="button" data-prompt-starter="${escapeHtml(starter.prompt)}">
+        <span>${escapeHtml(starter.label)}</span>
+        <small>${escapeHtml(starter.prompt)}</small>
+      </button>`).join('')}
     </div>
   </div>`;
+}
+
+function applyPromptStarter({ button, promptTarget }) {
+  const prompt = button?.dataset?.promptStarter;
+  if (!prompt || !promptTarget) {
+    return;
+  }
+
+  promptTarget.value = prompt;
+  promptTarget.focus?.();
+}
+
+function formatMessageTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return 'now';
+  }
+
+  return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 
 function escapeHtml(value) {
