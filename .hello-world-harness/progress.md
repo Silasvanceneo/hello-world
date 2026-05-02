@@ -343,3 +343,18 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Updated the desktop build script to rerun when Web build/source/static assets change, keeping embedded resources current.
 - Verification passed: `npm run check` -> scaffold check passed (136 paths), tests 130/pass 130/fail 0, build:web passed, review passed; `npm run build:desktop` passed.
 - Desktop UI smoke passed after clearing the old local WebView cache: `apps/desktop/src-tauri/target/release/hello-world-desktop.exe` rendered the current three-column application UI instead of the old text-only P0 page.
+
+## 2026-05-02T06:36:30.000Z
+
+- Started P4-M1 desktop-first product shell polish after the desktop WebView cache fix confirmed the current UI renders.
+- Scope is limited to a polished, stable two-pane Web/Desktop shell plus a separate settings section without changing provider secrets, chat runtime behavior, or the current `runtime.js` size guard.
+- Guardrails: keep `apps/web/src/runtime.js` and `apps/web/src/app.css` below 800 lines, then verify with `npm run check`, `git diff --check`, `npm run build:desktop`, and desktop UI smoke evidence.
+
+## 2026-05-02T06:44:00.000Z
+
+- Completed P4-M1 desktop-first product shell polish, then revised it per user feedback so settings are a separate section instead of a persistent third column.
+- Replaced the rough high-contrast Web shell styling with a restrained two-pane desktop workspace plus a separate settings section in `apps/web/src/app.css`, keeping existing runtime behavior and DOM bindings intact.
+- Verification passed: `npm run check` -> scaffold check passed (136 paths), tests 130/pass 130/fail 0, build:web passed, review passed.
+- Verification passed: `git diff --check` with line-ending warnings only; `apps/web/src/app.css` is 728 lines and `apps/web/src/runtime.js` is 782 lines.
+- Verification passed: `npm run build:desktop` built `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`.
+- Desktop UI smoke passed: launched the release executable, confirmed the process responded, and captured `.tmp-tests/desktop-ui-p4-m1.png` showing the polished two-pane workspace with sidebar, chat, composer, and topbar Settings access visible.

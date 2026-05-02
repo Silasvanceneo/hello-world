@@ -1677,6 +1677,45 @@
         "git diff --check passed"
       ],
       "lastUpdated": "2026-05-02T04:24:02.000Z"
+    },
+    {
+      "id": "P4-M1-F001",
+      "title": "Desktop product shell visual polish",
+      "priority": "should",
+      "acceptance": [
+        "The desktop shell presents a polished two-pane AI workspace rather than a rough placeholder UI",
+        "Settings are presented as a separate section instead of a persistent third column",
+        "Sidebar, chat, composer, and settings section have stable spacing, clear hierarchy, and restrained product styling",
+        "Core controls remain visible and reachable without changing runtime behavior"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/app.css replaces the rough high-contrast shell with a desktop-first two-pane workspace and separate settings section while preserving runtime bindings",
+        "npm run check -> scaffold check passed (136 paths), tests 130/pass 130/fail 0, build:web passed, review passed",
+        "Desktop UI smoke -> .tmp-tests/desktop-ui-p4-m1.png captured the current release executable rendering a two-pane workspace with sidebar, chat, composer, and topbar Settings access"
+      ],
+      "lastUpdated": "2026-05-02T06:44:00.000Z"
+    },
+    {
+      "id": "P4-M1-F002",
+      "title": "Desktop UI responsive and review guard verification",
+      "priority": "should",
+      "acceptance": [
+        "No obvious text or control overlap at 1200x800 and common desktop widths",
+        "app.css remains below 800 lines",
+        "runtime.js remains below 800 lines",
+        "Full check, desktop build, diff check, and desktop UI smoke pass"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/app.css is 728 lines and apps/web/src/runtime.js is 782 lines",
+        "git diff --check passed with line-ending warnings only",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe",
+        "Desktop launch smoke -> hello-world-desktop.exe process responded and screenshot review showed no obvious control overlap in the visible two-pane desktop window"
+      ],
+      "lastUpdated": "2026-05-02T06:44:00.000Z"
     }
   ]
 }

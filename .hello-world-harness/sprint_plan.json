@@ -919,6 +919,41 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P4-M1",
+      "scope": "Desktop-first product shell polish with separate settings area",
+      "dependencies": [
+        "P0-M9",
+        "P1-M4",
+        "P3-M6"
+      ],
+      "doneCriteria": [
+        "Current desktop window shows a polished two-pane chat workspace instead of a rough placeholder surface",
+        "Settings are presented as a separate section instead of a persistent third column",
+        "Core controls remain reachable in sidebar, chat, composer, and settings section",
+        "Text and controls avoid overlap at common desktop sizes including 1200x800",
+        "runtime.js remains below the 800-line review limit and app.css remains below the 800-line review limit",
+        "Tests, Web build, desktop build, diff checks, and desktop UI smoke verification pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        "scripts/",
+        "package.json",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check",
+        "npm run build:desktop"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Capture or inspect desktop UI smoke evidence",
+        "Create git checkpoint"
+      ]
     }
   ]
 }
