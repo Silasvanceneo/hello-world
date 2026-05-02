@@ -289,3 +289,13 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/web-state.test.mjs tests/web-branch-dashboard.test.mjs -> tests 17/pass 17/fail 0.
 - Full verification passed: npm run check -> scaffold check passed (132 paths), tests 119/pass 119/fail 0, build:web passed, review passed.
 - Verification passed: git diff --check.
+
+## 2026-05-02T04:15:38.000Z
+
+- Started P3-M5 Web retry and user-message edit draft flow.
+- Added retry/edit draft helpers in apps/web/src/web-state.js so the relevant user prompt returns to the composer and later messages are truncated immutably.
+- Added Edit controls for user messages and Retry for the latest assistant reply in apps/web/src/message-list.js, then wired them into the Web runtime composer.
+- Targeted verification passed: node --test --experimental-strip-types --test-isolation=none tests/web-state.test.mjs tests/web-message-list.test.mjs -> tests 23/pass 23/fail 0.
+- Full verification passed: npm run check -> scaffold check passed (132 paths), tests 123/pass 123/fail 0, build:web passed, review passed.
+- Verification passed: git diff --check.
+- Note: apps/web/src/runtime.js is now 786 lines, so future runtime changes should extract behavior into focused modules before adding much more code.

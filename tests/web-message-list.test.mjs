@@ -60,6 +60,22 @@ test('web message list renders empty state and escapes message text', () => {
   assert.match(messageHtml, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 });
 
+test('web message list renders edit and retry controls for eligible messages', () => {
+  const session = {
+    ...createSession('session-actions', '2026-05-02T03:00:00.000Z'),
+    messages: [
+      createTextMessage('user', 'Draft <unsafe>', '2026-05-02T03:01:00.000Z', 'user-"quoted"'),
+      createTextMessage('assistant', 'Answer', '2026-05-02T03:02:00.000Z', 'assistant-1'),
+    ],
+  };
+
+  const html = renderMessageList(session);
+
+  assert.match(html, /data-edit-message="user-&quot;quoted&quot;"/);
+  assert.match(html, /data-retry-last="assistant-1"/);
+  assert.equal(html.includes('Draft <unsafe>'), false);
+});
+
 test('web message list renders an expand control for hidden earlier messages', () => {
   const session = {
     ...createSession('session-"quoted"', '2026-05-02T03:00:00.000Z'),
@@ -103,5 +119,44 @@ test('web message list binding expands the active session window', () => {
   assert.deepEqual(calls, [
     ['expand', 'session-1'],
     ['render'],
+  ]);
+});
+
+test('web message list binding routes edit and retry actions', () => {
+  const listeners = new Map();
+  const calls = [];
+  const session = createSession('session-1', '2026-05-02T03:00:00.000Z');
+  const elements = {
+    messages: {
+      addEventListener: (eventName, listener) => listeners.set(eventName, listener),
+    },
+  };
+
+  bindMessageListWindow({
+    elements,
+    getSession: () => session,
+    expandSession: (sessionId) => calls.push(['expand', sessionId]),
+    editMessage: (messageId) => calls.push(['edit', messageId]),
+    retryLastAssistant: () => calls.push(['retry']),
+    render: () => calls.push(['render']),
+  });
+  listeners.get('click')({
+    target: {
+      closest: (selector) => selector === '[data-edit-message]'
+        ? { dataset: { editMessage: 'user-1' } }
+        : undefined,
+    },
+  });
+  listeners.get('click')({
+    target: {
+      closest: (selector) => selector === '[data-retry-last]'
+        ? { dataset: { retryLast: 'assistant-1' } }
+        : undefined,
+    },
+  });
+
+  assert.deepEqual(calls, [
+    ['edit', 'user-1'],
+    ['retry'],
   ]);
 });

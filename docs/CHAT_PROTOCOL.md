@@ -61,3 +61,14 @@ When a branch is saved as main, the same derived timeline becomes
 `ChatSession.messages`, the active branch marker is cleared, and the session is
 marked dirty for local-first sync and backup visibility. Branch records are kept
 as local history so the user can still inspect the alternative.
+
+## P3-M5 Web retry and edit drafts
+
+The Web message list exposes local Edit controls for user messages and Retry for
+the latest assistant reply. Both actions move the relevant user prompt back into
+the composer and truncate later messages before the next send.
+
+This preserves the existing provider send path: after editing the composer text,
+the normal Send action creates a new user message and assistant response. The
+trimmed session is marked dirty so local sync and backup surfaces can see the
+change.

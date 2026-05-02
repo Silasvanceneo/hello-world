@@ -440,6 +440,59 @@ export function createAssistantEchoMessage(text, timestamp = new Date().toISOStr
   };
 }
 
+export function prepareActiveSessionRetryDraft(state, timestamp = new Date().toISOString()) {
+  const active = getActiveSession(state);
+  const lastAssistantIndex = findLastMessageIndex(active.messages, (message) => message.role === 'assistant');
+  if (lastAssistantIndex < 1) {
+    throw new Error('No assistant reply is available to retry.');
+  }
+  const previousUserIndex = findLastMessageIndex(
+    active.messages.slice(0, lastAssistantIndex),
+    (message) => message.role === 'user',
+  );
+  if (previousUserIndex < 0) {
+    throw new Error('No user prompt is available to retry.');
+  }
+  const draftText = textFromMessage(active.messages[previousUserIndex]);
+  return {
+    draftText,
+    state: {
+      ...state,
+      sessions: state.sessions.map((session) => session.id === active.id
+        ? {
+          ...session,
+          messages: session.messages.slice(0, previousUserIndex),
+          updatedAt: timestamp,
+          syncState: 'dirty',
+        }
+        : session),
+    },
+  };
+}
+
+export function prepareUserMessageEditDraft(state, messageId, timestamp = new Date().toISOString()) {
+  const active = getActiveSession(state);
+  const messageIndex = active.messages.findIndex((message) => message.id === messageId);
+  const message = active.messages[messageIndex];
+  if (!message || message.role !== 'user') {
+    throw new Error(`User message not found: ${messageId}`);
+  }
+  return {
+    draftText: textFromMessage(message),
+    state: {
+      ...state,
+      sessions: state.sessions.map((session) => session.id === active.id
+        ? {
+          ...session,
+          messages: session.messages.slice(0, messageIndex),
+          updatedAt: timestamp,
+          syncState: 'dirty',
+        }
+        : session),
+    },
+  };
+}
+
 export function createProviderFromForm({ name, type, baseUrl, modelId, apiKey }, timestamp = new Date().toISOString(), id = crypto.randomUUID()) {
   const trimmedName = name.trim() || defaultProviderName(type);
   return {
@@ -602,4 +655,20 @@ function textMessagesForProvider(session) {
     role: message.role,
     content: message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n'),
   }));
+}
+
+function findLastMessageIndex(messages, predicate) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (predicate(messages[index])) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+function textFromMessage(message) {
+  return message.content
+    .filter((item) => item.type === 'text' || item.type === 'reasoning')
+    .map((item) => item.text)
+    .join('\n');
 }

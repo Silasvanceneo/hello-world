@@ -859,6 +859,37 @@
         "Update feature_list and progress",
         "Create git checkpoint"
       ]
+    },
+    {
+      "id": "P3-M5",
+      "scope": "Web retry and user-message edit draft flow",
+      "dependencies": [
+        "P0-M3",
+        "P0-M9",
+        "P3-M2",
+        "P3-M4"
+      ],
+      "doneCriteria": [
+        "The latest assistant turn can be moved back to the composer for retry",
+        "A user message can be moved back to the composer for editing",
+        "Retry/edit draft preparation truncates later messages immutably and marks the session dirty",
+        "The Web message list exposes escaped Edit and Retry controls",
+        "Tests, Web build, review, and diff checks pass"
+      ],
+      "allowedFilesOrAreas": [
+        "apps/web/",
+        "tests/",
+        "docs/",
+        ".hello-world-harness/"
+      ],
+      "verificationCommands": [
+        "npm run check",
+        "git diff --check"
+      ],
+      "handoffRequirements": [
+        "Update feature_list and progress",
+        "Create git checkpoint"
+      ]
     }
   ]
 }

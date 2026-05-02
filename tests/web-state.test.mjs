@@ -21,6 +21,8 @@ import {
   getSessionBranchView,
   createSessionMessageView,
   parseState,
+  prepareActiveSessionRetryDraft,
+  prepareUserMessageEditDraft,
   promoteActiveBranchToMain,
   renderPromptTemplateWithVariables,
   restoreSessionFromTrash,
@@ -258,4 +260,33 @@ test('web state promotes the active branch to the main timeline immutably', () =
   assert.equal(getActiveSession(promoted).branches.length, 1);
   assert.equal(getActiveSession(promoted).syncState, 'dirty');
   assert.equal(getActiveSession(promoted).updatedAt, '2026-05-02T05:06:00.000Z');
+});
+
+test('web state prepares the latest assistant turn for composer retry', () => {
+  let state = createInitialWebState('2026-05-02T06:00:00.000Z');
+  state = addMessageToActiveSession(state, createTextMessage('user', 'Try this', '2026-05-02T06:01:00.000Z', 'user-1'));
+  state = addMessageToActiveSession(state, createTextMessage('assistant', 'First attempt', '2026-05-02T06:02:00.000Z', 'assistant-1'));
+
+  const result = prepareActiveSessionRetryDraft(state, '2026-05-02T06:03:00.000Z');
+  const session = getActiveSession(result.state);
+
+  assert.equal(result.draftText, 'Try this');
+  assert.deepEqual(session.messages, []);
+  assert.equal(session.syncState, 'dirty');
+  assert.equal(session.updatedAt, '2026-05-02T06:03:00.000Z');
+});
+
+test('web state prepares a user message edit draft by truncating later messages', () => {
+  let state = createInitialWebState('2026-05-02T06:00:00.000Z');
+  state = addMessageToActiveSession(state, createTextMessage('user', 'First prompt', '2026-05-02T06:01:00.000Z', 'user-1'));
+  state = addMessageToActiveSession(state, createTextMessage('assistant', 'First answer', '2026-05-02T06:02:00.000Z', 'assistant-1'));
+  state = addMessageToActiveSession(state, createTextMessage('user', 'Second prompt', '2026-05-02T06:03:00.000Z', 'user-2'));
+
+  const result = prepareUserMessageEditDraft(state, 'user-2', '2026-05-02T06:04:00.000Z');
+  const session = getActiveSession(result.state);
+
+  assert.equal(result.draftText, 'Second prompt');
+  assert.deepEqual(session.messages.map((message) => message.id), ['user-1', 'assistant-1']);
+  assert.equal(session.syncState, 'dirty');
+  assert.equal(session.updatedAt, '2026-05-02T06:04:00.000Z');
 });

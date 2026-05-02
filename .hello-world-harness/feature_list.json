@@ -1573,6 +1573,64 @@
         "git diff --check passed"
       ],
       "lastUpdated": "2026-05-02T04:08:43.000Z"
+    },
+    {
+      "id": "P3-M5-F001",
+      "title": "Retry draft preparation for Web sessions",
+      "priority": "should",
+      "acceptance": [
+        "The latest assistant turn can be removed for retry",
+        "The preceding user prompt is returned as composer draft text",
+        "Retry preparation marks the session dirty without mutating previous state"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js implements prepareActiveSessionRetryDraft",
+        "tests/web-state.test.mjs covers retry draft text, message truncation, and dirty state",
+        "npm run check -> scaffold check passed (132 paths), tests 123/pass 123/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-02T04:17:16.000Z"
+    },
+    {
+      "id": "P3-M5-F002",
+      "title": "User message edit draft preparation",
+      "priority": "should",
+      "acceptance": [
+        "A user message can be moved back to the composer for editing",
+        "Messages after the edited user message are truncated",
+        "Non-user or missing message ids are rejected"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/web-state.js implements prepareUserMessageEditDraft",
+        "tests/web-state.test.mjs covers user-message edit draft preparation and truncation",
+        "npm run check -> scaffold check passed (132 paths), tests 123/pass 123/fail 0, build:web passed, review passed"
+      ],
+      "lastUpdated": "2026-05-02T04:17:16.000Z"
+    },
+    {
+      "id": "P3-M5-F003",
+      "title": "Web message edit and retry controls",
+      "priority": "should",
+      "acceptance": [
+        "The message list renders escaped Edit controls for user messages",
+        "The message list renders a Retry control for the latest assistant reply",
+        "The Web runtime moves selected draft text into the composer and reuses the normal Send flow",
+        "Behavior is documented and full check passes"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/web/src/message-list.js renders and binds Edit/Retry controls",
+        "apps/web/src/runtime.js prepares composer drafts from message actions",
+        "docs/CHAT_PROTOCOL.md documents the Web retry/edit draft flow",
+        "tests/web-message-list.test.mjs covers rendered controls and click routing",
+        "npm run check -> scaffold check passed (132 paths), tests 123/pass 123/fail 0, build:web passed, review passed",
+        "git diff --check passed"
+      ],
+      "lastUpdated": "2026-05-02T04:17:16.000Z"
     }
   ]
 }

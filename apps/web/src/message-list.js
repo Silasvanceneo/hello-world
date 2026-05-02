@@ -17,30 +17,40 @@ export function renderMessageList(session, options = {}) {
   if (view.totalMessages === 0) {
     return renderEmptyState();
   }
+  const lastAssistantId = [...(session.messages ?? [])].reverse().find((message) => message.role === 'assistant')?.id;
   return [
     view.isWindowed
       ? `<button class="secondary-button" data-expand-messages="${escapeHtml(session.id)}" type="button">Show ${view.hiddenBefore} earlier messages</button>`
       : '',
-    ...view.visibleMessages.map(renderMessage),
+    ...view.visibleMessages.map((message) => renderMessage(message, { canRetry: message.id === lastAssistantId })),
   ].filter(Boolean).join('');
 }
 
-export function bindMessageListWindow({ elements, getSession, expandSession, render }) {
+export function bindMessageListWindow({ elements, getSession, expandSession, editMessage, retryLastAssistant, render }) {
   elements.messages.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-expand-messages]');
-    if (!button) {
-      return;
-    }
     const session = getSession();
-    if (!session || button.dataset.expandMessages !== session.id) {
+    const button = event.target.closest('[data-expand-messages]');
+    if (session && button && button.dataset.expandMessages === session.id) {
+      expandSession(session.id);
+      render();
       return;
     }
-    expandSession(session.id);
-    render();
+
+    const editButton = event.target.closest('[data-edit-message]');
+    if (editButton) {
+      editMessage?.(editButton.dataset.editMessage);
+      return;
+    }
+
+    const retryButton = event.target.closest('[data-retry-last]');
+    if (retryButton) {
+      retryLastAssistant?.();
+      return;
+    }
   });
 }
 
-function renderMessage(message) {
+function renderMessage(message, options = {}) {
   const text = message.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n');
   const label = message.role === 'assistant' ? 'Assistant' : 'You';
   const avatar = message.role === 'assistant'
@@ -51,8 +61,19 @@ function renderMessage(message) {
     <div class="message-bubble">
       <strong>${escapeHtml(label)}</strong>
       <p>${escapeHtml(text)}</p>
+      ${renderMessageActions(message, options)}
     </div>
   </article>`;
+}
+
+function renderMessageActions(message, options) {
+  if (message.role === 'user') {
+    return `<button class="secondary-button" data-edit-message="${escapeHtml(message.id)}" type="button">Edit</button>`;
+  }
+  if (message.role === 'assistant' && options.canRetry) {
+    return `<button class="secondary-button" data-retry-last="${escapeHtml(message.id)}" type="button">Retry</button>`;
+  }
+  return '';
 }
 
 function renderEmptyState() {
