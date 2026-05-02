@@ -2014,6 +2014,25 @@
         "Static build smoke -> apps/web/build/localization.js exists; apps/web/build/index.html contains language-select; build localization dictionary contains both English and Chinese settings.title entries"
       ],
       "lastUpdated": "2026-05-02T09:15:36.000Z"
+    },
+    {
+      "id": "P4-M8-F001",
+      "title": "Desktop tray uses the app icon",
+      "priority": "should",
+      "acceptance": [
+        "The Windows desktop tray is created with an explicit icon instead of a blank/default entry",
+        "The tray icon uses the same generated desktop app icon asset as the window executable",
+        "Existing tray menu actions and left-click show behavior keep working"
+      ],
+      "status": "passed",
+      "passes": true,
+      "evidence": [
+        "apps/desktop/src-tauri/src/main.rs now applies app.default_window_icon() to TrayIconBuilder before building the tray",
+        "apps/desktop/src-tauri/icons/icon.ico remains the generated desktop icon source from the user-provided image",
+        "cargo check in apps/desktop/src-tauri passed",
+        "npm run build:desktop -> built apps/desktop/src-tauri/target/release/hello-world-desktop.exe"
+      ],
+      "lastUpdated": "2026-05-02T09:41:06.107Z"
     }
   ]
 }

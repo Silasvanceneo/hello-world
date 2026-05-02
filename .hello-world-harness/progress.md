@@ -439,3 +439,11 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Verification passed: `git diff --check` with line-ending warnings only; `npm run build:web` rebuilt `apps/web/build`.
 - Verification passed: `npm run build:desktop` rebuilt `apps/desktop/src-tauri/target/release/hello-world-desktop.exe` with the bilingual Web build.
 - Static build smoke passed: `apps/web/build/localization.js` exists, `apps/web/build/index.html` contains `language-select`, and the build localization dictionary contains both English and Chinese `settings.title` entries.
+
+## 2026-05-02T09:41:06.107Z
+
+- Completed P4-M8 desktop tray icon fix.
+- Root cause: the desktop tray existed, but `TrayIconBuilder` did not receive an explicit icon, so Windows could show a blank/default tray entry.
+- Updated `apps/desktop/src-tauri/src/main.rs` so the tray uses the app's default window icon, which is generated from `apps/desktop/src-tauri/icons/icon.ico`.
+- Verification passed: `cargo check` in `apps/desktop/src-tauri`.
+- Verification passed: `cargo fmt`, `git diff --check`, and `npm run build:desktop` rebuilt `apps/desktop/src-tauri/target/release/hello-world-desktop.exe`.
