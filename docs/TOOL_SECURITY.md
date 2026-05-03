@@ -26,7 +26,7 @@ P7-M1 adds a safe HTTP MCP subset in `packages/core/src/tools/http-mcp.ts`.
 - Tool inputs are validated against a small JSON-schema subset before any call.
 - Tool capabilities pass through `evaluateToolInvocation`; terminal, code execution, network proxy, and stdio MCP remain blocked.
 - Every call returns an audit record with redacted arguments, status, risk, confirmation metadata, result summary, or error.
-- Web, Desktop, and Mobile share HTTP MCP capability. stdio MCP remains disabled and is deferred to the Desktop-only P7-M2 scope.
+- Web, Desktop, and Mobile share HTTP MCP capability. stdio MCP is implemented only as a Desktop control-plane capability in P7-M2; Web and Mobile keep it unavailable.
 
 ## Desktop plugin and stdio MCP manager
 
@@ -37,7 +37,7 @@ P7-M2 adds a Desktop-only control plane in `packages/core/src/tools/plugin-manag
 - stdio MCP registration requires an explicit confirmation record and stores only a safe launcher id, sanitized args, and environment variable references. Runtime secrets are not persisted.
 - Plugins install disabled by default. Enabling high-risk plugins re-checks `evaluateToolInvocation` and requires confirmation.
 - Critical terminal, code execution, and network proxy plugin capabilities are blocked rather than installed or enabled.
-- P7-M2 is a management and audit layer only. It does not add a Tauri shell/process/spawn command or any arbitrary terminal endpoint.
+- P7-M2 is a management and audit layer only. It does not add a Tauri shell, process spawn, cmd, PowerShell, or arbitrary terminal endpoint.
 
 The Windows desktop shell does not currently provide terminal execution. The Tauri command allowlist is limited to native capability reporting, local Ollama port probing, and provider keychain operations; a regression test fails if a shell/process command appears in that allowlist.
 

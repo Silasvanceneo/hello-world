@@ -610,3 +610,18 @@ pm run check -> scaffold check passed (95 paths), tests 60/pass 60/fail 0, build
 - Provider chat messages now persist `usage` either from provider stream usage chunks or a local token estimate, so the topbar, message bubble, and Cost panel can update after normal cloud responses.
 - Added an OpenAI/OpenAI-compatible image generation path through `/images/generations`, a Provider Image model field, a composer Generate image action, generated-image message rendering, and local attachment storage for generated outputs.
 - Targeted verification passed: `node --test --experimental-strip-types --test-isolation=none tests/web-model-routing.test.mjs tests/web-provider-runtime.test.mjs tests/web-message-list.test.mjs tests/web-state.test.mjs` -> tests 39/pass 39/fail 0.
+
+## 2026-05-03T02:03:31.167+08:00
+
+- Ran a lightweight optimization audit after the v0.1.0 release refresh.
+- Found no new P0 feature gap in the completed P0-P10 roadmap, but found documentation drift from early Web MVP language and a placeholder package description.
+- Updated current-state docs for the Web app, tool security, prompt templates, deployment, knowledge base, and quality review so they match the implemented provider runtime, sync preview layer, Desktop stdio MCP/plugin boundary, Desktop sandboxed code execution, token usage, image generation, Android build, and remaining iOS boundary.
+- Recorded `apps/web/src/runtime.js` as the next significant maintainability target because it has grown past 1,100 lines.
+
+## 2026-05-03T11:27:30.296+08:00
+
+- Optimized the Web runtime maintainability surface by extracting DOM queries, runtime helpers, and panel renderers into `apps/web/src/runtime-elements.js`, `apps/web/src/runtime-helpers.js`, and `apps/web/src/runtime-panels.js`.
+- Reduced `apps/web/src/runtime.js` from 1,111 lines to 763 lines while keeping the main chat/provider event flow in place.
+- Added `tests/web-runtime-modules.test.mjs` for provider draft secret handling, browser/generated image attachment helpers, prompt text helpers, and runtime panel rendering.
+- Updated Web build and structure checks to copy/require the new runtime modules.
+- Verification passed: `npm run check` -> scaffold check passed (182 paths), tests 230/pass 230/fail 0, build:web passed, review passed.

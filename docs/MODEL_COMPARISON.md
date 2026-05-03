@@ -19,7 +19,7 @@ P1-M2 adds a comparison path for running the same prompt against multiple saved 
 - `compareModels` in `packages/core/src/model/model-comparison.ts` runs candidates independently so one provider failure does not fail the whole comparison run.
 - `saveComparisonSelection` appends the original prompt and selected assistant response to the active session immutably.
 
-## Web MVP behavior
+## Web behavior
 
 - The Web shell compares all enabled saved providers with their configured default model.
 - Runtime API keys remain in the in-memory `providerSecrets` map and are not serialized to local storage.

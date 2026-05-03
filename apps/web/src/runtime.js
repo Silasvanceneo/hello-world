@@ -7,11 +7,9 @@ import {
   createInitialWebState,
   createPromptTemplateFromForm,
   createProviderMessagesForActiveAgent,
-  createProviderFromForm,
   createSession,
   createTextMessage,
   createSessionMessageView,
-  estimateImageTokenUsage,
   estimateTokenUsageFromMessages,
   getActiveAgentPreset,
   getActivePromptTemplate,
@@ -41,17 +39,12 @@ import {
   safeJson,
   summarizeBackupArchive,
 } from './backup-dashboard.js';
-import {
-  createAdvancedSettingsViewModel,
-  detectAdvancedPlatform,
-  renderAdvancedSettingsSummary,
-} from './advanced-settings.js';
+import { detectAdvancedPlatform } from './advanced-settings.js';
 import { bindBranchDashboard, renderBranchResults } from './branch-dashboard.js';
 import { bindComposerDraftActions } from './composer-drafts.js';
-import { createCostDashboardViewModel, createUsageRecordsFromWebState } from './cost-dashboard.js';
 import { createLocalPreviewPlan, createSyncDashboardViewModel } from './sync-dashboard.js';
 import { bindSessionOrganizer, createInitialSessionFilters, renderSessionOrganizer } from './session-organizer.js';
-import { chooseProviderForRouting, describeRoutingChoice } from './model-routing.js';
+import { chooseProviderForRouting } from './model-routing.js';
 import { compareProvidersInBrowser, formatComparisonResult } from './model-comparison.js';
 import { bindMessageListWindow, renderMessageList } from './message-list.js';
 import { applyTranslations, createTranslator } from './localization.js';
@@ -75,6 +68,27 @@ import { listenForSpeech, speakText } from './native-voice.js';
 import { describeModelList, describeProviderValidationError } from './provider-diagnostics.js';
 import { applyProviderPresetToFields, renderProviderPresetOptions } from './provider-presets.js';
 import { defaultImageModel, defaultModel, generateImageInBrowser, streamChatInBrowser, validateProviderInBrowser } from './provider-runtime.js';
+import { queryRuntimeElements } from './runtime-elements.js';
+import {
+  addBrowserFilesToState,
+  addGeneratedImageResultToActiveSession,
+  appendPromptText,
+  createProviderDraftFromInputs,
+  escapeHtml,
+  findLastAssistantText,
+  inferRoutingTask,
+  rememberProviderSecret,
+  renderProviderModelOptions,
+} from './runtime-helpers.js';
+import {
+  renderAdvancedSettingsPanel as renderAdvancedSettingsPanelView,
+  renderAgentPresetPanel as renderAgentPresetPanelView,
+  renderBackupPanel as renderBackupPanelView,
+  renderCostPanel as renderCostPanelView,
+  renderPromptTemplatePanel as renderPromptTemplatePanelView,
+  renderRoutingPanel as renderRoutingPanelView,
+  renderSyncPanel as renderSyncPanelView,
+} from './runtime-panels.js';
 
 const STORAGE_KEY = 'hello-world:web-state:v1';
 const providerSecrets = new Map();
@@ -87,130 +101,7 @@ const expandedMessageSessions = new Set();
 let desktopCapabilitySummary;
 const desktopProviderFetch = createDesktopProviderFetch();
 
-const elements = {
-  agentIcon: document.querySelector('#agent-icon'),
-  agentKnowledgeBase: document.querySelector('#agent-knowledge-base'),
-  agentModel: document.querySelector('#agent-model'),
-  agentName: document.querySelector('#agent-name'),
-  agentPresetSelect: document.querySelector('#agent-preset-select'),
-  agentStatus: document.querySelector('#agent-status'),
-  agentSystemPrompt: document.querySelector('#agent-system-prompt'),
-  agentTools: document.querySelector('#agent-tools'),
-  advancedCapabilityList: document.querySelector('#advanced-capability-list'),
-  advancedPlatformStatus: document.querySelector('#advanced-platform-status'),
-  applyPromptTemplate: document.querySelector('#apply-prompt-template'),
-  attachments: document.querySelector('#attachments'),
-  budgetCurrency: document.querySelector('#budget-currency'),
-  budgetDaily: document.querySelector('#budget-daily'),
-  budgetMonthly: document.querySelector('#budget-monthly'),
-  backupExport: document.querySelector('#backup-export-json'),
-  backupPayload: document.querySelector('#backup-payload'),
-  backupRestore: document.querySelector('#backup-restore-json'),
-  backupSessionMarkdown: document.querySelector('#backup-session-markdown'),
-  backupStatus: document.querySelector('#backup-status'),
-  branchLast: document.querySelector('#branch-last'),
-  branchResults: document.querySelector('#branch-results'),
-  compareModels: document.querySelector('#compare-models'),
-  costStatus: document.querySelector('#cost-status'),
-  costTrends: document.querySelector('#cost-trends'),
-  comparisonResults: document.querySelector('#comparison-results'),
-  composer: document.querySelector('#composer'),
-  capturePhoto: document.querySelector('#capture-photo'),
-  captureScreen: document.querySelector('#capture-screen'),
-  fileInput: document.querySelector('#file-input'),
-  generateImage: document.querySelector('#generate-image'),
-  languageSelect: document.querySelector('#language-select'),
-  messages: document.querySelector('#messages'),
-  newSession: document.querySelector('#new-session'),
-  pasteImage: document.querySelector('#paste-image'),
-  prompt: document.querySelector('#prompt'),
-  promptTemplateBody: document.querySelector('#prompt-template-body'),
-  promptTemplateFavorite: document.querySelector('#prompt-template-favorite'),
-  promptTemplateScope: document.querySelector('#prompt-template-scope'),
-  promptTemplateSelect: document.querySelector('#prompt-template-select'),
-  promptTemplateStatus: document.querySelector('#prompt-template-status'),
-  promptTemplateTags: document.querySelector('#prompt-template-tags'),
-  promptTemplateTitle: document.querySelector('#prompt-template-title'),
-  promptTemplateValues: document.querySelector('#prompt-template-values'),
-  promptTemplateVariables: document.querySelector('#prompt-template-variables'),
-  providerBaseUrl: document.querySelector('#provider-base-url'),
-  detectLocalOllama: document.querySelector('#detect-local-ollama'),
-  providerImageModel: document.querySelector('#provider-image-model'),
-  providerModel: document.querySelector('#provider-model'),
-  providerModelOptions: document.querySelector('#provider-model-options'),
-  providerName: document.querySelector('#provider-name'),
-  providerApiKey: document.querySelector('#provider-api-key'),
-  providerPreset: document.querySelector('#provider-preset'),
-  providerStatus: document.querySelector('#provider-status'),
-  providerType: document.querySelector('#provider-type'),
-  routingStatus: document.querySelector('#routing-status'),
-  routingStrategy: document.querySelector('#model-routing-strategy'),
-  settingsTriggers: document.querySelectorAll('[data-open-settings]'),
-  chatTriggers: document.querySelectorAll('[data-open-chat]'),
-  saveProvider: document.querySelector('#save-provider'),
-  refreshProviderModels: document.querySelector('#refresh-provider-models'),
-  saveAgentPreset: document.querySelector('#save-agent-preset'),
-  saveBudget: document.querySelector('#save-budget'),
-  savePromptTemplate: document.querySelector('#save-prompt-template'),
-  saveSessionOrganization: document.querySelector('#save-session-organization'),
-  saveSyncSettings: document.querySelector('#save-sync-settings'),
-  sessionArchived: document.querySelector('#session-archived'),
-  sessionArchiveFilter: document.querySelector('#session-archive-filter'),
-  sessionList: document.querySelector('#session-list'),
-  sessionOrganizationStatus: document.querySelector('#session-organization-status'),
-  sessionPinned: document.querySelector('#session-pinned'),
-  sessionSearch: document.querySelector('#session-search'),
-  sessionTagFilter: document.querySelector('#session-tag-filter'),
-  sessionTags: document.querySelector('#session-tags'),
-  sessionTitle: document.querySelector('#session-title'),
-  stopGeneration: document.querySelector('#stop-generation'),
-  syncCounts: document.querySelector('#sync-counts'),
-  syncEnabled: document.querySelector('#sync-enabled'),
-  syncEndpoint: document.querySelector('#sync-endpoint'),
-  syncStatus: document.querySelector('#sync-status'),
-  syncTargets: document.querySelector('#sync-targets'),
-  previewSyncPlan: document.querySelector('#preview-sync-plan'),
-  trashSession: document.querySelector('#trash-session'),
-  restoreSession: document.querySelector('#restore-session'),
-  deleteSessionForever: document.querySelector('#delete-session-forever'),
-  codeExecutionConfirmation: document.querySelector('#code-execution-confirmation'),
-  codeExecutionEnabled: document.querySelector('#code-execution-enabled'),
-  codeExecutionLanguage: document.querySelector('#code-execution-language'),
-  codeExecutionStatus: document.querySelector('#code-execution-status'),
-  codeExecutionTimeout: document.querySelector('#code-execution-timeout'),
-  httpMcpEnabled: document.querySelector('#http-mcp-enabled'),
-  httpMcpEndpoint: document.querySelector('#http-mcp-endpoint'),
-  httpMcpName: document.querySelector('#http-mcp-name'),
-  httpMcpTools: document.querySelector('#http-mcp-tools'),
-  mcpRequireConfirmation: document.querySelector('#mcp-require-confirmation'),
-  mcpStatus: document.querySelector('#mcp-status'),
-  pluginManagerEnabled: document.querySelector('#plugin-manager-enabled'),
-  ragEmbeddingProvider: document.querySelector('#rag-embedding-provider'),
-  ragEnabled: document.querySelector('#rag-enabled'),
-  ragIndexMode: document.querySelector('#rag-index-mode'),
-  ragMaxChunks: document.querySelector('#rag-max-chunks'),
-  ragRequireCitations: document.querySelector('#rag-require-citations'),
-  ragReranking: document.querySelector('#rag-reranking'),
-  ragRetrievalMode: document.querySelector('#rag-retrieval-mode'),
-  ragSourceScope: document.querySelector('#rag-source-scope'),
-  ragStatus: document.querySelector('#rag-status'),
-  speakLast: document.querySelector('#speak-last'),
-  saveCodeExecutionSettings: document.querySelector('#save-code-execution-settings'),
-  saveMcpSettings: document.querySelector('#save-mcp-settings'),
-  saveRagSettings: document.querySelector('#save-rag-settings'),
-  saveWebSearchSettings: document.querySelector('#save-web-search-settings'),
-  stdioMcpEnabled: document.querySelector('#stdio-mcp-enabled'),
-  usageSummary: document.querySelector('#usage-summary'),
-  voiceInput: document.querySelector('#voice-input'),
-  webSearchDesktopProxy: document.querySelector('#web-search-desktop-proxy'),
-  webSearchEnabled: document.querySelector('#web-search-enabled'),
-  webSearchEndpoint: document.querySelector('#web-search-endpoint'),
-  webSearchGrounded: document.querySelector('#web-search-grounded'),
-  webSearchMaxResults: document.querySelector('#web-search-max-results'),
-  webSearchProviderName: document.querySelector('#web-search-provider-name'),
-  webSearchProviderType: document.querySelector('#web-search-provider-type'),
-  webSearchStatus: document.querySelector('#web-search-status'),
-};
+const elements = queryRuntimeElements(document);
 
 let t = createTranslator(state.locale);
 
@@ -253,13 +144,13 @@ function render() {
   elements.providerStatus.textContent = provider
     ? t('provider.saved', { name: provider.name, model: provider.defaultModelId ?? defaultModel(provider.type) })
     : t('provider.localEcho');
-  renderAgentPresetPanel();
-  renderPromptTemplatePanel();
-  renderRoutingPanel();
-  renderCostPanel();
-  renderSyncPanel();
-  renderBackupPanel();
-  renderAdvancedSettingsPanel();
+  renderAgentPresetPanelView({ elements, state, t });
+  renderPromptTemplatePanelView({ elements, state, t });
+  renderRoutingPanelView({ elements, state, t });
+  renderCostPanelView({ elements, state, t });
+  renderSyncPanelView({ elements, state, t });
+  renderBackupPanelView({ elements, state, t });
+  renderAdvancedSettingsPanelView({ elements, state, t, desktopCapabilitySummary });
 }
 
 function renderComparisonResults() {
@@ -390,6 +281,7 @@ elements.generateImage.addEventListener('click', async () => {
       providerId: provider.id,
       modelId: imageModelId,
       result,
+      t,
     });
     elements.providerStatus.textContent = t('status.imageGenerated', { count: result.images.length });
   } catch (error) {
@@ -556,7 +448,7 @@ elements.voiceInput.addEventListener('click', async () => {
       elements.providerStatus.textContent = t('status.noSpeech');
       return;
     }
-    appendPromptText(transcript);
+    appendPromptText(elements.prompt, transcript);
     elements.providerStatus.textContent = t('status.voiceAdded');
   } catch (error) {
     const message = error instanceof Error ? error.message : t('status.voiceUnknown');
@@ -601,8 +493,8 @@ elements.messages.addEventListener('drop', (event) => {
 });
 
 elements.saveProvider.addEventListener('click', async () => {
-  const provider = createProviderDraftFromInputs();
-  rememberProviderSecret(provider);
+  const provider = createProviderDraftFromInputs(elements);
+  rememberProviderSecret(providerSecrets, elements.providerApiKey.value, provider);
   state = upsertProvider(state, provider);
   elements.providerApiKey.value = '';
   saveState();
@@ -616,8 +508,8 @@ elements.saveProvider.addEventListener('click', async () => {
 });
 
 elements.refreshProviderModels.addEventListener('click', async () => {
-  const provider = createProviderDraftFromInputs(state.providers[0]?.id);
-  rememberProviderSecret(provider);
+  const provider = createProviderDraftFromInputs(elements, state.providers[0]?.id);
+  rememberProviderSecret(providerSecrets, elements.providerApiKey.value, provider);
   elements.refreshProviderModels.disabled = true;
   elements.providerStatus.textContent = t('provider.modelsRefreshing');
   try {
@@ -728,7 +620,7 @@ elements.saveSyncSettings.addEventListener('click', () => {
 
 elements.previewSyncPlan.addEventListener('click', () => {
   const plan = createLocalPreviewPlan(state);
-  renderSyncPanel(plan);
+  renderSyncPanelView({ elements, state, t, plan });
   elements.syncStatus.textContent = t('sync.previewOnly', {
     status: createSyncDashboardViewModel(state.syncSettings, plan, { t }).statusLabel,
   });
@@ -833,7 +725,7 @@ elements.applyPromptTemplate.addEventListener('click', () => {
   const values = parsePromptTemplateValues();
   if (!values) return;
   const rendered = renderPromptTemplateWithVariables(template, values);
-  appendPromptText(rendered.text);
+  appendPromptText(elements.prompt, rendered.text);
   elements.promptTemplateStatus.textContent = rendered.missingVariables.length > 0
     ? t('prompt.appliedMissing', { variables: rendered.missingVariables.join(', ') })
     : t('prompt.applied', { title: template.title });
@@ -861,32 +753,14 @@ bindDesktopCaptureRequests({
 readDesktopNativeCapabilities()
   .then((capabilities) => {
     desktopCapabilitySummary = summarizeDesktopNativeCapabilities(capabilities);
-    renderAdvancedSettingsPanel();
+    renderAdvancedSettingsPanelView({ elements, state, t, desktopCapabilitySummary });
   })
   .catch(() => undefined);
 
 configureServiceWorker().catch(() => undefined);
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
 function attachBrowserFiles(files) {
-  for (const file of files) {
-    state = addAttachmentToActiveSession(state, {
-      id: crypto.randomUUID(),
-      kind: detectBrowserFileKind(file),
-      name: file.name,
-      mimeType: file.type || 'application/octet-stream',
-      sizeBytes: file.size,
-      createdAt: new Date().toISOString(),
-    });
-  }
+  state = addBrowserFilesToState(state, files);
   saveState();
   render();
 }
@@ -904,142 +778,13 @@ async function attachNativeImage(name, producer) {
   }
 }
 
-function createProviderDraftFromInputs(id) {
-  const provider = createProviderFromForm({
-    name: elements.providerName.value,
-    type: elements.providerType.value,
-    baseUrl: elements.providerBaseUrl.value,
-    modelId: elements.providerModel.value,
-    apiKey: elements.providerApiKey.value,
-  }, new Date().toISOString(), id);
-  return {
-    ...provider,
-    imageModelId: elements.providerImageModel.value.trim() || undefined,
-  };
-}
-
-function rememberProviderSecret(provider) {
-  if (elements.providerApiKey.value) {
-    providerSecrets.set(provider.id, elements.providerApiKey.value);
-  }
-}
-
 async function refreshProviderModels(provider) {
   const models = await validateProviderInBrowser(provider, {
     apiKey: providerSecrets.get(provider.id),
     fetch: desktopProviderFetch,
   });
-  renderProviderModelOptions(models);
+  renderProviderModelOptions(elements, models);
   return models;
-}
-
-function renderProviderModelOptions(models) {
-  elements.providerModelOptions.innerHTML = models
-    .slice(0, 200)
-    .map((model) => `<option value="${escapeHtml(model)}"></option>`)
-    .join('');
-}
-
-function appendPromptText(text) {
-  const current = elements.prompt.value.trim();
-  elements.prompt.value = current ? `${current}\n${text}` : text;
-  elements.prompt.focus();
-}
-
-function addGeneratedImageResultToActiveSession(currentState, { prompt, providerId, modelId, result }) {
-  const timestamp = new Date().toISOString();
-  const imageContents = [];
-  let nextState = currentState;
-  for (const [index, image] of result.images.entries()) {
-    const attachment = createGeneratedImageAttachment(image, {
-      index,
-      timestamp,
-      id: crypto.randomUUID(),
-    });
-    nextState = addAttachmentToActiveSession(nextState, attachment);
-    imageContents.push({ type: 'image', fileId: attachment.id, mimeType: attachment.mimeType });
-  }
-  return addMessageToActiveSession(nextState, {
-    id: crypto.randomUUID(),
-    role: 'assistant',
-    content: [
-      { type: 'text', text: generatedImageMessageText(prompt, result) },
-      ...imageContents,
-    ],
-    providerId,
-    modelId,
-    usage: result.usage ?? estimateImageTokenUsage(prompt, result.images.length),
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  });
-}
-
-function createGeneratedImageAttachment(image, { index, timestamp, id }) {
-  return {
-    id,
-    kind: 'image',
-    name: `generated-image-${index + 1}.png`,
-    mimeType: image.mimeType ?? 'image/png',
-    sizeBytes: image.dataUrl ? Math.round((image.dataUrl.length * 3) / 4) : 0,
-    dataUrl: image.dataUrl,
-    url: image.url,
-    createdAt: timestamp,
-  };
-}
-
-function generatedImageMessageText(prompt, result) {
-  const revisedPrompt = result.images.find((image) => image.revisedPrompt)?.revisedPrompt;
-  return revisedPrompt
-    ? `${t('image.generatedFor', { prompt })}\n${t('image.revisedPrompt', { prompt: revisedPrompt })}`
-    : t('image.generatedFor', { prompt });
-}
-
-function findLastAssistantText(session) {
-  return [...(session?.messages ?? [])]
-    .reverse()
-    .find((message) => message.role === 'assistant')
-    ?.content
-    .filter((item) => item.type === 'text')
-    .map((item) => item.text)
-    .join('\n')
-    .trim() ?? '';
-}
-
-function inferRoutingTask(session) {
-  const attachments = session?.attachments ?? [];
-  if (attachments.some((attachment) => attachment.kind === 'image')) return 'vision';
-  if (attachments.length > 0) return 'files';
-  return 'text';
-}
-
-function detectBrowserFileKind(file) {
-  const name = file.name.toLowerCase();
-  if (file.type.startsWith('image/')) return 'image';
-  if (name.endsWith('.pdf')) return 'pdf';
-  if (name.endsWith('.docx')) return 'docx';
-  if (name.endsWith('.xlsx')) return 'xlsx';
-  if (name.endsWith('.md') || name.endsWith('.markdown')) return 'markdown';
-  return 'text';
-}
-
-function renderAgentPresetPanel() {
-  const active = getActiveAgentPreset(state);
-  elements.agentPresetSelect.innerHTML = [
-    `<option value="">${escapeHtml(t('agent.noPreset'))}</option>`,
-    ...state.agentPresets.map((preset) => `<option value="${escapeHtml(preset.id)}">${escapeHtml(`${preset.icon} ${preset.name}`)}</option>`),
-  ].join('');
-  elements.agentPresetSelect.value = active?.id ?? '';
-  if (active) {
-    elements.agentName.value = active.name;
-    elements.agentIcon.value = active.icon;
-    elements.agentModel.value = active.defaultModelId ?? '';
-    elements.agentSystemPrompt.value = active.systemPrompt;
-    elements.agentTools.value = active.enabledTools.join(', ');
-    elements.agentKnowledgeBase.value = active.knowledgeBase.scope;
-    elements.agentStatus.textContent = t('agent.activeDetail', { icon: active.icon, name: active.name });
-    return;
-  }
-  elements.agentStatus.textContent = t('agent.noneActiveDetail');
 }
 
 function renderPromptTemplatePanel() {
@@ -1062,111 +807,6 @@ function renderPromptTemplatePanel() {
   elements.promptTemplateStatus.textContent = t('prompt.noneSelectedDetail');
 }
 
-function renderRoutingPanel() {
-  const strategy = state.routingStrategy ?? 'balanced';
-  elements.routingStrategy.value = strategy;
-  const choice = chooseProviderForRouting(state.providers, {
-    strategy,
-    task: inferRoutingTask(getActiveSession(state)),
-  });
-  elements.routingStatus.textContent = describeRoutingChoice(choice, { t });
-}
-
-function renderCostPanel() {
-  const budget = state.usageBudget ?? { currency: 'USD' };
-  elements.budgetDaily.value = budget.dailyLimit ?? '';
-  elements.budgetMonthly.value = budget.monthlyLimit ?? '';
-  elements.budgetCurrency.value = budget.currency ?? 'USD';
-  const records = createUsageRecordsFromWebState(state);
-  const view = createCostDashboardViewModel(records, { ...budget, now: new Date().toISOString() }, { t });
-  elements.costStatus.textContent = t('budget.estimated', { amount: view.totalCostLabel, message: view.budgetMessage });
-  const latestDay = view.byDay.at(-1);
-  const latestMonth = view.byMonth.at(-1);
-  elements.costTrends.innerHTML = [
-    `<li>${escapeHtml(t('budget.latestDay'))} <span>${escapeHtml(latestDay ? `${latestDay.key} / ${t('usage.tokens', { count: latestDay.totalTokens })}` : t('budget.noUsage'))}</span></li>`,
-    `<li>${escapeHtml(t('budget.latestMonth'))} <span>${escapeHtml(latestMonth ? `${latestMonth.key} / ${t('usage.tokens', { count: latestMonth.totalTokens })}` : t('budget.noUsage'))}</span></li>`,
-  ].join('');
-}
-
-function renderSyncPanel(plan = createLocalPreviewPlan(state)) {
-  const settings = state.syncSettings ?? {};
-  const view = createSyncDashboardViewModel(settings, plan, { t });
-  elements.syncEnabled.value = settings.enabled ? 'enabled' : 'disabled';
-  elements.syncEndpoint.value = settings.endpoint ?? '';
-  elements.syncTargets.value = syncTargetCsv(settings);
-  elements.syncStatus.textContent = `${view.enabledLabel}. ${view.statusLabel}`;
-  elements.syncCounts.innerHTML = [
-    `<li>${escapeHtml(t('sync.upload'))} <span>${view.counts.upload}</span></li>`,
-    `<li>${escapeHtml(t('sync.download'))} <span>${view.counts.download}</span></li>`,
-    `<li>${escapeHtml(t('sync.conflicts'))} <span>${view.counts.conflicts}</span></li>`,
-  ].join('');
-}
-
-function renderBackupPanel() {
-  const archive = createWebBackupArchive(state);
-  elements.backupStatus.textContent = t('backup.readyDetail', { summary: summarizeBackupArchive(archive, { t }) });
-}
-
-function renderAdvancedSettingsPanel() {
-  const platform = detectAdvancedPlatform();
-  const desktop = platform === 'desktop';
-  const view = createAdvancedSettingsViewModel(state.advancedSettings, { platform, desktopCapabilities: desktopCapabilitySummary });
-  const settings = view.settings;
-
-  elements.ragEnabled.checked = settings.rag.enabled;
-  elements.ragSourceScope.value = settings.rag.sourceScope;
-  elements.ragEmbeddingProvider.value = settings.rag.embeddingProvider;
-  elements.ragIndexMode.value = settings.rag.indexMode;
-  elements.ragRetrievalMode.value = settings.rag.retrievalMode;
-  elements.ragMaxChunks.value = settings.rag.maxChunks;
-  elements.ragRequireCitations.checked = settings.rag.requireCitations;
-  elements.ragReranking.checked = settings.rag.rerankingEnabled;
-  elements.ragStatus.textContent = t('advanced.ragSummary', {
-    scope: settings.rag.sourceScope,
-    retrieval: settings.rag.retrievalMode,
-    chunks: settings.rag.maxChunks,
-  });
-
-  elements.webSearchEnabled.checked = settings.webSearch.enabled;
-  elements.webSearchProviderType.value = settings.webSearch.providerType;
-  elements.webSearchProviderName.value = settings.webSearch.providerName;
-  elements.webSearchEndpoint.value = settings.webSearch.endpoint;
-  elements.webSearchMaxResults.value = settings.webSearch.maxResults;
-  elements.webSearchGrounded.checked = settings.webSearch.groundedAnswers;
-  elements.webSearchDesktopProxy.checked = desktop && settings.webSearch.desktopProxy;
-  elements.webSearchDesktopProxy.disabled = !desktop;
-  elements.webSearchStatus.textContent = t('advanced.webSearchSummary', {
-    provider: settings.webSearch.providerName,
-    results: settings.webSearch.maxResults,
-  });
-
-  elements.httpMcpEnabled.checked = settings.mcp.httpEnabled;
-  elements.httpMcpName.value = settings.mcp.httpServerName;
-  elements.httpMcpEndpoint.value = settings.mcp.httpEndpoint;
-  elements.httpMcpTools.value = settings.mcp.httpTools.join(', ');
-  elements.pluginManagerEnabled.checked = desktop && settings.mcp.pluginManagerEnabled;
-  elements.stdioMcpEnabled.checked = desktop && settings.mcp.stdioMcpEnabled;
-  elements.pluginManagerEnabled.disabled = !desktop;
-  elements.stdioMcpEnabled.disabled = !desktop;
-  elements.mcpRequireConfirmation.checked = true;
-  elements.mcpStatus.textContent = desktop ? t('advanced.mcpDesktopSummary') : t('advanced.mcpSharedSummary');
-
-  elements.codeExecutionEnabled.checked = desktop && settings.codeExecution.enabled;
-  elements.codeExecutionEnabled.disabled = !desktop;
-  elements.codeExecutionLanguage.value = settings.codeExecution.language;
-  elements.codeExecutionLanguage.disabled = !desktop;
-  elements.codeExecutionTimeout.value = settings.codeExecution.timeoutMs;
-  elements.codeExecutionTimeout.disabled = !desktop;
-  elements.codeExecutionConfirmation.checked = true;
-  elements.codeExecutionStatus.textContent = desktop ? t('advanced.codeDesktopSummary') : t('advanced.codeUnavailableSummary');
-
-  elements.advancedPlatformStatus.textContent = t('advanced.capabilitySummary', {
-    platform,
-    count: view.enabledCount,
-  });
-  elements.advancedCapabilityList.innerHTML = renderAdvancedSettingsSummary(view);
-}
-
 function parsePromptTemplateValues() {
   const raw = elements.promptTemplateValues.value.trim();
   if (!raw) return {};
@@ -1181,17 +821,6 @@ function parsePromptTemplateValues() {
     elements.promptTemplateStatus.textContent = t('prompt.variablesError', { message });
     return undefined;
   }
-}
-
-function syncTargetCsv(settings) {
-  return [
-    settings.includeChats !== false ? 'chats' : undefined,
-    settings.includeSettings !== false ? 'settings' : undefined,
-    settings.includeProviders !== false ? 'providers' : undefined,
-    settings.includePrompts !== false ? 'prompts' : undefined,
-    settings.includeAgents !== false ? 'agents' : undefined,
-    settings.includeKnowledgeMetadata !== false ? 'knowledge-metadata' : undefined,
-  ].filter(Boolean).join(', ');
 }
 
 render();

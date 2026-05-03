@@ -12,7 +12,7 @@ Each template stores:
 - `tags`
 - `favorite`
 - `scope` as `local` or `sync`
-- timestamps for future sync and conflict handling
+- timestamps for local sync planning and conflict handling
 
 ## Runtime behavior
 
@@ -20,8 +20,8 @@ Each template stores:
 - Variables are inferred from `{{ name }}` placeholders when the variables field is empty.
 - Applying a template renders provided Variables JSON into the body and appends the result to the composer.
 - Missing variables remain visible as placeholders and are reported in the UI.
-- Import/export helpers use a deterministic JSON envelope for future backup and sync flows.
+- Import/export helpers use a deterministic JSON envelope for backup and sync-preview flows.
 
 ## Scope boundary
 
-This is still local-first. `sync` is stored as metadata only; remote synchronization, conflict resolution, and team template sharing remain future P2 work.
+This is still local-first. `sync` is stored as metadata and participates in the local sync manifest/preview layer from P2-M5. The project does not ship a hosted sync backend, account flow, or team template sharing service in this release.

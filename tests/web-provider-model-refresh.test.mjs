@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const indexPath = new URL('../apps/web/index.html', import.meta.url);
 const runtimePath = new URL('../apps/web/src/runtime.js', import.meta.url);
+const runtimeHelpersPath = new URL('../apps/web/src/runtime-helpers.js', import.meta.url);
 const localizationPath = new URL('../apps/web/src/localization.js', import.meta.url);
 
 test('provider settings expose explicit cloud model refresh controls', async () => {
@@ -17,12 +18,14 @@ test('provider settings expose explicit cloud model refresh controls', async () 
 
 test('runtime refreshes provider models into a selectable datalist', async () => {
   const source = await readFile(runtimePath, 'utf8');
+  const helperSource = await readFile(runtimeHelpersPath, 'utf8');
 
   assert.match(source, /elements\.refreshProviderModels\.addEventListener\('click'/);
   assert.match(source, /async function refreshProviderModels\(provider\)/);
   assert.match(source, /validateProviderInBrowser\(provider/);
-  assert.match(source, /renderProviderModelOptions\(models\)/);
-  assert.match(source, /providerModelOptions\.innerHTML/);
+  assert.match(source, /renderProviderModelOptions\(elements, models\)/);
+  assert.match(helperSource, /export function renderProviderModelOptions\(elements, models\)/);
+  assert.match(helperSource, /providerModelOptions\.innerHTML/);
   assert.match(source, /desktopProviderFetch/);
 });
 

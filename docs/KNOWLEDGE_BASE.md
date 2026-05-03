@@ -29,8 +29,8 @@ P1-M3 adds a dependency-free foundation for session knowledge and long-term loca
 - `evaluateRagRetrieval` measures hit rate, citation accuracy, and no-answer accuracy.
 - `buildCitationContext` produces source-labelled context such as `[manual.pdf p.2] ...`.
 
-This remains local-first. The current embedding provider is deterministic and dependency-free; remote embedding models can plug into the same provider interface later without changing retrieval tests.
+This remains local-first by default. The current deterministic embedding provider keeps offline tests stable; remote embedding providers can plug into the same interface without changing retrieval tests.
 
-## Web MVP
+## App surfaces
 
 The Web shell now accepts drag-and-drop files onto the message panel and records DOCX/XLSX attachment metadata. `apps/web/src/knowledge-ingestion.js` exposes a shared ingestion status view model for Web, Desktop, and Mobile. Desktop is the only platform that advertises directory import; Web and Mobile expose the shared safe source subset.

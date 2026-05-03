@@ -39,6 +39,8 @@ Current v2 baseline:
 
 All provider API keys remain runtime-only. `ProviderConnection` persists only `apiKeyRef`, and backup export strips that reference.
 
-## P0-M3 handoff
+## Current chat runtime
 
-The adapters currently return a normalized error chunk for chat because streaming chat belongs to P0-M3. The registry and validation boundary are ready for that work.
+Streaming chat is implemented through normalized provider chunks. The Web runtime can send chat through saved provider metadata, keep runtime secrets in memory, stop streams with `AbortController`, attach provider usage when returned, and fall back to a local token estimate when the provider omits usage data.
+
+Provider-specific non-chat APIs are intentionally added only when they have dedicated request-shape and error-handling tests. Image generation is currently implemented for OpenAI, Azure OpenAI, and OpenAI-compatible `/images/generations` endpoints.

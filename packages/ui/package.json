@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Shared UI exports placeholder.",
+  "description": "Shared UI contract surface for reusable hello-world web components.",
   "exports": "./src/index.ts"
 }
